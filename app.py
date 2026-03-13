@@ -413,10 +413,137 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ── TECHNICAL ANALYSIS ───────────────────────────────────────────────────────
+@st.cache_data(ttl=3600)
+def get_technical_data(ticker):
+    """Scarica 200 giorni di storia e calcola indicatori tecnici"""
+    if ticker == "N/A":
+        return None
+    try:
+        t = yf.Ticker(ticker)
+        hist = t.history(period="1y")
+        if len(hist) < 30:
+            return None
+        close = hist["Close"]
+        # Moving averages
+        ma50 = close.rolling(50).mean().iloc[-1] if len(close) >= 50 else None
+        ma200 = close.rolling(200).mean().iloc[-1] if len(close) >= 200 else None
+        price = float(close.iloc[-1])
+        # RSI
+        delta = close.diff()
+        gain = delta.clip(lower=0).rolling(14).mean()
+        loss = (-delta.clip(upper=0)).rolling(14).mean()
+        rs = gain / loss
+        rsi = float((100 - 100 / (1 + rs)).iloc[-1])
+        # MACD
+        ema12 = close.ewm(span=12).mean()
+        ema26 = close.ewm(span=26).mean()
+        macd_line = ema12 - ema26
+        signal_line = macd_line.ewm(span=9).mean()
+        macd_val = float(macd_line.iloc[-1])
+        macd_sig = float(signal_line.iloc[-1])
+        macd_hist = macd_val - macd_sig
+        # Support / Resistance (20-day high/low)
+        support = float(close.rolling(20).min().iloc[-1])
+        resistance = float(close.rolling(20).max().iloc[-1])
+        # Golden/Death cross
+        cross = None
+        if ma50 and ma200:
+            prev_ma50 = close.rolling(50).mean().iloc[-2]
+            prev_ma200 = close.rolling(200).mean().iloc[-2]
+            if prev_ma50 < prev_ma200 and ma50 >= ma200:
+                cross = "golden"
+            elif prev_ma50 > prev_ma200 and ma50 <= ma200:
+                cross = "death"
+        return {
+            "price": price,
+            "ma50": float(ma50) if ma50 else None,
+            "ma200": float(ma200) if ma200 else None,
+            "rsi": rsi,
+            "macd": macd_val,
+            "macd_signal": macd_sig,
+            "macd_hist": macd_hist,
+            "support": support,
+            "resistance": resistance,
+            "cross": cross,
+            "history": hist,
+        }
+    except:
+        return None
+
+def get_technical_signal(td):
+    """Genera semaforo basato su indicatori tecnici"""
+    if not td:
+        return "⚪", "N/D", "Dati tecnici non disponibili (inserisci prezzo manuale)"
+    score = 0
+    reasons = []
+    # MA signals
+    if td["ma50"] and td["price"] > td["ma50"]:
+        score += 1
+        reasons.append("sopra MA50 ✓")
+    elif td["ma50"]:
+        score -= 1
+        reasons.append("sotto MA50 ✗")
+    if td["ma200"] and td["price"] > td["ma200"]:
+        score += 2
+        reasons.append("sopra MA200 ✓")
+    elif td["ma200"]:
+        score -= 2
+        reasons.append("sotto MA200 ✗")
+    # Cross
+    if td["cross"] == "golden":
+        score += 2
+        reasons.append("GOLDEN CROSS 🌟")
+    elif td["cross"] == "death":
+        score -= 2
+        reasons.append("DEATH CROSS ⚠️")
+    # RSI
+    rsi = td["rsi"]
+    if rsi > 70:
+        score -= 1
+        reasons.append(f"RSI {rsi:.0f} ipercomprato")
+    elif rsi < 30:
+        score += 1
+        reasons.append(f"RSI {rsi:.0f} ipervenduto (opportunità)")
+    else:
+        reasons.append(f"RSI {rsi:.0f} neutro")
+    # MACD
+    if td["macd_hist"] > 0:
+        score += 1
+        reasons.append("MACD positivo ↑")
+    else:
+        score -= 1
+        reasons.append("MACD negativo ↓")
+    # Semaforo
+    if score >= 2:
+        return "🟢", "TIENI / INCREMENTA", " | ".join(reasons[:3])
+    elif score >= 0:
+        return "🟡", "ATTENZIONE", " | ".join(reasons[:3])
+    else:
+        return "🔴", "ALLEGGERISCI / ESCI", " | ".join(reasons[:3])
+
+@st.cache_data(ttl=3600)
+def get_correlation_matrix(tickers_valid):
+    """Calcola matrice di correlazione tra asset con ticker validi"""
+    try:
+        data = {}
+        for name, ticker in tickers_valid:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="6mo")
+            if not hist.empty:
+                data[name[:15]] = hist["Close"].pct_change()
+        if len(data) < 2:
+            return None
+        df_corr = pd.DataFrame(data).dropna()
+        return df_corr.corr()
+    except:
+        return None
+
 # ── TABS ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🌍 Mercati",
     "💼 Portafoglio",
+    "📡 Tecnica & Rischio",
     "👁️ Watchlist",
     "🤖 Analisi AI",
     "✏️ Gestione"
@@ -644,9 +771,217 @@ with tab2:
     )
 
 # ════════════════════════════════════════════════════════════════════════════════
-# TAB 3 — WATCHLIST
+# TAB 3 — TECNICA & RISCHIO
 # ════════════════════════════════════════════════════════════════════════════════
 with tab3:
+    st.markdown('<div class="section-title">📡 Analisi Tecnica per Posizione</div>', unsafe_allow_html=True)
+    st.caption("🟢 Tieni/Incrementa  |  🟡 Attenzione  |  🔴 Alleggerisci/Esci  |  ⚪ Dati non disponibili (inserisci prezzo manuale)")
+
+    df_tech = build_portfolio_df()
+    # Only assets with live ticker
+    tradeable = [p for p in st.session_state.data["portfolio"] if p["ticker"] != "N/A"]
+    non_tradeable = [p for p in st.session_state.data["portfolio"] if p["ticker"] == "N/A"]
+
+    # ── Semaforo table ────────────────────────────────────────────────────────
+    rows_tech = []
+    with st.spinner("Calcolo indicatori tecnici in corso..."):
+        for item in tradeable:
+            td = get_technical_data(item["ticker"])
+            emoji, label, reason = get_technical_signal(td)
+            rsi_str = f"{td['rsi']:.0f}" if td else "—"
+            macd_str = f"{td['macd_hist']:+.3f}" if td else "—"
+            ma50_str = f"{td['ma50']:,.2f}" if td and td['ma50'] else "—"
+            ma200_str = f"{td['ma200']:,.2f}" if td and td['ma200'] else "—"
+            cross_str = "🌟 Golden" if td and td['cross']=="golden" else ("💀 Death" if td and td['cross']=="death" else "—")
+            rows_tech.append({
+                "Segnale": emoji,
+                "Nome": item["nome"][:25],
+                "Ticker": item["ticker"],
+                "Raccomandazione": label,
+                "RSI": rsi_str,
+                "MACD Hist": macd_str,
+                "MA50": ma50_str,
+                "MA200": ma200_str,
+                "Cross": cross_str,
+                "Motivazione": reason,
+            })
+
+    df_signals = pd.DataFrame(rows_tech)
+    if not df_signals.empty:
+        st.dataframe(df_signals, use_container_width=True, hide_index=True, height=420)
+
+    # Non-tradeable notice
+    if non_tradeable:
+        st.markdown('<div class="section-title">✏️ Asset senza prezzi automatici — Aggiorna manualmente</div>', unsafe_allow_html=True)
+        nt_cols = st.columns(3)
+        for i, item in enumerate(non_tradeable):
+            with nt_cols[i % 3]:
+                prezzo_man = item.get("prezzo_manuale", 0) or 0
+                st.markdown(f"""
+                <div style="background:#1C2333;border:1px solid #2A3347;border-radius:10px;padding:1rem;margin-bottom:0.5rem;">
+                    <div style="font-weight:700;color:#E2E8F0;">{item['nome']}</div>
+                    <div style="font-size:0.8rem;color:#64748B;margin:0.3rem 0;">{item['categoria']} | {item['valuta']}</div>
+                    <div style="font-size:0.85rem;color:#F59E0B;">Prezzo carico: {item['prezzo_carico']:,.3f}</div>
+                    <div style="font-size:0.85rem;color:{'#10B981' if prezzo_man > 0 else '#EF4444'};">
+                        Prezzo attuale: {'%,.3f' % prezzo_man if prezzo_man > 0 else '⚠️ NON INSERITO'}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        st.info("👆 Aggiorna i prezzi manuali nella tab **✏️ Gestione** → Modifica Esistenti → campo 'Prezzo Attuale Manuale'")
+
+    # ── Dettaglio tecnico singolo titolo ─────────────────────────────────────
+    st.markdown('<div class="section-title">🔍 Grafico Tecnico Dettagliato</div>', unsafe_allow_html=True)
+    ticker_list = [p["ticker"] for p in tradeable]
+    nome_list = [p["nome"] for p in tradeable]
+    sel_idx = st.selectbox("Seleziona titolo", range(len(ticker_list)),
+                           format_func=lambda i: f"{nome_list[i]} ({ticker_list[i]})", key="sel_tech")
+    if sel_idx is not None:
+        sel_ticker = ticker_list[sel_idx]
+        td = get_technical_data(sel_ticker)
+        if td and "history" in td:
+            hist = td["history"]
+            close = hist["Close"]
+            fig_det = go.Figure()
+            # Candlestick
+            fig_det.add_trace(go.Candlestick(
+                x=hist.index, open=hist["Open"], high=hist["High"],
+                low=hist["Low"], close=hist["Close"],
+                name="Prezzo", increasing_line_color="#10B981", decreasing_line_color="#EF4444"
+            ))
+            # MA50
+            ma50_series = close.rolling(50).mean()
+            fig_det.add_trace(go.Scatter(x=hist.index, y=ma50_series, name="MA50",
+                line=dict(color="#F59E0B", width=1.5, dash="dot")))
+            # MA200
+            if len(close) >= 200:
+                ma200_series = close.rolling(200).mean()
+                fig_det.add_trace(go.Scatter(x=hist.index, y=ma200_series, name="MA200",
+                    line=dict(color="#8B5CF6", width=1.5, dash="dash")))
+            # Support/Resistance
+            fig_det.add_hline(y=td["support"], line_color="#10B981", line_dash="dot",
+                annotation_text=f"Support {td['support']:.2f}", annotation_font_color="#10B981")
+            fig_det.add_hline(y=td["resistance"], line_color="#EF4444", line_dash="dot",
+                annotation_text=f"Resist. {td['resistance']:.2f}", annotation_font_color="#EF4444")
+            fig_det.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.8)",
+                font_color="#E2E8F0", xaxis_rangeslider_visible=False,
+                xaxis=dict(gridcolor="#1C2333"), yaxis=dict(gridcolor="#1C2333"),
+                legend=dict(bgcolor="rgba(0,0,0,0)"), height=380, margin=dict(t=10,b=10)
+            )
+            st.plotly_chart(fig_det, use_container_width=True)
+
+            # RSI subplot
+            delta = close.diff()
+            gain = delta.clip(lower=0).rolling(14).mean()
+            loss = (-delta.clip(upper=0)).rolling(14).mean()
+            rsi_series = 100 - 100 / (1 + gain/loss)
+            fig_rsi = go.Figure()
+            fig_rsi.add_trace(go.Scatter(x=hist.index, y=rsi_series, name="RSI",
+                line=dict(color="#3B82F6", width=2), fill="tonexty"))
+            fig_rsi.add_hline(y=70, line_color="#EF4444", line_dash="dot", annotation_text="Ipercomprato 70")
+            fig_rsi.add_hline(y=30, line_color="#10B981", line_dash="dot", annotation_text="Ipervenduto 30")
+            fig_rsi.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.8)",
+                font_color="#E2E8F0", xaxis=dict(gridcolor="#1C2333"),
+                yaxis=dict(gridcolor="#1C2333", range=[0,100]),
+                height=160, margin=dict(t=5,b=10), showlegend=False
+            )
+            st.plotly_chart(fig_rsi, use_container_width=True)
+
+    # ── Risk Management ───────────────────────────────────────────────────────
+    st.markdown('<div class="section-title">⚖️ Risk Management</div>', unsafe_allow_html=True)
+    r1, r2 = st.columns(2)
+
+    with r1:
+        st.markdown("**Peso % per posizione**")
+        df_weight = df_tech[["Nome","Categoria","Controvalore €"]].copy()
+        df_weight["Peso %"] = (df_weight["Controvalore €"] / df_weight["Controvalore €"].sum() * 100).round(2)
+        df_weight = df_weight.sort_values("Peso %", ascending=False)
+        # Bar chart
+        fig_w = go.Figure(go.Bar(
+            x=df_weight["Nome"].str[:18], y=df_weight["Peso %"],
+            marker_color=[CATEGORY_COLORS.get(c,"#64748B") for c in df_weight["Categoria"]],
+            hovertemplate="%{x}<br>%{y:.1f}%<extra></extra>"
+        ))
+        fig_w.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
+            font_color="#E2E8F0", xaxis=dict(tickangle=-45, gridcolor="#1C2333"),
+            yaxis=dict(gridcolor="#1C2333", ticksuffix="%"),
+            height=300, margin=dict(t=10,b=80)
+        )
+        st.plotly_chart(fig_w, use_container_width=True)
+        # Concentration warning
+        top3_pct = df_weight.head(3)["Peso %"].sum()
+        if top3_pct > 40:
+            st.warning(f"⚠️ Le top 3 posizioni pesano il {top3_pct:.1f}% del portafoglio — concentrazione elevata")
+
+    with r2:
+        st.markdown("**Correlazione tra asset (6 mesi)**")
+        tickers_valid = [(p["nome"][:12], p["ticker"]) for p in tradeable[:12]]
+        corr_matrix = get_correlation_matrix(tuple(tickers_valid))
+        if corr_matrix is not None:
+            fig_corr = go.Figure(go.Heatmap(
+                z=corr_matrix.values,
+                x=corr_matrix.columns,
+                y=corr_matrix.index,
+                colorscale=[[0,"#EF4444"],[0.5,"#1C2333"],[1,"#10B981"]],
+                zmid=0, zmin=-1, zmax=1,
+                text=corr_matrix.round(2).values,
+                texttemplate="%{text}",
+                hovertemplate="%{x} / %{y}<br>Corr: %{z:.2f}<extra></extra>"
+            ))
+            fig_corr.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                font_color="#E2E8F0", font_size=9,
+                height=300, margin=dict(t=10,b=10)
+            )
+            st.plotly_chart(fig_corr, use_container_width=True)
+            st.caption("Verde = correlazione positiva (si muovono insieme) | Rosso = negativa (hedging naturale)")
+        else:
+            st.info("Dati insufficienti per la matrice di correlazione")
+
+    # ── Stagionalità ─────────────────────────────────────────────────────────
+    st.markdown('<div class="section-title">📅 Stagionalità — Pattern Storici</div>', unsafe_allow_html=True)
+    month = datetime.now().month
+    stagionalita = {
+        1: [("Small Cap", "Gennaio Effect: storicamente outperformance delle small cap", "#10B981"),
+            ("Azionario USA", "Mercati tendono a salire dopo il rally di Natale", "#10B981")],
+        2: [("Oro", "Febbraio storicamente forte per l'oro", "#10B981"),
+            ("Crypto", "Spesso volatile dopo i rally di gennaio", "#F59E0B")],
+        3: [("Azionario", "Correzioni tipiche a marzo, attenzione ai rimbalzi", "#F59E0B")],
+        4: [("Azionario", "'Sell in May' si avvicina, ridurre esposizione growth", "#F59E0B"),
+            ("Energia", "Primavera favorevole per materie prime energetiche", "#10B981")],
+        5: [("Azionario Growth", "Sell in May — storicamente mese debole", "#EF4444"),
+            ("Oro/Obbligazioni", "Fase difensiva, rotazione verso asset sicuri", "#10B981")],
+        6: [("Energia", "Estate: domanda petrolio alta (driving season USA)", "#10B981")],
+        7: [("Azionario", "Luglio storicamente buono, earnings season Q2", "#10B981")],
+        8: [("Volatilità", "Agosto spesso volatile, volumi bassi = movimenti amplificati", "#EF4444"),
+            ("Oro", "Agosto/Settembre storicamente forti per l'oro", "#10B981")],
+        9: [("Azionario", "Settembre il mese peggiore storicamente per S&P500", "#EF4444"),
+            ("Oro", "Stagione forte per metalli preziosi", "#10B981")],
+        10: [("Azionario", "Ottobre spesso volatile ma poi rimbalzo (Halloween Effect)", "#F59E0B"),
+             ("Crypto", "Q4 storicamente bullish per Bitcoin", "#10B981")],
+        11: [("Azionario USA", "Rally di fine anno inizia, Black Friday effect", "#10B981"),
+             ("Crypto", "Novembre/Dicembre storicamente forti", "#10B981")],
+        12: [("Azionario", "Santa Claus Rally — ultimi giorni dell'anno bullish", "#10B981"),
+             ("Small Cap", "Tax-loss harvesting crea opportunità", "#F59E0B")],
+    }
+    hints = stagionalita.get(month, [])
+    if hints:
+        h_cols = st.columns(len(hints))
+        for i, (asset, desc, color) in enumerate(hints):
+            with h_cols[i]:
+                st.markdown(f"""
+                <div style="background:{color}18;border:1px solid {color}44;border-radius:10px;padding:1rem;">
+                    <div style="font-weight:700;color:{color};margin-bottom:0.4rem;">{asset}</div>
+                    <div style="font-size:0.82rem;color:#CBD5E1;line-height:1.5;">{desc}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# TAB 4 — WATCHLIST
+# ════════════════════════════════════════════════════════════════════════════════
+with tab4:
     st.markdown('<div class="section-title">👁️ La Mia Watchlist</div>', unsafe_allow_html=True)
 
     # Summary badges
@@ -682,7 +1017,12 @@ with tab3:
                 sig_emoji = {"COMPRA": "🟢", "MONITORA": "🟡", "VENDI": "🔴"}[sig]
                 price = get_price(item["ticker"])
                 price_str = f"{price:,.2f}" if price else "N/A"
-                
+
+                # Technical signal for watchlist item
+                td_w = get_technical_data(item["ticker"]) if item["ticker"] != "N/A" else None
+                tech_emoji, tech_label, _ = get_technical_signal(td_w)
+                rsi_w = f"RSI {td_w['rsi']:.0f}" if td_w else "—"
+
                 # Distance from target
                 if price and item.get("prezzo_target"):
                     dist = (item["prezzo_target"] - price) / price * 100
@@ -690,18 +1030,32 @@ with tab3:
                 else:
                     dist_str = ""
 
+                # Opportunity score 1-10
+                score_num = 5
+                if td_w:
+                    if td_w["price"] > (td_w["ma50"] or 0): score_num += 1
+                    if td_w["price"] > (td_w["ma200"] or 0): score_num += 1
+                    if td_w["rsi"] < 40: score_num += 1
+                    if td_w["macd_hist"] > 0: score_num += 1
+                    if td_w["rsi"] > 70: score_num -= 2
+                    score_num = max(1, min(10, score_num))
+                score_color = "#10B981" if score_num >= 7 else ("#F59E0B" if score_num >= 4 else "#EF4444")
+
                 st.markdown(f"""
                 <div style="background:#111827;border:1px solid {sig_color}44;border-radius:12px;padding:1.2rem;margin-bottom:0.5rem;border-left:3px solid {sig_color};">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
                         <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:{sig_color};font-size:1rem;">{item['ticker']}</span>
-                        <span style="background:{sig_color}22;color:{sig_color};border:1px solid {sig_color}44;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700;">{sig_emoji} {sig}</span>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <span style="background:{score_color}22;color:{score_color};border:1px solid {score_color}44;padding:1px 7px;border-radius:20px;font-size:0.7rem;font-weight:700;">Score {score_num}/10</span>
+                            <span style="background:{sig_color}22;color:{sig_color};border:1px solid {sig_color}44;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700;">{sig_emoji} {sig}</span>
+                        </div>
                     </div>
                     <div style="font-size:0.9rem;font-weight:600;color:#E2E8F0;margin-bottom:0.75rem;">{item['nome']}</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.8rem;">
                         <div><span style="color:#64748B;">Prezzo:</span> <span style="font-family:'JetBrains Mono',monospace;color:#E2E8F0;">{price_str}</span></div>
                         <div><span style="color:#64748B;">Target:</span> <span style="font-family:'JetBrains Mono',monospace;color:{sig_color};">{item.get('prezzo_target','—')}</span></div>
                         <div><span style="color:#64748B;">Stop:</span> <span style="font-family:'JetBrains Mono',monospace;color:#EF4444;">{item.get('stop_loss','—')}</span></div>
-                        <div><span style="color:#64748B;">Orizzonte:</span> <span style="color:#E2E8F0;">{item.get('orizzonte','—')}</span></div>
+                        <div><span style="color:#64748B;">Tecnica:</span> <span>{tech_emoji} {rsi_w}</span></div>
                     </div>
                     {f'<div style="margin-top:0.6rem;font-size:0.75rem;color:#64748B;font-style:italic;">{dist_str}</div>' if dist_str else ''}
                     {f'<div style="margin-top:0.6rem;font-size:0.8rem;color:#94A3B8;border-top:1px solid #1C2333;padding-top:0.5rem;">{item["note"]}</div>' if item.get("note") else ''}
@@ -752,7 +1106,7 @@ with tab3:
 # ════════════════════════════════════════════════════════════════════════════════
 # TAB 4 — ANALISI AI
 # ════════════════════════════════════════════════════════════════════════════════
-with tab4:
+with tab5:
     st.markdown('<div class="section-title">🤖 Analisi AI del Portafoglio</div>', unsafe_allow_html=True)
 
     if not anthropic_key:
@@ -885,7 +1239,7 @@ Rispondi in italiano, massimo 400 parole."""
 # ════════════════════════════════════════════════════════════════════════════════
 # TAB 5 — GESTIONE PORTAFOGLIO
 # ════════════════════════════════════════════════════════════════════════════════
-with tab5:
+with tab6:
     st.markdown('<div class="section-title">✏️ Gestione Portafoglio</div>', unsafe_allow_html=True)
 
     g_tab1, g_tab2 = st.tabs(["➕ Aggiungi / Modifica Posizione", "📋 Modifica Esistenti"])
