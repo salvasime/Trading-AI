@@ -242,6 +242,36 @@ CATEGORY_COLORS = {
 }
 
 @st.cache_data(ttl=300)
+def get_fx_rates():
+    """Scarica tassi di cambio verso EUR in tempo reale"""
+    pairs = {
+        "USD": "EURUSD=X",   # quanti USD per 1 EUR
+        "GBP": "EURGBP=X",   # quanti GBP per 1 EUR
+        "DKK": "EURDKK=X",   # quanti DKK per 1 EUR
+        "CHF": "EURCHF=X",
+    }
+    rates = {"EUR": 1.0}
+    for currency, ticker in pairs.items():
+        try:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="2d")
+            if not hist.empty:
+                rates[currency] = float(hist["Close"].iloc[-1])
+        except:
+            # fallback approssimato se Yahoo non risponde
+            fallback = {"USD": 1.08, "GBP": 0.85, "DKK": 7.46, "CHF": 0.95}
+            rates[currency] = fallback.get(currency, 1.0)
+    return rates
+
+def convert_to_eur(amount, currency, fx_rates):
+    """Converte un importo in valuta locale verso EUR"""
+    if currency == "EUR":
+        return amount
+    rate = fx_rates.get(currency, 1.0)
+    # rate = unità di valuta per 1 EUR (es. DKK: 7.46 DKK = 1 EUR)
+    return amount / rate
+
+@st.cache_data(ttl=300)
 def get_price(ticker):
     if ticker == "N/A":
         return None
@@ -287,25 +317,57 @@ def get_news(api_key, query="economy inflation market stocks", days=2):
         return []
 
 def build_portfolio_df():
+    fx = get_fx_rates()
     rows = []
     for item in st.session_state.data["portfolio"]:
-        price = get_price(item["ticker"])
-        if price is None:
-            price = item["prezzo_carico"]
-        controvalore = price * item["quantita"]
-        carico = item["prezzo_carico"] * item["quantita"]
-        pnl = controvalore - carico
-        pnl_pct = (pnl / carico * 100) if carico > 0 else 0
+        categoria = item["categoria"]
+        valuta = item["valuta"]
+        prezzo_carico = item["prezzo_carico"]
+        quantita = item["quantita"]
+
+        # ── Prezzo attuale ──────────────────────────────────────────────────
+        # Usa prezzo manuale se presente, altrimenti scarica da Yahoo
+        prezzo_manuale = item.get("prezzo_manuale")
+        if prezzo_manuale and prezzo_manuale > 0:
+            price_locale = prezzo_manuale
+            price_source = "manuale"
+        elif item["ticker"] != "N/A":
+            price_locale = get_price(item["ticker"])
+            price_source = "live"
+            if price_locale is None:
+                price_locale = prezzo_carico
+                price_source = "carico"
+        else:
+            price_locale = prezzo_carico
+            price_source = "carico"
+
+        # ── Controvalore in EUR ─────────────────────────────────────────────
+        # Obbligazioni: prezzo in % del nominale (es. 98.5 = 98.5% di quantita nominale)
+        if categoria == "Obbligazioni":
+            controvalore_locale = (price_locale / 100) * quantita
+            carico_locale = (prezzo_carico / 100) * quantita
+        else:
+            controvalore_locale = price_locale * quantita
+            carico_locale = prezzo_carico * quantita
+
+        # Converti tutto in EUR
+        controvalore_eur = convert_to_eur(controvalore_locale, valuta, fx)
+        carico_eur = convert_to_eur(carico_locale, valuta, fx)
+
+        pnl_eur = controvalore_eur - carico_eur
+        pnl_pct = (pnl_eur / carico_eur * 100) if carico_eur > 0 else 0
+
         rows.append({
             "Nome": item["nome"],
             "Ticker": item["ticker"],
-            "Categoria": item["categoria"],
-            "Valuta": item["valuta"],
-            "P.Carico": item["prezzo_carico"],
-            "P.Attuale": price,
-            "Quantità": item["quantita"],
-            "Controvalore": controvalore,
-            "P&L €": pnl,
+            "Categoria": categoria,
+            "Valuta": valuta,
+            "P.Carico": prezzo_carico,
+            "P.Attuale": price_locale,
+            "Fonte": price_source,
+            "Quantità": quantita,
+            "Controvalore €": controvalore_eur,
+            "P&L €": pnl_eur,
             "P&L %": pnl_pct,
         })
     return pd.DataFrame(rows)
@@ -472,14 +534,26 @@ with tab1:
 # ════════════════════════════════════════════════════════════════════════════════
 with tab2:
     df = build_portfolio_df()
-    total = df["Controvalore"].sum()
+    fx_rates = get_fx_rates()
+    total = df["Controvalore €"].sum()
     total_pnl = df["P&L €"].sum()
     total_pnl_pct = (total_pnl / (total - total_pnl) * 100) if (total - total_pnl) > 0 else 0
+
+    # FX rates info bar
+    st.markdown(f"""
+    <div style="background:#1C2333;border:1px solid #2A3347;border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:#64748B;display:flex;gap:2rem;">
+        <span>💱 Cambi live:</span>
+        <span>USD/EUR: <b style="color:#E2E8F0;">{fx_rates.get('USD',1.08):.4f}</b></span>
+        <span>GBP/EUR: <b style="color:#E2E8F0;">{fx_rates.get('GBP',0.85):.4f}</b></span>
+        <span>DKK/EUR: <b style="color:#E2E8F0;">{fx_rates.get('DKK',7.46):.4f}</b></span>
+        <span style="color:#F59E0B;">Tutti i valori convertiti in EUR</span>
+    </div>
+    """, unsafe_allow_html=True)
 
     # KPI row
     k1, k2, k3, k4 = st.columns(4)
     with k1:
-        st.metric("💼 Totale Portafoglio", f"€ {total:,.0f}")
+        st.metric("💼 Totale Portafoglio (EUR)", f"€ {total:,.0f}")
     with k2:
         st.metric("📈 P&L Totale", f"€ {total_pnl:,.0f}", f"{total_pnl_pct:+.2f}%")
     with k3:
@@ -493,7 +567,7 @@ with tab2:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown('<div class="section-title">🥧 Allocazione per Categoria</div>', unsafe_allow_html=True)
-        alloc = df.groupby("Categoria")["Controvalore"].sum().reset_index()
+        alloc = df.groupby("Categoria")["Controvalore €"].sum().reset_index()
         alloc.columns = ["Categoria", "Valore"]
         fig_pie = go.Figure(go.Pie(
             labels=alloc["Categoria"],
@@ -534,8 +608,8 @@ with tab2:
         st.plotly_chart(fig_bar, use_container_width=True)
 
     # Valuta exposure
-    st.markdown('<div class="section-title">💱 Esposizione Valutaria</div>', unsafe_allow_html=True)
-    val_exp = df.groupby("Valuta")["Controvalore"].sum()
+    st.markdown('<div class="section-title">💱 Esposizione Valutaria (convertita in EUR)</div>', unsafe_allow_html=True)
+    val_exp = df.groupby("Valuta")["Controvalore €"].sum()
     val_cols = st.columns(len(val_exp))
     val_colors = {"EUR": "#10B981", "USD": "#3B82F6", "GBP": "#F59E0B", "DKK": "#8B5CF6"}
     for i, (val, amt) in enumerate(val_exp.items()):
@@ -552,20 +626,18 @@ with tab2:
 
     # Portfolio table
     st.markdown('<div class="section-title">📋 Dettaglio Posizioni</div>', unsafe_allow_html=True)
-    
-    def style_pnl(val):
-        color = "#10B981" if val >= 0 else "#EF4444"
-        return f"color: {color}; font-weight: 600"
+    st.caption("🔵 Fonte = live (Yahoo Finance) | 🟡 Fonte = carico (prezzo live non disponibile) | ✏️ Fonte = manuale")
 
     display_df = df.copy()
-    display_df["Controvalore"] = display_df["Controvalore"].apply(lambda x: f"€ {x:,.0f}")
+    display_df["Controvalore €"] = display_df["Controvalore €"].apply(lambda x: f"€ {x:,.0f}")
     display_df["P&L €"] = display_df["P&L €"].apply(lambda x: f"€ {x:+,.0f}")
     display_df["P&L %"] = display_df["P&L %"].apply(lambda x: f"{x:+.2f}%")
     display_df["P.Carico"] = display_df["P.Carico"].apply(lambda x: f"{x:,.3f}")
     display_df["P.Attuale"] = display_df["P.Attuale"].apply(lambda x: f"{x:,.3f}")
+    display_df["Fonte"] = display_df["Fonte"].map({"live": "🔵 live", "carico": "🟡 carico", "manuale": "✏️ manuale"})
 
     st.dataframe(
-        display_df[["Nome", "Categoria", "Valuta", "P.Carico", "P.Attuale", "Quantità", "Controvalore", "P&L €", "P&L %"]],
+        display_df[["Nome", "Categoria", "Valuta", "P.Carico", "P.Attuale", "Fonte", "Quantità", "Controvalore €", "P&L €", "P&L %"]],
         use_container_width=True,
         hide_index=True,
         height=400
@@ -691,7 +763,7 @@ with tab4:
         watchlist_ai = st.session_state.data["watchlist"]
 
         portfolio_summary = df_ai.groupby("Categoria").agg(
-            Valore=("Controvalore", "sum"),
+            Valore=("Controvalore €", "sum"),
             PnL=("P&L €", "sum")
         ).reset_index().to_string()
 
@@ -878,6 +950,7 @@ with tab5:
 
     with g_tab2:
         st.markdown("#### Posizioni Attuali — Clicca per modificare o eliminare")
+        st.caption("💡 Per Obbligazioni e Certificati senza ticker, usa il campo **Prezzo Attuale Manuale** per aggiornare il valore corrente.")
         portfolio = st.session_state.data["portfolio"]
         
         # Group by category
@@ -889,34 +962,44 @@ with tab5:
             
             for item in cat_items:
                 idx = portfolio.index(item)
-                with st.expander(f"  {item['nome']} — {item['ticker']} | {item['quantita']} @ {item['prezzo_carico']:.3f} {item['valuta']}"):
+                prezzo_manuale = item.get("prezzo_manuale", 0.0) or 0.0
+                label_manual = " ✏️" if prezzo_manuale > 0 else ""
+                with st.expander(f"  {item['nome']} — {item['ticker']} | {item['quantita']} @ {item['prezzo_carico']:.3f} {item['valuta']}{label_manual}"):
                     ec1, ec2, ec3 = st.columns(3)
                     with ec1:
                         new_nome = st.text_input("Nome", value=item["nome"], key=f"en_{idx}")
-                        new_ticker = st.text_input("Ticker", value=item["ticker"], key=f"et_{idx}")
+                        new_ticker = st.text_input("Ticker Yahoo Finance", value=item["ticker"], key=f"et_{idx}")
                     with ec2:
                         new_prezzo = st.number_input("Prezzo carico", value=float(item["prezzo_carico"]), step=0.001, format="%.3f", key=f"ep_{idx}")
-                        new_qty = st.number_input("Quantità", value=float(item["quantita"]), step=0.001, format="%.4f", key=f"eq_{idx}")
+                        new_qty = st.number_input("Quantità / Nominale", value=float(item["quantita"]), step=0.001, format="%.4f", key=f"eq_{idx}")
                     with ec3:
                         new_valuta = st.selectbox("Valuta", ["EUR", "USD", "GBP", "DKK", "CHF"],
                                                  index=["EUR", "USD", "GBP", "DKK", "CHF"].index(item["valuta"]) if item["valuta"] in ["EUR", "USD", "GBP", "DKK", "CHF"] else 0,
                                                  key=f"ev_{idx}")
-                        st.markdown("")
-                        btn_s, btn_d = st.columns(2)
-                        with btn_s:
-                            if st.button("💾 Salva", key=f"save_{idx}"):
-                                st.session_state.data["portfolio"][idx].update({
-                                    "nome": new_nome, "ticker": new_ticker,
-                                    "prezzo_carico": new_prezzo, "quantita": new_qty,
-                                    "valuta": new_valuta
-                                })
-                                save_data(st.session_state.data)
-                                st.cache_data.clear()
-                                st.success("Salvato!")
-                                st.rerun()
-                        with btn_d:
-                            if st.button("🗑️ Elimina", key=f"del_{idx}"):
-                                st.session_state.data["portfolio"].pop(idx)
-                                save_data(st.session_state.data)
-                                st.cache_data.clear()
-                                st.rerun()
+                        new_manuale = st.number_input(
+                            "Prezzo Attuale Manuale (0 = usa Yahoo)",
+                            value=float(prezzo_manuale),
+                            step=0.001, format="%.3f",
+                            key=f"em_{idx}",
+                            help="Usa questo campo per Obbligazioni, Certificati o ETF con ticker non disponibile su Yahoo Finance"
+                        )
+
+                    btn_s, btn_d = st.columns([1, 1])
+                    with btn_s:
+                        if st.button("💾 Salva modifiche", key=f"save_{idx}"):
+                            st.session_state.data["portfolio"][idx].update({
+                                "nome": new_nome, "ticker": new_ticker,
+                                "prezzo_carico": new_prezzo, "quantita": new_qty,
+                                "valuta": new_valuta,
+                                "prezzo_manuale": new_manuale if new_manuale > 0 else None
+                            })
+                            save_data(st.session_state.data)
+                            st.cache_data.clear()
+                            st.success("✅ Salvato!")
+                            st.rerun()
+                    with btn_d:
+                        if st.button("🗑️ Elimina posizione", key=f"del_{idx}"):
+                            st.session_state.data["portfolio"].pop(idx)
+                            save_data(st.session_state.data)
+                            st.cache_data.clear()
+                            st.rerun()
