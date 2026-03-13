@@ -474,8 +474,30 @@ def build_daily_email(df, mkt, health_score, agent_results):
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚙️ Configurazione")
-    anthropic_key = st.text_input("Chiave Anthropic API", type="password", placeholder="sk-ant-...", key="ant_key")
-    news_api_key  = st.text_input("Chiave NewsAPI",       type="password", placeholder="newsapi key...", key="news_key")
+
+    # Leggi dai Secrets di Streamlit Cloud (se configurati)
+    _sec_ant  = st.secrets.get("ANTHROPIC_API_KEY", "") if hasattr(st, "secrets") else ""
+    _sec_news = st.secrets.get("NEWS_API_KEY", "")      if hasattr(st, "secrets") else ""
+
+    if _sec_ant:
+        # Chiavi nei Secrets: caricale automaticamente
+        st.session_state["_ant_key"]  = _sec_ant
+        st.session_state["_news_key"] = _sec_news
+        st.markdown('<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.75rem;color:#10B981;margin-bottom:.5rem;">✅ Chiavi caricate dai Secrets</div>', unsafe_allow_html=True)
+        st.text_input("Chiave Anthropic API", value="sk-ant-••••••••", disabled=True, key="ant_key")
+        st.text_input("Chiave NewsAPI", value="••••" if _sec_news else "(non impostata)", disabled=True, key="news_key")
+    else:
+        # Chiavi inserite manualmente: salvale nel session_state appena digitate
+        _inp_ant  = st.text_input("Chiave Anthropic API", type="password", placeholder="sk-ant-...", key="ant_key")
+        _inp_news = st.text_input("Chiave NewsAPI",       type="password", placeholder="newsapi key...", key="news_key")
+        if _inp_ant:  st.session_state["_ant_key"]  = _inp_ant
+        if _inp_news: st.session_state["_news_key"] = _inp_news
+        if not st.session_state.get("_ant_key"):
+            st.markdown('<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#F59E0B;">⚠️ Inserisci la chiave Anthropic per usare il Multi-Agente AI</div>', unsafe_allow_html=True)
+
+    # Variabili globali usate nel resto dell'app
+    anthropic_key = st.session_state.get("_ant_key", "")
+    news_api_key  = st.session_state.get("_news_key", "")
     st.markdown("---")
     st.markdown("### 📧 Alert Email")
     with st.expander("Configura email"):
