@@ -1297,7 +1297,7 @@ with tab6:
 # TAB 7 — GESTIONE
 # ══════════════════════════════════════════════════════════════════════════════
 with tab7:
-    g1, g2 = st.tabs(["➕ Nuova operazione", "📋 Modifica posizioni"])
+    g1, g2, g3 = st.tabs(["➕ Nuova operazione", "📋 Modifica posizioni", "📧 Alert Email"])
 
     with g1:
         st.markdown('<div class="section-hd">Registra acquisto o vendita</div>', unsafe_allow_html=True)
@@ -1442,3 +1442,60 @@ with tab7:
                         if st.button("🗑️ Elimina", key=f"dl_{idx}"):
                             st.session_state.data["portfolio"].pop(idx)
                             save_data(st.session_state.data); st.cache_data.clear(); st.rerun()
+
+    with g3:
+        st.markdown('<div class="section-hd">Configurazione alert email giornaliero</div>', unsafe_allow_html=True)
+
+        em_sett_cur = st.session_state.data.get("email_settings", {})
+        if em_sett_cur.get("from_email"):
+            st.markdown(f'<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#10B981;margin-bottom:1rem;">'                f'✅ Email configurata — mittente: <b>{em_sett_cur["from_email"]}</b> → destinatario: <b>{em_sett_cur["to_email"]}</b></div>', unsafe_allow_html=True)
+
+        c_em1, c_em2 = st.columns(2)
+        with c_em1:
+            st.markdown("**Impostazioni mittente**")
+            new_from = st.text_input("Gmail mittente", value=em_sett_cur.get("from_email",""), placeholder="tuo@gmail.com", key="g3_from")
+            new_pass = st.text_input("App Password Gmail", type="password",
+                value=em_sett_cur.get("app_password",""), placeholder="xxxx xxxx xxxx xxxx", key="g3_pass",
+                help="Non è la tua password Gmail normale. Vedi istruzioni a destra.")
+            new_to = st.text_input("Email destinatario", value=em_sett_cur.get("to_email",""), placeholder="tuo@email.com", key="g3_to")
+            if st.button("💾 Salva configurazione email", key="btn_save_email", use_container_width=True):
+                if new_from and new_pass and new_to:
+                    st.session_state.data["email_settings"] = {"from_email":new_from,"app_password":new_pass,"to_email":new_to}
+                    save_data(st.session_state.data)
+                    st.success("✅ Configurazione salvata!")
+                    st.rerun()
+                else:
+                    st.error("Compila tutti i campi")
+
+        with c_em2:
+            st.markdown("**Come ottenere la App Password Gmail**")
+            st.markdown('<div class="ai-block" style="font-size:.82rem;line-height:1.9;">'
+                '<b>Passo 1</b> — Vai su <a href="https://myaccount.google.com/security" target="_blank" style="color:#60A5FA;">myaccount.google.com/security</a><br>'
+                '<b>Passo 2</b> — Clicca <b>Verifica in due passaggi</b> e attivala (se non attiva)<br>'
+                '<b>Passo 3</b> — Torna in Sicurezza e cerca <b>Password per le app</b><br>'
+                '<b>Passo 4</b> — Nel campo nome scrivi <b>Dashboard</b> e clicca <b>Crea</b><br>'
+                '<b>Passo 5</b> — Google mostra una password di <b>16 caratteri</b> (es. abcd efgh ijkl mnop)<br>'
+                '<b>Passo 6</b> — Copiala <b>senza spazi</b> e incollala nel campo qui a sinistra'
+                '</div>', unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.markdown('<div class="section-hd">Invia report ora</div>', unsafe_allow_html=True)
+        if st.session_state.data.get("email_settings",{}).get("from_email"):
+            col_s1, col_s2 = st.columns([1,2])
+            with col_s1:
+                if st.button("📧 Invia report ora", key="btn_send_email", use_container_width=True):
+                    df_em2 = build_portfolio_df()
+                    mkt_em2 = get_market_data()
+                    hs_em2, _ = compute_health_score(df_em2, mkt_em2)
+                    cache_em2 = st.session_state.data.get("agent_cache",{}).get("results")
+                    html2 = build_daily_email(df_em2, mkt_em2, hs_em2, cache_em2)
+                    ok2, msg2 = send_email_alert(
+                        st.session_state.data["email_settings"],
+                        f"📈 Report Portafoglio {datetime.now().strftime('%d/%m/%Y')}",
+                        html2)
+                    if ok2: st.success("✅ " + msg2)
+                    else:   st.error("❌ Errore: " + msg2)
+            with col_s2:
+                st.markdown('<div class="tooltip-box">Il report include: totale portafoglio, P&L, VIX, score di salute, best/worst performer e piano operativo AI.</div>', unsafe_allow_html=True)
+        else:
+            st.info("Configura prima l'email qui sopra per abilitare l'invio.")
