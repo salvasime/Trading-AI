@@ -775,24 +775,95 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
     watchlist = st.session_state.data["watchlist"]
-    buy_c = sum(1 for w in watchlist if w["segnale"]=="COMPRA")
-    mon_c = sum(1 for w in watchlist if w["segnale"]=="MONITORA")
-    sel_c = sum(1 for w in watchlist if w["segnale"]=="VENDI")
+    buy_c = sum(1 for w in watchlist if w.get("segnale")=="COMPRA")
+    mon_c = sum(1 for w in watchlist if w.get("segnale")=="MONITORA")
+    sel_c = sum(1 for w in watchlist if w.get("segnale")=="VENDI")
 
     sb1,sb2,sb3 = st.columns(3)
-    for col,(cnt,label,color) in zip([sb1,sb2,sb3],[(buy_c,"🟢 Da comprare","#10B981"),(mon_c,"🟡 Monitorare","#F59E0B"),(sel_c,"🔴 Da vendere","#EF4444")]):
+    for col,(cnt,label,color) in zip([sb1,sb2,sb3],
+        [(buy_c,"🟢 Da comprare","#10B981"),(mon_c,"🟡 Monitorare","#F59E0B"),(sel_c,"🔴 Da vendere","#EF4444")]):
         with col:
-            st.markdown(f"""<div style="background:{color}12;border:1px solid {color}33;border-radius:10px;padding:.8rem;text-align:center;">
+            st.markdown(f'''<div style="background:{color}12;border:1px solid {color}33;border-radius:10px;padding:.8rem;text-align:center;">
 <div style="font-size:1.5rem;font-weight:700;color:{color};font-family:'JetBrains Mono',monospace;">{cnt}</div>
-<div style="font-size:.72rem;color:#64748B;">{label}</div></div>""", unsafe_allow_html=True)
-    st.markdown("")
+<div style="font-size:.72rem;color:#64748B;">{label}</div></div>''', unsafe_allow_html=True)
 
+    # ── AGGIUNGI (solo Ticker + Nome, AI fa il resto) ─────────────────────────
+    st.markdown('<div class="section-hd">Aggiungi titolo — l\'AI analizza tutto automaticamente</div>', unsafe_allow_html=True)
+    wa, wb, wc_col, wd_col = st.columns([2,2,2,1])
+    with wa:
+        wt = st.text_input("Ticker Yahoo *", placeholder="es. NVDA, ENI.MI, BTC-EUR", key="wt")
+    with wb:
+        wn = st.text_input("Nome *", placeholder="es. NVIDIA Corporation", key="wn")
+    with wc_col:
+        wcat = st.selectbox("Categoria", ["Azioni","ETF","Crypto","Obbligazioni","Materie Prime"], key="wcat")
+    with wd_col:
+        st.markdown("<div style='height:1.7rem'></div>", unsafe_allow_html=True)
+        add_btn = st.button("➕ Aggiungi", key="btn_wl", use_container_width=True)
+
+    if add_btn:
+        if wt and wn:
+            new_item = {"ticker":wt.upper(),"nome":wn,"categoria":wcat,
+                        "segnale":"MONITORA","prezzo_target":None,"stop_loss":None,
+                        "orizzonte":None,"note":"⏳ In attesa analisi AI...","ai_pending":True}
+            st.session_state.data["watchlist"].append(new_item)
+            save_data(st.session_state.data)
+            if anthropic_key:
+                with st.spinner(f"Analisi AI per {wn}..."):
+                    td_add = get_technical(wt.upper())
+                    tech_ctx = ""
+                    if td_add:
+                        tech_ctx = (f"Prezzo: {td_add['price']:.2f}, RSI: {td_add['rsi']:.0f}, "
+                                    f"MA50: {td_add['ma50'] or 'N/A'}, MA200: {td_add['ma200'] or 'N/A'}, "
+                                    f"MACD_H: {td_add['macd_h']:+.3f}, Supporto: {td_add['support']:.2f}, "
+                                    f"Resistenza: {td_add['resistance']:.2f}")
+                    try:
+                        import json as _json
+                        cl_add = anthropic.Anthropic(api_key=anthropic_key)
+                        ai_resp = cl_add.messages.create(
+                            model="claude-sonnet-4-20250514", max_tokens=400,
+                            system="Sei un analista finanziario esperto. Rispondi SOLO in formato JSON valido, senza markdown, senza testo aggiuntivo.",
+                            messages=[{"role":"user","content":
+                                f'''Analizza {wn} (ticker: {wt.upper()}) per un investitore privato.
+Dati tecnici: {tech_ctx if tech_ctx else "Non disponibili"}
+Restituisci SOLO questo JSON (nessun altro testo):
+{{"segnale":"COMPRA","prezzo_target":0.00,"stop_loss":0.00,"orizzonte":"Medio (3-12 mesi)","note":"motivazione in 2 righe max"}}
+segnale puo essere solo: COMPRA, MONITORA, VENDI
+prezzo_target e stop_loss: numeri decimali realistici basati sul prezzo attuale
+orizzonte: "Breve (< 3 mesi)", "Medio (3-12 mesi)", "Lungo (> 1 anno)"
+note: max 120 caratteri in italiano'''}]
+                        ).content[0].text.strip()
+                        ai_data = _json.loads(ai_resp)
+                        wl_new_idx = len(st.session_state.data["watchlist"]) - 1
+                        st.session_state.data["watchlist"][wl_new_idx].update({
+                            "segnale": ai_data.get("segnale","MONITORA"),
+                            "prezzo_target": ai_data.get("prezzo_target"),
+                            "stop_loss": ai_data.get("stop_loss"),
+                            "orizzonte": ai_data.get("orizzonte"),
+                            "note": ai_data.get("note",""),
+                            "ai_pending": False
+                        })
+                        save_data(st.session_state.data)
+                        st.success(f"✅ {wn} aggiunto — Segnale AI: {ai_data.get('segnale','MONITORA')}")
+                    except Exception as e:
+                        wl_new_idx = len(st.session_state.data["watchlist"]) - 1
+                        st.session_state.data["watchlist"][wl_new_idx].update(
+                            {"note":"Analisi AI non disponibile","ai_pending":False})
+                        save_data(st.session_state.data)
+                        st.warning(f"Titolo aggiunto senza analisi AI: {e}")
+            else:
+                st.info("Inserisci la chiave Anthropic in sidebar per analisi AI automatica")
+                st.success(f"✅ {wn} aggiunto")
+            st.rerun()
+        else:
+            st.error("Inserisci Ticker e Nome")
+
+    st.markdown("")
     filtro = st.radio("Filtra:", ["Tutti","🟢 COMPRA","🟡 MONITORA","🔴 VENDI"], horizontal=True)
     fm = {"Tutti":None,"🟢 COMPRA":"COMPRA","🟡 MONITORA":"MONITORA","🔴 VENDI":"VENDI"}
-    filtered = [w for w in watchlist if fm[filtro] is None or w["segnale"]==fm[filtro]]
+    filtered = [w for w in watchlist if fm[filtro] is None or w.get("segnale")==fm[filtro]]
 
     if not filtered:
-        st.info("Nessun titolo in watchlist. Aggiungine uno qui sotto.")
+        st.info("Nessun titolo in watchlist. Aggiungine uno qui sopra.")
 
     cols_r = 3
     for i in range(0, len(filtered), cols_r):
@@ -800,11 +871,12 @@ with tab5:
         cols_w = st.columns(cols_r)
         for j, item in enumerate(row_w):
             with cols_w[j]:
-                sig = item["segnale"]
-                sc = {"COMPRA":"#10B981","MONITORA":"#F59E0B","VENDI":"#EF4444"}[sig]
-                price = get_price(item["ticker"]) if item["ticker"] != "N/A" else None
-                td_w = get_technical(item["ticker"]) if item["ticker"] != "N/A" else None
+                sig = item.get("segnale","MONITORA")
+                sc = {"COMPRA":"#10B981","MONITORA":"#F59E0B","VENDI":"#EF4444"}.get(sig,"#F59E0B")
+                price = get_price(item["ticker"]) if item.get("ticker","N/A") != "N/A" else None
+                td_w = get_technical(item["ticker"]) if item.get("ticker","N/A") != "N/A" else None
                 tech_em, _, _ = tech_signal(td_w)
+                rsi_str = f"{td_w['rsi']:.0f}" if td_w else "—"
                 score = 5
                 if td_w:
                     if td_w["price"] > (td_w["ma50"] or 0): score+=1
@@ -814,56 +886,67 @@ with tab5:
                     if td_w["rsi"] > 70: score-=2
                     score = max(1,min(10,score))
                 sc2 = "#10B981" if score>=7 else ("#F59E0B" if score>=4 else "#EF4444")
+                tgt = item.get("prezzo_target")
+                sl  = item.get("stop_loss")
                 dist_str = ""
-                if price and item.get("prezzo_target"):
-                    dist = (item["prezzo_target"]-price)/price*100
+                if price and tgt and tgt > 0:
+                    dist = (tgt - price) / price * 100
                     dist_str = f"{dist:+.1f}% al target"
-                st.markdown(f"""<div style="background:#0F1829;border:1px solid {sc}44;border-left:3px solid {sc};border-radius:10px;padding:1rem;margin-bottom:.5rem;">
+                tgt_disp = f"{tgt:.2f}" if tgt and tgt > 0 else "—"
+                sl_disp  = f"{sl:.2f}"  if sl  and sl  > 0 else "—"
+                price_disp = f"{price:.2f}" if price else "N/A"
+                note_html = ""
+                if item.get("note"):
+                    pending_pfx = "⏳ " if item.get("ai_pending") else ""
+                    note_html = f'''<div style="margin-top:.5rem;font-size:.75rem;color:#94A3B8;border-top:1px solid #1E2D47;padding-top:.4rem;">{pending_pfx}{item["note"]}</div>'''
+                st.markdown(f'''<div style="background:#0F1829;border:1px solid {sc}44;border-left:3px solid {sc};border-radius:10px;padding:1rem;margin-bottom:.5rem;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
-<span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:{sc};">{item['ticker']}</span>
+<span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:{sc};">{item["ticker"]}</span>
 <div style="display:flex;gap:5px;">
 <span style="background:{sc2}22;color:{sc2};border:1px solid {sc2}44;padding:1px 7px;border-radius:20px;font-size:.68rem;font-weight:700;">Score {score}/10</span>
 <span style="background:{sc}22;color:{sc};border:1px solid {sc}44;padding:1px 7px;border-radius:20px;font-size:.68rem;font-weight:700;">{sig}</span>
 </div></div>
-<div style="font-size:.85rem;font-weight:600;color:#E8EDF5;margin-bottom:.6rem;">{item['nome']}</div>
+<div style="font-size:.85rem;font-weight:600;color:#E8EDF5;margin-bottom:.6rem;">{item["nome"]}</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.78rem;">
-<div><span style="color:#64748B;">Prezzo: </span><span style="font-family:'JetBrains Mono',monospace;">{f'{price:,.2f}' if price else 'N/A'}</span></div>
-<div><span style="color:#64748B;">Target: </span><span style="color:{sc};">{item.get('prezzo_target','—')}</span></div>
-<div><span style="color:#64748B;">Stop: </span><span style="color:#EF4444;">{item.get('stop_loss','—')}</span></div>
-<div><span style="color:#64748B;">Tecnica: </span><span>{tech_em} RSI {td_w['rsi']:.0f if td_w else '—'}</span></div>
+<div><span style="color:#64748B;">Prezzo: </span><span style="font-family:'JetBrains Mono',monospace;">{price_disp}</span></div>
+<div><span style="color:#64748B;">Target: </span><span style="color:{sc};">{tgt_disp}</span></div>
+<div><span style="color:#64748B;">Stop: </span><span style="color:#EF4444;">{sl_disp}</span></div>
+<div><span style="color:#64748B;">RSI: </span><span>{tech_em} {rsi_str}</span></div>
 </div>
-{f'<div style="margin-top:.5rem;font-size:.72rem;color:#64748B;">{dist_str}</div>' if dist_str else ''}
-{f'<div style="margin-top:.5rem;font-size:.75rem;color:#94A3B8;border-top:1px solid #1E2D47;padding-top:.4rem;">{item["note"]}</div>' if item.get("note") else ''}
-</div>""", unsafe_allow_html=True)
-                if st.button("🗑️ Rimuovi", key=f"rw_{i+j}"):
-                    idx = st.session_state.data["watchlist"].index(item)
-                    st.session_state.data["watchlist"].pop(idx)
-                    save_data(st.session_state.data)
-                    st.rerun()
-
-    # Add to watchlist
-    st.markdown('<div class="section-hd">Aggiungi alla watchlist</div>', unsafe_allow_html=True)
-    with st.expander("➕ Nuovo titolo"):
-        wc1,wc2,wc3 = st.columns(3)
-        with wc1:
-            wt = st.text_input("Ticker *", key="wt")
-            wn = st.text_input("Nome *", key="wn")
-            wcat = st.selectbox("Categoria", ["Azioni","ETF","Crypto","Obbligazioni","Materie Prime"], key="wcat")
-        with wc2:
-            wsig = st.selectbox("Segnale *", ["COMPRA","MONITORA","VENDI"], key="wsig")
-            wtgt = st.number_input("Target price", min_value=0.0, step=0.01, key="wtgt")
-            wsl = st.number_input("Stop loss", min_value=0.0, step=0.01, key="wsl")
-        with wc3:
-            wor = st.selectbox("Orizzonte", ["Breve (< 3 mesi)","Medio (3-12 mesi)","Lungo (> 1 anno)"], key="wor")
-            wnote = st.text_area("Note / motivazione", key="wnote", height=90)
-        if st.button("➕ Aggiungi", key="btn_wl"):
-            if wt and wn:
-                st.session_state.data["watchlist"].append({"ticker":wt.upper(),"nome":wn,"categoria":wcat,"segnale":wsig,"prezzo_target":wtgt,"stop_loss":wsl,"orizzonte":wor,"note":wnote})
-                save_data(st.session_state.data)
-                st.success(f"✅ {wn} aggiunto!")
-                st.rerun()
-            else:
-                st.error("Inserisci almeno Ticker e Nome")
+{f'<div style="margin-top:.4rem;font-size:.72rem;color:#64748B;">{dist_str}</div>' if dist_str else ""}
+{f'<div style="margin-top:.3rem;font-size:.72rem;color:#64748B;">⏱ {item.get("orizzonte","")}</div>' if item.get("orizzonte") else ""}
+{note_html}
+</div>''', unsafe_allow_html=True)
+                ba, bb = st.columns(2)
+                with ba:
+                    if anthropic_key and st.button("🤖 Rianalizza", key=f"rai_{i+j}", use_container_width=True):
+                        with st.spinner("Analisi AI..."):
+                            td_r = get_technical(item["ticker"])
+                            tech_ctx_r = ""
+                            if td_r:
+                                tech_ctx_r = f"Prezzo: {td_r['price']:.2f}, RSI: {td_r['rsi']:.0f}, MACD_H: {td_r['macd_h']:+.3f}"
+                            try:
+                                import json as _json2
+                                cl_r = anthropic.Anthropic(api_key=anthropic_key)
+                                ai_r = cl_r.messages.create(
+                                    model="claude-sonnet-4-20250514", max_tokens=400,
+                                    system="Rispondi SOLO in formato JSON valido, senza markdown.",
+                                    messages=[{"role":"user","content":
+                                        f"Rianalizza {item['nome']} ({item['ticker']}). Dati tecnici: {tech_ctx_r}. "
+                                        f'''JSON: {{"segnale":"COMPRA","prezzo_target":0.00,"stop_loss":0.00,"orizzonte":"Medio (3-12 mesi)","note":"motivazione"}}'''}]
+                                ).content[0].text.strip()
+                                ai_d = _json2.loads(ai_r)
+                                wl_r_idx = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x["ticker"]==item["ticker"])
+                                st.session_state.data["watchlist"][wl_r_idx].update(ai_d)
+                                save_data(st.session_state.data)
+                                st.rerun()
+                            except: st.error("Errore AI")
+                with bb:
+                    if st.button("🗑️ Rimuovi", key=f"rw_{i+j}", use_container_width=True):
+                        wl_rm_idx = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x["ticker"]==item["ticker"])
+                        st.session_state.data["watchlist"].pop(wl_rm_idx)
+                        save_data(st.session_state.data)
+                        st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 6 — GESTIONE
@@ -918,6 +1001,40 @@ with tab6:
         needs = [p for p in portfolio if p["ticker"]=="N/A" and not (p.get("prezzo_manuale") or 0)>0]
         has_m  = [p for p in portfolio if (p.get("prezzo_manuale") or 0)>0]
         has_l  = [p for p in portfolio if p["ticker"]!="N/A"]
+
+        # ── AGGIORNAMENTO RAPIDO prezzi mancanti ──────────────────────────────
+        if needs:
+            st.markdown('<div class="section-hd">⚡ Aggiornamento rapido prezzi mancanti</div>', unsafe_allow_html=True)
+            st.markdown(f'''<div style="background:rgba(239,68,68,.1);border:1px solid #EF444444;border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#EF4444;margin-bottom:.8rem;">
+🔴 <b>{len(needs)} asset</b> senza prezzo attuale — inserisci tutti i prezzi qui sotto e salva in un click
+</div>''', unsafe_allow_html=True)
+            quick_vals = {}
+            qcols = st.columns(3)
+            for qi, qitem in enumerate(needs):
+                with qcols[qi % 3]:
+                    hint = "% nominale (es. 98.50)" if qitem["categoria"] == "Obbligazioni" else "prezzo attuale"
+                    quick_vals[qi] = st.number_input(
+                        f"{qitem['nome'][:30]}",
+                        min_value=0.0, step=0.01, format="%.3f",
+                        key=f"qp_{qi}",
+                        help=f"{qitem['ticker']} · {qitem['categoria']} · {hint}"
+                    )
+            if st.button("💾 Salva tutti i prezzi rapidi", key="btn_quick_save", use_container_width=False):
+                saved = 0
+                for qi, qitem in enumerate(needs):
+                    val = quick_vals[qi]
+                    if val > 0:
+                        idx_q = st.session_state.data["portfolio"].index(qitem)
+                        st.session_state.data["portfolio"][idx_q]["prezzo_manuale"] = val
+                        saved += 1
+                if saved:
+                    save_data(st.session_state.data)
+                    st.cache_data.clear()
+                    st.success(f"✅ {saved} prezzi aggiornati!")
+                    st.rerun()
+                else:
+                    st.warning("Nessun valore inserito")
+            st.markdown("---")
 
         sc1,sc2,sc3 = st.columns(3)
         for col,(cnt,lbl,color) in zip([sc1,sc2,sc3],[
