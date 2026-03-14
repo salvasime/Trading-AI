@@ -2493,6 +2493,9 @@ with tab8:
     # Build candidates list
     all_candidates = []
     seen_add = set()
+    # Watchlist tickers set — usato per escluderli dalla modalità globale
+    watchlist_tickers = {w.get("ticker","").upper() for w in st.session_state.data["watchlist"]
+                         if w.get("ticker","N/A") not in ("N/A","",None)}
 
     def add_candidate(ticker, nome, categoria, valuta, fonte):
         t = ticker.upper()
@@ -2505,7 +2508,6 @@ with tab8:
         for w in st.session_state.data["watchlist"]:
             tk = w.get("ticker","N/A")
             if tk in ("N/A","",None): continue
-            # Guess valuta from ticker
             if any(sfx in tk for sfx in [".MI",".PA",".AS",".DE",".L",".CO",".SG"]):
                 val_w = "GBP" if ".L" in tk else ("DKK" if ".CO" in tk else "EUR")
             else:
@@ -2514,6 +2516,9 @@ with tab8:
 
     if scan_mode in ["🌍 Universo globale (50 titoli)", "🔀 Entrambi"]:
         for tk, nm, cat, val in GLOBAL_UNIVERSE:
+            # In modalità globale pura, salta i ticker già nella watchlist personale
+            if scan_mode == "🌍 Universo globale (50 titoli)" and tk.upper() in watchlist_tickers:
+                continue
             add_candidate(tk, nm, cat, val, "globale")
 
     # ── Scan tecnico ──────────────────────────────────────────────────────────
@@ -2615,6 +2620,53 @@ with tab8:
     <span style="color:#64748B;">Tutti i titoli in portafoglio sono esclusi automaticamente. Score massimo 7/7.</span>
   </div>
 </div>""", unsafe_allow_html=True)
+
+        # ── TABELLA RIEPILOGATIVA ─────────────────────────────────────────────
+        st.markdown('<div class="section-hd">📋 Riepilogo migliori opportunità</div>', unsafe_allow_html=True)
+
+        table_rows = []
+        for o in opp_results[:20]:
+            ideal_e = round(min(o["support"]*1.01, o["price"]*0.99), 2)
+            rr_str  = f"{o['rr']:.1f}:1"
+            rr_icon = "🟢" if o["rr"] >= 2 else ("🟡" if o["rr"] >= 1 else "🔴")
+            segnali_breve = " · ".join([s[0] for s in o["signals"]])
+            ps = o["ps"]
+            qty_str = str(ps["n_shares"]) if ps else "—"
+            table_rows.append({
+                "Score": f"{'★'*min(o['score'],5)}{'☆'*(5-min(o['score'],5))}",
+                "Ticker": o["ticker"],
+                "Nome": o["nome"][:22],
+                "Categoria": o["categoria"],
+                "Fonte": {"watchlist":"👁️ WL","globale":"🌍 Globale"}.get(o["fonte"],o["fonte"]),
+                "Prezzo": f"{o['price']:.2f}",
+                "Ingresso": f"{ideal_e:.2f}",
+                "Target": f"{o['target']:.2f}  +{o['up_pct']:.1f}%",
+                "Stop": f"{o['stop_est']:.2f}  -{o['dn_pct']:.1f}%",
+                "R/R": f"{rr_icon} {rr_str}",
+                "Qty (1% rischio)": qty_str,
+                "Segnali": segnali_breve,
+            })
+
+        if table_rows:
+            df_table = pd.DataFrame(table_rows)
+            st.dataframe(df_table, use_container_width=True, hide_index=True,
+                         column_config={
+                             "Score": st.column_config.TextColumn("⭐ Score", width="small"),
+                             "Ticker": st.column_config.TextColumn("Ticker", width="small"),
+                             "Nome": st.column_config.TextColumn("Nome"),
+                             "Categoria": st.column_config.TextColumn("Categoria", width="small"),
+                             "Fonte": st.column_config.TextColumn("Fonte", width="small"),
+                             "Prezzo": st.column_config.TextColumn("Prezzo", width="small"),
+                             "Ingresso": st.column_config.TextColumn("Ingresso ideale", width="small"),
+                             "Target": st.column_config.TextColumn("Target"),
+                             "Stop": st.column_config.TextColumn("Stop loss"),
+                             "R/R": st.column_config.TextColumn("R/R ratio", width="small"),
+                             "Qty (1% rischio)": st.column_config.TextColumn("Quote da comprare", width="small"),
+                             "Segnali": st.column_config.TextColumn("Segnali tecnici"),
+                         })
+            st.caption("Qty = quante quote acquistare per rischiare esattamente l'1% del portafoglio su ogni operazione. R/R = rapporto guadagno potenziale / rischio (verde ≥2:1 = ottimo).")
+
+        st.markdown('<div class="section-hd">📄 Dettaglio per ogni opportunità</div>', unsafe_allow_html=True)
 
         # Filtro per categoria
         cats_found = sorted(set(o["categoria"] for o in opp_results))
