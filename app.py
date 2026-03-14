@@ -1040,18 +1040,127 @@ with tab3:
                     st.info("Dati tecnici non disponibili per questo ticker")
 
             with col_ai:
+                # ── Spiegazione automatica GRATUITA (solo dati tecnici Yahoo Finance) ──
+                def explain_free(td, lbl, nome, ticker, pnl_pct=None):
+                    """Genera spiegazione in linguaggio semplice dai dati tecnici. Zero costi API."""
+                    if not td:
+                        return "<i style='color:#64748B'>Dati tecnici non disponibili per questo ticker.</i>"
+
+                    parts = []
+                    p = td["price"]; rsi = td["rsi"]; macd = td["macd_h"]
+                    ma50 = td["ma50"]; ma200 = td["ma200"]
+                    sup = td["support"]; res = td["resistance"]
+                    cross = td["cross"]
+
+                    # 1. TREND GENERALE
+                    if ma50 and ma200:
+                        if p > ma50 and p > ma200:
+                            trend = "Il titolo è <b>in trend positivo</b>: il prezzo è sopra le sue medie storiche sia di breve che di lungo periodo. Questo è un segnale incoraggiante."
+                        elif p > ma50 and p < ma200:
+                            trend = "Il titolo mostra un <b>recupero di breve periodo</b> ma è ancora sotto la media di lungo termine. Il rimbalzo è in corso, ma non è ancora confermato su scala ampia."
+                        elif p < ma50 and p > ma200:
+                            trend = "Il titolo è <b>in una fase di debolezza temporanea</b>: ha incrociato al ribasso la media di breve (50 giorni) ma regge ancora quella di lungo (200 giorni). Situazione da monitorare."
+                        else:
+                            trend = "Il titolo è <b>sotto entrambe le medie storiche</b> (breve e lungo periodo). Il trend è negativo e richiede cautela."
+                    elif ma50:
+                        trend = "Il titolo è " + ("sopra" if p > ma50 else "sotto") + " la sua media mobile a 50 giorni — segnale di trend " + ("positivo" if p > ma50 else "negativo") + " di breve periodo."
+                    else:
+                        trend = "Dati storici limitati per calcolare il trend completo."
+                    parts.append("<b>📈 SITUAZIONE ATTUALE</b><br>" + trend)
+
+                    # 2. MOMENTUM (RSI + MACD)
+                    if rsi > 75:
+                        rsi_txt = f"Il <b>momentum è molto alto</b> (RSI {rsi:.0f}): il titolo ha corso tanto e in breve tempo. Significa che molti stanno comprando e il prezzo potrebbe essere 'caldo'. Non è il momento migliore per entrare — meglio aspettare un respiro."
+                    elif rsi > 60:
+                        rsi_txt = f"Il <b>momentum è positivo</b> (RSI {rsi:.0f}): il titolo sale con forza ma senza esagerare. Chi compra ora è in una posizione ragionevole, ma occorre tenere d'occhio un'eventuale correzione."
+                    elif rsi < 25:
+                        rsi_txt = f"Il titolo è <b>molto venduto</b> (RSI {rsi:.0f}): molti stanno uscendo e il prezzo potrebbe sembrare conveniente. Attenzione però: a volte i titoli 'economici' continuano a scendere se il problema è strutturale."
+                    elif rsi < 40:
+                        rsi_txt = f"Il titolo è <b>in fase di debolezza</b> (RSI {rsi:.0f}): c'è pressione di vendita. Chi è già dentro potrebbe considerare di ridurre; chi vuole entrare conviene aspettare segnali di stabilizzazione."
+                    else:
+                        rsi_txt = f"Il <b>momentum è neutro</b> (RSI {rsi:.0f}): il titolo non è né ipercomprato né ipervenduto. Situazione bilanciata, adatta per valutare una posizione con calma."
+
+                    macd_txt = "Il <b>MACD</b> (indicatore di forza del movimento) è " + ("<b style='color:#10B981'>positivo</b>: la spinta al rialzo è attiva" if macd > 0 else "<b style='color:#EF4444'>negativo</b>: la spinta al ribasso è prevalente") + "."
+                    parts.append("<b>⚡ FORZA DEL MOVIMENTO</b><br>" + rsi_txt + "<br><br>" + macd_txt)
+
+                    # 3. LIVELLI CHIAVE
+                    dist_sup = (p - sup) / p * 100
+                    dist_res = (res - p) / p * 100
+                    key_txt = (
+                        f"<b>Supporto a {sup:.2f}</b> ({dist_sup:.1f}% sotto il prezzo attuale): "
+                        "è il livello dove il titolo ha storicamente trovato acquirenti. "
+                        "Se scende fino a lì potrebbe rimbalzare — ma se lo rompe al ribasso è un segnale negativo.<br>"
+                        f"<b>Resistenza a {res:.2f}</b> ({dist_res:.1f}% sopra il prezzo attuale): "
+                        "è il livello dove il titolo ha storicamente incontrato venditori. "
+                        "Se lo supera con forza, potrebbe andare molto più su."
+                    )
+                    if cross == "golden":
+                        key_txt += "<br>🌟 <b>Golden Cross attivo</b>: la media di 50 giorni ha superato quella di 200 giorni. Storicamente è uno dei segnali più positivi che esistano nel trading tecnico."
+                    elif cross == "death":
+                        key_txt += "<br>💀 <b>Death Cross attivo</b>: la media di 50 giorni è scesa sotto quella di 200 giorni. È uno dei segnali più negativi del trading tecnico — molti istituzionali escono in questi casi."
+                    parts.append("<b>🎯 LIVELLI DA TENERE D'OCCHIO</b><br>" + key_txt)
+
+                    # 4. COSA FARE (basato sul segnale)
+                    azioni_map = {
+                        "INCREMENTA": (
+                            "I segnali tecnici sono <b>favorevoli</b>. "
+                            "Se sei già dentro, puoi valutare di aumentare la posizione gradualmente. "
+                            "Ingresso ideale vicino al supporto (" + f"{sup:.2f}" + "). "
+                            "Target tecnico: resistenza a " + f"{res:.2f}" + ". "
+                            "Stop loss consigliato: sotto il supporto (" + f"{sup*0.97:.2f}" + ")."
+                        ),
+                        "TIENI": (
+                            "La situazione è <b>stabile</b>. Non c'è urgenza di fare nulla. "
+                            "Tieni la posizione e aspetta segnali più chiari. "
+                            "Monitorare il supporto a " + f"{sup:.2f}" + ": se lo rompe al ribasso rivaluta. "
+                            "Se supera la resistenza a " + f"{res:.2f}" + " considera di aumentare."
+                        ),
+                        "ATTENZIONE": (
+                            "I segnali sono <b>contrastanti</b>: qualcosa non va nella direzione giusta. "
+                            "Non aggiungere posizione ora. Osserva come si comporta il titolo nelle prossime settimane. "
+                            "Livello critico da monitorare: supporto a " + f"{sup:.2f}" + "."
+                        ),
+                        "ALLEGGERISCI": (
+                            "I segnali tecnici sono <b>negativi</b>. "
+                            "Considera di ridurre la posizione, specialmente se sei in guadagno. "
+                            "Se rompe il supporto a " + f"{sup:.2f}" + " valuta di uscire completamente. "
+                            "Non aggiungere posizione finché il quadro non migliora."
+                        ),
+                    }
+                    azione_txt = azioni_map.get(lbl, "Valuta la posizione in base al contesto generale del portafoglio.")
+                    if pnl_pct is not None:
+                        if pnl_pct > 20 and lbl == "ALLEGGERISCI":
+                            azione_txt += f"<br><i>Sei in guadagno del {pnl_pct:.1f}%: una presa di profitto parziale sarebbe razionale.</i>"
+                        elif pnl_pct < -15 and lbl in ("ATTENZIONE","ALLEGGERISCI"):
+                            azione_txt += f"<br><i>Sei in perdita del {abs(pnl_pct):.1f}%: valuta se le motivazioni dell'acquisto iniziale sono ancora valide.</i>"
+                    parts.append("<b>✅ COSA FARE ORA</b><br>" + azione_txt)
+
+                    return "<br><br>".join(parts)
+
+                # Recupera P&L % per il titolo corrente dal df_main
+                pnl_this = None
+                if not df_main.empty:
+                    match = df_main[df_main["Ticker"] == item_t["ticker"]]
+                    if not match.empty:
+                        pnl_this = float(match.iloc[0]["P&L %"])
+
+                # Mostra sempre la spiegazione gratuita
+                free_html = explain_free(td_t, lbl_t, item_t["nome"], item_t["ticker"], pnl_this)
                 ai_cache_key = "techexp_" + item_t["ticker"].replace("=","X").replace("-","_").replace(".","_")
-                cached = st.session_state.get(ai_cache_key)
-                if cached:
-                    st.markdown('<div class="ai-block" style="font-size:.82rem;">' + cached + '</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown(
-                        '<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:1rem;font-size:.82rem;color:#64748B;">'
-                        'Clicca il bottone per la spiegazione AI: cosa sta facendo il titolo, perché il segnale è questo, '
-                        'cosa succede nel settore e cosa fare concretamente.</div>',
-                        unsafe_allow_html=True)
-                if anthropic_key:
-                    if st.button("🤖 Analisi AI — " + item_t["nome"][:22], key="texp_" + str(idx_t), use_container_width=True):
+                ai_cached = st.session_state.get(ai_cache_key)
+
+                st.markdown(
+                    '<div style="background:#0F1829;border:1px solid #2E4070;border-radius:10px;padding:1rem 1.2rem;font-size:.82rem;line-height:1.75;">'
+                    + free_html + '</div>', unsafe_allow_html=True)
+
+                # Sezione AI opzionale solo per notizie recenti
+                if ai_cached:
+                    st.markdown('<div style="margin-top:.5rem;background:linear-gradient(135deg,#0D1526,#16213E);border:1px solid #2E4480;border-radius:8px;padding:.8rem 1rem;font-size:.8rem;line-height:1.7;">'
+                        '<span style="font-size:.62rem;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.06em;">🤖 Notizie & contesto AI</span><br><br>'
+                        + ai_cached + '</div>', unsafe_allow_html=True)
+                elif anthropic_key:
+                    st.markdown('<div style="font-size:.72rem;color:#64748B;margin-top:.4rem;">💡 Vuoi aggiungere notizie recenti e contesto sull&#39;azienda? Clicca il bottone (usa circa 0.01 EUR di API).</div>', unsafe_allow_html=True)
+                    if st.button("🗞️ Aggiungi notizie & contesto AI", key="texp_" + str(idx_t), use_container_width=True):
                         with st.spinner("Analisi AI in corso..."):
                             tech_ctx_s = ""
                             if td_t:
@@ -1118,7 +1227,7 @@ with tab3:
                             except Exception as e_t:
                                 st.error("Errore: " + str(e_t))
                 else:
-                    st.caption("Aggiungi chiave Anthropic nella sidebar per l'analisi AI")
+                    st.caption("Aggiungi chiave Anthropic nella sidebar per notizie e contesto aggiornato")
 
     if non_tradeable:
 
@@ -1357,6 +1466,64 @@ padding:.7rem;text-align:center;">
             st.rerun()
         else:
             st.error("Inserisci Ticker e Nome")
+
+    # ── ANALISI GRATUITA BATCH ───────────────────────────────────────────────
+    st.markdown('<div class="section-hd">Analisi automatica — segnale e livelli di prezzo</div>', unsafe_allow_html=True)
+    col_auto1, col_auto2 = st.columns([2,3])
+    with col_auto1:
+        missing_count = sum(1 for w in watchlist
+                           if w.get("sorgente","utente")=="utente"
+                           and not (w.get("prezzo_target") or w.get("ingresso")))
+        if missing_count > 0:
+            st.markdown(f'<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;margin-bottom:.5rem;"><b>{missing_count} titoli</b> senza segnale e livelli di prezzo.<br><span style="font-size:.75rem;color:#94A3B8;">Clicca per calcolarli automaticamente dai dati di mercato — <b>gratuito, zero API</b>.</span></div>', unsafe_allow_html=True)
+            if st.button("⚡ Calcola segnali e livelli per tutti (gratis)", key="btn_auto_all", use_container_width=True):
+                updated = 0
+                progress_auto = st.progress(0)
+                utente_items_auto = [w for w in st.session_state.data["watchlist"] if w.get("sorgente","utente")=="utente"]
+                for qi, item_a in enumerate(utente_items_auto):
+                    if item_a.get("prezzo_target") or item_a.get("ingresso"):
+                        continue
+                    ticker_a = item_a.get("ticker","")
+                    if not ticker_a or ticker_a == "N/A":
+                        continue
+                    td_a = get_technical(ticker_a)
+                    if not td_a:
+                        continue
+                    p_a = td_a["price"]; rsi_a = td_a["rsi"]; macd_a = td_a["macd_h"]
+                    sup_a = td_a["support"]; res_a = td_a["resistance"]
+                    ma50_a = td_a["ma50"]; ma200_a = td_a["ma200"]
+                    _, sig_lbl_a, _ = tech_signal(td_a)
+                    if sig_lbl_a == "INCREMENTA":    seg_a = "COMPRA"
+                    elif sig_lbl_a == "ALLEGGERISCI": seg_a = "NON_CONSIDERARE"
+                    else:                             seg_a = "MONITORA"
+                    ingresso_a = round(sup_a * 1.01, 2)
+                    stop_a     = round(sup_a * 0.96, 2)
+                    target_a   = round(res_a * 0.99, 2)
+                    if ma200_a and p_a > ma200_a * 1.05:
+                        strat_a = "Lungo termine"; orizz_a = "Lungo (> 1 anno)"
+                    elif ma50_a and p_a > ma50_a:
+                        strat_a = "Medio termine"; orizz_a = "Medio (3-12 mesi)"
+                    else:
+                        strat_a = "Breve termine"; orizz_a = "Breve (< 3 mesi)"
+                    rsi_note_a = "ipercomprato" if rsi_a > 70 else ("ipervenduto" if rsi_a < 30 else "neutro")
+                    note_a = f"RSI {rsi_a:.0f} ({rsi_note_a}). MACD {'positivo' if macd_a>0 else 'negativo'}. Livelli da supporto/resistenza tecnica."
+                    idx_wa = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==ticker_a), None)
+                    if idx_wa is not None:
+                        st.session_state.data["watchlist"][idx_wa].update({
+                            "segnale":seg_a,"ingresso":ingresso_a,"prezzo_target":target_a,
+                            "stop_loss":stop_a,"strategia":strat_a,"orizzonte":orizz_a,
+                            "note":note_a,"ai_pending":False
+                        })
+                        updated += 1
+                    progress_auto.progress(int((qi+1)/max(len(utente_items_auto),1)*100))
+                save_data(st.session_state.data)
+                progress_auto.empty()
+                st.success(f"Aggiornati {updated} titoli con segnale e livelli di prezzo!")
+                st.rerun()
+        else:
+            st.markdown('<div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;">Tutti i titoli hanno segnale e livelli calcolati.</div>', unsafe_allow_html=True)
+    with col_auto2:
+        st.markdown('<div class="tooltip-box"><b>Come funziona:</b> scarica i prezzi storici da Yahoo Finance (gratis) e calcola segnale, ingresso, target, stop loss e strategia per ogni titolo. Per notizie recenti e analisi fondamentale usa "Rianalizza" (AI, circa 0.01 EUR per titolo).</div>', unsafe_allow_html=True)
 
     # ── FILTRI ────────────────────────────────────────────────────────────────
     st.markdown("")
