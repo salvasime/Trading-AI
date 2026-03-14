@@ -68,6 +68,7 @@ CATEGORY_COLORS = {"Azioni":"#3B82F6","ETF":"#10B981","Obbligazioni":"#F59E0B",
 
 DEFAULT_DATA = {
     "portfolio": [
+        # AZIONI
         {"nome":"Leonardo","ticker":"LDO.MI","valuta":"EUR","prezzo_carico":20.640,"quantita":33,"categoria":"Azioni","prezzo_manuale":None},
         {"nome":"Ipsos","ticker":"IPS.PA","valuta":"EUR","prezzo_carico":46.053,"quantita":30,"categoria":"Azioni","prezzo_manuale":None},
         {"nome":"Trigano","ticker":"TRI.PA","valuta":"EUR","prezzo_carico":106.19,"quantita":5,"categoria":"Azioni","prezzo_manuale":None},
@@ -76,9 +77,11 @@ DEFAULT_DATA = {
         {"nome":"Cal-Maine Foods","ticker":"CALM","valuta":"USD","prezzo_carico":93.73,"quantita":16,"categoria":"Azioni","prezzo_manuale":None},
         {"nome":"Zealand Pharma","ticker":"ZEAL.CO","valuta":"DKK","prezzo_carico":421.95,"quantita":22,"categoria":"Azioni","prezzo_manuale":None},
         {"nome":"Adobe","ticker":"ADBE","valuta":"USD","prezzo_carico":272.47,"quantita":4,"categoria":"Azioni","prezzo_manuale":None},
+        # CERTIFICATI
         {"nome":"BSKT/BARC 2028","ticker":"N/A","valuta":"EUR","prezzo_carico":97.09,"quantita":14,"categoria":"Certificati","prezzo_manuale":None},
         {"nome":"Von Expe 2027","ticker":"N/A","valuta":"EUR","prezzo_carico":980.84,"quantita":2,"categoria":"Certificati","prezzo_manuale":None},
         {"nome":"Von Expe 2029","ticker":"N/A","valuta":"EUR","prezzo_carico":99.10,"quantita":14,"categoria":"Certificati","prezzo_manuale":None},
+        # OBBLIGAZIONI
         {"nome":"BTP 4.00% 2037","ticker":"N/A","valuta":"EUR","prezzo_carico":98.097,"quantita":7000,"categoria":"Obbligazioni","prezzo_manuale":None},
         {"nome":"BTP 4.45% 2043","ticker":"N/A","valuta":"EUR","prezzo_carico":100.140,"quantita":6000,"categoria":"Obbligazioni","prezzo_manuale":None},
         {"nome":"BTP 4.50% 2053","ticker":"N/A","valuta":"EUR","prezzo_carico":100.020,"quantita":6000,"categoria":"Obbligazioni","prezzo_manuale":None},
@@ -86,33 +89,90 @@ DEFAULT_DATA = {
         {"nome":"Romania 5.25% 2032","ticker":"N/A","valuta":"EUR","prezzo_carico":99.94,"quantita":1000,"categoria":"Obbligazioni","prezzo_manuale":None},
         {"nome":"USA T-Bond 4.00% 2030","ticker":"N/A","valuta":"USD","prezzo_carico":98.71,"quantita":6000,"categoria":"Obbligazioni","prezzo_manuale":None},
         {"nome":"Barclays 30GE45 100C","ticker":"N/A","valuta":"GBP","prezzo_carico":97.30,"quantita":1000,"categoria":"Obbligazioni","prezzo_manuale":None},
-        {"nome":"CSIF MSCI USA Small Cap ESG","ticker":"CUSS.SW","valuta":"EUR","prezzo_carico":156.660,"quantita":14,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"Lyxor MSCI Emerging Markets","ticker":"LEM.PA","valuta":"EUR","prezzo_carico":13.183,"quantita":115,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"iShares MSCI World Value Factor","ticker":"IWVL.AS","valuta":"EUR","prezzo_carico":42.429,"quantita":36,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"iShares MSCI India","ticker":"NDIA.L","valuta":"EUR","prezzo_carico":8.594,"quantita":176,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"Xtrackers World Consumer Staples","ticker":"XCS6.DE","valuta":"EUR","prezzo_carico":43.306,"quantita":45,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"Xtrackers Healthcare","ticker":"XDWH.DE","valuta":"EUR","prezzo_carico":47.717,"quantita":38,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"Xtrackers II Global Gov. Bond","ticker":"XGSG.DE","valuta":"EUR","prezzo_carico":221.001,"quantita":18,"categoria":"ETF","prezzo_manuale":None},
+        # ETF
+        {"nome":"CSIF MSCI USA Small Cap ESG","ticker":"IE00BJBYDP94.SG","valuta":"EUR","prezzo_carico":156.660,"quantita":14,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"Lyxor ETF MSCI Emerging Markets","ticker":"LEM.PA","valuta":"EUR","prezzo_carico":13.183,"quantita":115,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"iShares Edge MSCI World Value Factor","ticker":"IWWL.L","valuta":"EUR","prezzo_carico":42.429,"quantita":36,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"iShares MSCI India","ticker":"ISHARESMSCII.SI","valuta":"EUR","prezzo_carico":8.594,"quantita":176,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"Xtrackers World Consumer Staples","ticker":"XDWS.L","valuta":"EUR","prezzo_carico":43.306,"quantita":45,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"Xtrackers Healthcare","ticker":"XDWH.L","valuta":"EUR","prezzo_carico":47.717,"quantita":38,"categoria":"ETF","prezzo_manuale":None},
+        {"nome":"Xtrackers II Global Gov. Bond","ticker":"XGSH.MI","valuta":"EUR","prezzo_carico":221.001,"quantita":18,"categoria":"ETF","prezzo_manuale":None},
         {"nome":"iShares Core MSCI World","ticker":"SWDA.MI","valuta":"EUR","prezzo_carico":82.363,"quantita":53,"categoria":"ETF","prezzo_manuale":None},
-        {"nome":"Ethereum (ETH)","ticker":"ETH-EUR","valuta":"EUR","prezzo_carico":3099.44,"quantita":0.48,"categoria":"Crypto","prezzo_manuale":None},
-        {"nome":"Bitcoin (BTC)","ticker":"BTC-EUR","valuta":"EUR","prezzo_carico":56403.66,"quantita":0.26,"categoria":"Crypto","prezzo_manuale":None},
-        {"nome":"Ripple (XRP)","ticker":"XRP-EUR","valuta":"EUR","prezzo_carico":2.35,"quantita":638.87,"categoria":"Crypto","prezzo_manuale":None},
-        {"nome":"Oro (Gold ETC)","ticker":"PHAU.MI","valuta":"EUR","prezzo_carico":1580.000,"quantita":0.47,"categoria":"Materie Prime","prezzo_manuale":None},
-        {"nome":"WisdomTree Copper","ticker":"COPA.MI","valuta":"EUR","prezzo_carico":38.070,"quantita":27,"categoria":"Materie Prime","prezzo_manuale":None},
-        {"nome":"WisdomTree Physical Gold","ticker":"PHGP.MI","valuta":"EUR","prezzo_carico":173.300,"quantita":21,"categoria":"Materie Prime","prezzo_manuale":None},
+        # CRYPTO
+        {"nome":"Ethereum (ETH)","ticker":"ETH-USD","valuta":"USD","prezzo_carico":3099.44,"quantita":0.48,"categoria":"Crypto","prezzo_manuale":None},
+        {"nome":"Bitcoin (BTC)","ticker":"BTC-USD","valuta":"USD","prezzo_carico":56403.66,"quantita":0.03,"categoria":"Crypto","prezzo_manuale":None},
+        {"nome":"Ripple (XRP)","ticker":"XRP-USD","valuta":"USD","prezzo_carico":2.35,"quantita":668.09,"categoria":"Crypto","prezzo_manuale":None},
+        # MATERIE PRIME
+        {"nome":"Oro (Futures)","ticker":"GC=F","valuta":"USD","prezzo_carico":1580.000,"quantita":0.47,"categoria":"Materie Prime","prezzo_manuale":None},
+        {"nome":"WisdomTree Copper","ticker":"COPA.L","valuta":"EUR","prezzo_carico":38.070,"quantita":27,"categoria":"Materie Prime","prezzo_manuale":None},
+        {"nome":"WisdomTree Physical Gold","ticker":"PHAU.L","valuta":"EUR","prezzo_carico":173.300,"quantita":21,"categoria":"Materie Prime","prezzo_manuale":None},
     ],
-    "watchlist": [],
+    "watchlist": [
+        # WATCHLIST PERSONALE (sorgente="utente")
+        {"ticker":"MSFT","nome":"Microsoft","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"DAL","nome":"Delta Airlines","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"RDDT","nome":"Reddit","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"DIS","nome":"Walt Disney","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"KOID","nome":"KraneShares Global Humanoid","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NUCL","nome":"VanEck Uranium & Nuclear ETF","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MELI","nome":"MercadoLibre","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"AMPF.MI","nome":"Amplifon","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ENEL.MI","nome":"Enel","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SES.MI","nome":"Sesa","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NVDA","nome":"NVIDIA","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"XPEL","nome":"XPEL Inc.","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ICLR","nome":"Icon PLC","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"IP.MI","nome":"Interpump Group","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"AMZN","nome":"Amazon","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"PYPL","nome":"PayPal","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"IONQ","nome":"IonQ","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SLVP","nome":"Argento (iShares Silver)","categoria":"Materie Prime","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NVO","nome":"Novo Nordisk","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"LLY","nome":"Eli Lilly","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"REGN","nome":"Regeneron Pharmaceuticals","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"XCS6.DE","nome":"Xtrackers MSCI China","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"GOOG","nome":"Alphabet (Google)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"CSJP.L","nome":"MSCI Japan UCITS ETF","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NKE","nome":"Nike","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"HLNE","nome":"Hamilton Lane","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ARIS.MI","nome":"Ariston","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MAIRE.MI","nome":"Maire Tecnimont","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"KLARNA","nome":"Klarna (da seguire IPO)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"IPO attesa 2025","ai_pending":False},
+        {"ticker":"PRT.MI","nome":"Esprinet","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+    ],
     "agent_cache": {},
     "trade_history": [],
     "email_settings": {}
 }
 
 def load_data():
+    """
+    Strategia di caricamento:
+    1. Se esiste data/portfolio.json -> usalo (contiene i prezzi manuali salvati)
+    2. Se NON esiste -> usa DEFAULT_DATA (primo avvio o reset)
+    I prezzi manuali vengono preservati: il file JSON e' la fonte di verita'.
+    """
     if DATA_FILE.exists():
-        d = json.loads(DATA_FILE.read_text())
-        for k in ["agent_cache","trade_history","email_settings","watchlist"]:
-            if k not in d: d[k] = {} if k in ["agent_cache","email_settings"] else []
-        return d
+        try:
+            d = json.loads(DATA_FILE.read_text())
+            # Aggiungi chiavi mancanti senza sovrascrivere nulla
+            for k in ["agent_cache","trade_history","email_settings","watchlist"]:
+                if k not in d:
+                    d[k] = {} if k in ["agent_cache","email_settings"] else []
+            # Aggiorna portafoglio con nuovi asset di DEFAULT_DATA senza toccare quelli esistenti
+            existing_tickers = {p.get("ticker","") for p in d.get("portfolio",[])}
+            for default_item in DEFAULT_DATA["portfolio"]:
+                if default_item.get("ticker","N/A") not in existing_tickers:
+                    d["portfolio"].append(default_item)
+            # Aggiorna watchlist con nuovi titoli utente senza toccare quelli esistenti
+            existing_wl_tickers = {w.get("ticker","") for w in d.get("watchlist",[])}
+            for default_wl in DEFAULT_DATA["watchlist"]:
+                if default_wl.get("ticker","") not in existing_wl_tickers:
+                    d["watchlist"].append(default_wl)
+            return d
+        except Exception as e:
+            # File corrotto: usa default ma segnala
+            st.warning(f"File dati corrotto, ripristino default: {e}")
     return DEFAULT_DATA.copy()
 
 def save_data(d):
@@ -900,6 +960,39 @@ with tab4:
             with st.spinner(""):
                 results = run_multi_agent_analysis(anthropic_key, df_main, mkt, st.session_state.data["watchlist"], news)
                 st.session_state.data["agent_cache"] = {"date":today,"time":datetime.now().strftime("%H:%M"),"results":results}
+                # Estrai idee AI dall'agente optimizer e salvale in watchlist
+                try:
+                    opt_text = results.get("ottimizzazione","")
+                    if opt_text and anthropic_key:
+                        cl_extract = anthropic.Anthropic(api_key=anthropic_key)
+                        existing_tickers_wl = {w.get("ticker","").upper() for w in st.session_state.data["watchlist"]}
+                        pf_tickers = {p.get("ticker","").upper() for p in st.session_state.data["portfolio"]}
+                        extraction = cl_extract.messages.create(
+                            model="claude-sonnet-4-20250514", max_tokens=600,
+                            system="Estrai i nuovi acquisti suggeriti dall'analisi. Rispondi SOLO in JSON array valido senza markdown.",
+                            messages=[{"role":"user","content":
+                                f'Da questo piano operativo, estrai i titoli suggeriti come NUOVI ACQUISTI (non quelli gia\' in portafoglio). '
+                                f'Tickers gia\' in portafoglio da ESCLUDERE: {list(pf_tickers)}. '
+                                f'Tickers gia\' in watchlist da ESCLUDERE: {list(existing_tickers_wl)}. '
+                                f'TESTO: {opt_text[:1500]} '
+                                f'Rispondi con JSON array (max 5 elementi, solo titoli con ticker Yahoo Finance chiaro): '
+                                f'[{{"ticker":"AAPL","nome":"Apple Inc.","categoria":"Azioni","segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"motivazione specifica max 150 caratteri"}}]. '
+                                f'Se non ci sono titoli chiari con ticker, rispondi con [] (array vuoto).'}]
+                        ).content[0].text.strip()
+                        ai_suggestions = json.loads(extraction)
+                        new_ai_count = 0
+                        for sugg in ai_suggestions:
+                            ticker_up = sugg.get("ticker","").upper()
+                            if ticker_up and ticker_up not in existing_tickers_wl and ticker_up not in pf_tickers:
+                                sugg["sorgente"] = "ai"
+                                sugg["ai_pending"] = False
+                                st.session_state.data["watchlist"].append(sugg)
+                                existing_tickers_wl.add(ticker_up)
+                                new_ai_count += 1
+                        if new_ai_count > 0:
+                            st.success(f"🤖 {new_ai_count} nuovi titoli AI aggiunti alla watchlist!")
+                except Exception as e:
+                    pass  # Non bloccare se l'estrazione fallisce
                 save_data(st.session_state.data)
                 cache_valid = True
                 cache = st.session_state.data["agent_cache"]
@@ -926,19 +1019,32 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
     watchlist = st.session_state.data["watchlist"]
-    buy_c = sum(1 for w in watchlist if w.get("segnale")=="COMPRA")
-    mon_c = sum(1 for w in watchlist if w.get("segnale")=="MONITORA")
-    sel_c = sum(1 for w in watchlist if w.get("segnale")=="VENDI")
 
-    sb1,sb2,sb3 = st.columns(3)
-    for col,(cnt,label,color) in zip([sb1,sb2,sb3],
-        [(buy_c,"🟢 Da comprare","#10B981"),(mon_c,"🟡 Monitorare","#F59E0B"),(sel_c,"🔴 Da vendere","#EF4444")]):
+    # ── KPI HEADER ────────────────────────────────────────────────────────────
+    wl_utente = [w for w in watchlist if w.get("sorgente","utente") == "utente"]
+    wl_ai     = [w for w in watchlist if w.get("sorgente") == "ai"]
+    buy_c  = sum(1 for w in watchlist if w.get("segnale")=="COMPRA")
+    mon_c  = sum(1 for w in watchlist if w.get("segnale")=="MONITORA")
+    sell_c = sum(1 for w in watchlist if w.get("segnale")=="VENDI")
+
+    k1,k2,k3,k4,k5 = st.columns(5)
+    for col,(cnt,label,color) in zip([k1,k2,k3,k4,k5],[
+        (len(wl_utente),"👤 Miei titoli","#3B82F6"),
+        (len(wl_ai),"🤖 Idee AI","#8B5CF6"),
+        (buy_c,"🟢 COMPRA","#10B981"),
+        (mon_c,"🟡 MONITORA","#F59E0B"),
+        (sell_c,"🔴 NON CONSIDERARE","#EF4444"),
+    ]):
         with col:
-            st.markdown(f'<div style="background:{color}12;border:1px solid {color}33;border-radius:10px;padding:.8rem;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:{color};font-family:\'JetBrains Mono\',monospace;">{cnt}</div><div style="font-size:.72rem;color:#64748B;">{label}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'''<div style="background:{color}12;border:1px solid {color}33;border-radius:10px;
+padding:.7rem;text-align:center;">
+<div style="font-size:1.3rem;font-weight:700;color:{color};font-family:'JetBrains Mono',monospace;">{cnt}</div>
+<div style="font-size:.68rem;color:#64748B;">{label}</div></div>''', unsafe_allow_html=True)
 
-    st.markdown('<div class="section-hd">Aggiungi titolo — l\'AI analizza tutto automaticamente</div>', unsafe_allow_html=True)
+    # ── AGGIUNGI TITOLO ───────────────────────────────────────────────────────
+    st.markdown('<div class="section-hd">Aggiungi titolo alla tua watchlist</div>', unsafe_allow_html=True)
     wa,wb,wc_col,wd_col = st.columns([2,2,2,1])
-    with wa: wt = st.text_input("Ticker Yahoo *", placeholder="es. NVDA, ENI.MI, BTC-EUR", key="wt")
+    with wa: wt = st.text_input("Ticker Yahoo *", placeholder="es. NVDA · AAPL · BTC-EUR", key="wt")
     with wb: wn = st.text_input("Nome *", placeholder="es. NVIDIA Corporation", key="wn")
     with wc_col: wcat = st.selectbox("Categoria", ["Azioni","ETF","Crypto","Obbligazioni","Materie Prime"], key="wcat")
     with wd_col:
@@ -947,9 +1053,13 @@ with tab5:
 
     if add_btn:
         if wt and wn:
-            new_item = {"ticker":wt.upper(),"nome":wn,"categoria":wcat,
-                        "segnale":"MONITORA","prezzo_target":None,"stop_loss":None,
-                        "orizzonte":None,"note":"⏳ In attesa analisi AI...","ai_pending":True}
+            new_item = {
+                "ticker":wt.upper(),"nome":wn,"categoria":wcat,
+                "sorgente":"utente",
+                "segnale":"MONITORA","prezzo_target":None,"stop_loss":None,
+                "ingresso":None,"strategia":None,"orizzonte":None,
+                "note":"⏳ In attesa analisi AI...","ai_pending":True
+            }
             st.session_state.data["watchlist"].append(new_item)
             save_data(st.session_state.data)
             if anthropic_key:
@@ -963,12 +1073,12 @@ with tab5:
                     try:
                         cl_add = anthropic.Anthropic(api_key=anthropic_key)
                         ai_text = cl_add.messages.create(
-                            model="claude-sonnet-4-20250514", max_tokens=400,
+                            model="claude-sonnet-4-20250514", max_tokens=500,
                             system="Sei un analista finanziario. Rispondi SOLO in JSON valido senza markdown.",
                             messages=[{"role":"user","content":
                                 f'Analizza {wn} ({wt.upper()}). Dati tecnici: {tech_ctx if tech_ctx else "N/A"}. '
-                                f'Rispondi con SOLO questo JSON: {{"segnale":"COMPRA","prezzo_target":0.0,"stop_loss":0.0,"orizzonte":"Medio (3-12 mesi)","note":"motivazione max 120 caratteri italiano"}}. '
-                                f'segnale: COMPRA, MONITORA o VENDI'}]
+                                f'Rispondi con SOLO questo JSON: {{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"motivazione max 150 caratteri italiano"}}. '
+                                f'segnale deve essere COMPRA, MONITORA o NON_CONSIDERARE. strategia: Breve termine (< 3 mesi) o Lungo termine (> 1 anno) o Medio termine (3-12 mesi).'}]
                         ).content[0].text.strip()
                         ai_data = json.loads(ai_text)
                         wl_idx = len(st.session_state.data["watchlist"]) - 1
@@ -981,87 +1091,150 @@ with tab5:
                         save_data(st.session_state.data)
                         st.warning(f"Aggiunto senza analisi AI: {e}")
             else:
-                st.success(f"✅ {wn} aggiunto (aggiungi chiave Anthropic per analisi AI)")
+                st.success(f"✅ {wn} aggiunto")
             st.rerun()
         else:
             st.error("Inserisci Ticker e Nome")
 
+    # ── FILTRI ────────────────────────────────────────────────────────────────
     st.markdown("")
-    filtro = st.radio("Filtra:", ["Tutti","🟢 COMPRA","🟡 MONITORA","🔴 VENDI"], horizontal=True)
-    fm = {"Tutti":None,"🟢 COMPRA":"COMPRA","🟡 MONITORA":"MONITORA","🔴 VENDI":"VENDI"}
-    filtered = [w for w in watchlist if fm[filtro] is None or w.get("segnale")==fm[filtro]]
-    if not filtered:
-        st.info("Nessun titolo in watchlist.")
+    fc1, fc2 = st.columns([1,2])
+    with fc1:
+        filtro_sorg = st.radio("Sorgente:", ["Tutti","👤 Miei","🤖 AI"], horizontal=True, key="filt_sorg")
+    with fc2:
+        filtro_seg = st.radio("Segnale:", ["Tutti","🟢 COMPRA","🟡 MONITORA","🔴 NON CONSIDERARE"], horizontal=True, key="filt_seg")
 
-    for i in range(0, len(filtered), 3):
-        row_w = filtered[i:i+3]
-        cols_w = st.columns(3)
-        for j, item in enumerate(row_w):
-            with cols_w[j]:
-                sig = item.get("segnale","MONITORA")
-                sc = {"COMPRA":"#10B981","MONITORA":"#F59E0B","VENDI":"#EF4444"}.get(sig,"#F59E0B")
-                price = get_price(item["ticker"]) if item.get("ticker","N/A") != "N/A" else None
-                td_w = get_technical(item["ticker"]) if item.get("ticker","N/A") != "N/A" else None
-                tech_em, _, _ = tech_signal(td_w)
-                rsi_str = f"{td_w['rsi']:.0f}" if td_w else "—"
-                score = 5
-                if td_w:
-                    if td_w["price"] > (td_w["ma50"] or 0): score+=1
-                    if td_w["price"] > (td_w["ma200"] or 0): score+=1
-                    if td_w["rsi"] < 40: score+=1
-                    if td_w["macd_h"] > 0: score+=1
-                    if td_w["rsi"] > 70: score-=2
-                    score = max(1,min(10,score))
-                sc2 = "#10B981" if score>=7 else ("#F59E0B" if score>=4 else "#EF4444")
-                tgt = item.get("prezzo_target"); sl = item.get("stop_loss")
-                dist_str = f"{(tgt-price)/price*100:+.1f}% al target" if price and tgt and tgt>0 else ""
-                tgt_d = f"{tgt:.2f}" if tgt and tgt>0 else "—"
-                sl_d  = f"{sl:.2f}"  if sl  and sl>0  else "—"
-                price_d = f"{price:.2f}" if price else "N/A"
-                note_h = f'<div style="margin-top:.5rem;font-size:.75rem;color:#94A3B8;border-top:1px solid #1E2D47;padding-top:.4rem;">{"⏳ " if item.get("ai_pending") else ""}{item.get("note","")}</div>' if item.get("note") else ""
-                st.markdown(f"""<div style="background:#0F1829;border:1px solid {sc}44;border-left:3px solid {sc};border-radius:10px;padding:1rem;margin-bottom:.5rem;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
-<span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:{sc};">{item.get('ticker','')}</span>
-<div style="display:flex;gap:4px;">
-<span style="background:{sc2}22;color:{sc2};border:1px solid {sc2}44;padding:1px 7px;border-radius:20px;font-size:.65rem;font-weight:700;">Score {score}/10</span>
-<span style="background:{sc}22;color:{sc};border:1px solid {sc}44;padding:1px 7px;border-radius:20px;font-size:.65rem;font-weight:700;">{sig}</span>
-</div></div>
-<div style="font-size:.85rem;font-weight:600;color:#E8EDF5;margin-bottom:.6rem;">{item.get('nome','')}</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.78rem;">
-<div><span style="color:#64748B;">Prezzo: </span><span style="font-family:'JetBrains Mono',monospace;">{price_d}</span></div>
-<div><span style="color:#64748B;">Target: </span><span style="color:{sc};">{tgt_d}</span></div>
-<div><span style="color:#64748B;">Stop: </span><span style="color:#EF4444;">{sl_d}</span></div>
-<div><span style="color:#64748B;">RSI: </span><span>{tech_em} {rsi_str}</span></div>
+    sorg_map = {"Tutti":None,"👤 Miei":"utente","🤖 AI":"ai"}
+    seg_map  = {"Tutti":None,"🟢 COMPRA":"COMPRA","🟡 MONITORA":"MONITORA","🔴 NON CONSIDERARE":"NON_CONSIDERARE"}
+    filtered = [w for w in watchlist
+                if (sorg_map[filtro_sorg] is None or w.get("sorgente","utente")==sorg_map[filtro_sorg])
+                and (seg_map[filtro_seg] is None or w.get("segnale")==seg_map[filtro_seg])]
+
+    # ── SEZIONE TITOLI UTENTE ─────────────────────────────────────────────────
+    utente_filtered = [w for w in filtered if w.get("sorgente","utente") == "utente"]
+    ai_filtered     = [w for w in filtered if w.get("sorgente") == "ai"]
+
+    def render_wl_card(item, card_idx, is_ai=False):
+        sig = item.get("segnale","MONITORA")
+        # Mappa NON_CONSIDERARE a rosso
+        sig_display = "NON CONSIDERARE" if sig == "NON_CONSIDERARE" else sig
+        sc = {"COMPRA":"#10B981","MONITORA":"#F59E0B","NON_CONSIDERARE":"#EF4444","VENDI":"#EF4444"}.get(sig,"#F59E0B")
+
+        price = get_price(item["ticker"]) if item.get("ticker","N/A") not in ("N/A","",None) else None
+        td_w  = get_technical(item["ticker"]) if item.get("ticker","N/A") not in ("N/A","",None) else None
+        rsi_str = f"{td_w['rsi']:.0f}" if td_w else "—"
+        tech_em, _, _ = tech_signal(td_w)
+
+        tgt = item.get("prezzo_target")
+        sl  = item.get("stop_loss")
+        ing = item.get("ingresso")
+        tgt_d = f"{tgt:.2f}" if tgt and tgt>0 else "—"
+        sl_d  = f"{sl:.2f}"  if sl  and sl>0  else "—"
+        ing_d = f"{ing:.2f}" if ing and ing>0  else "—"
+        price_d = f"{price:.2f}" if price else "N/A"
+
+        dist_str = ""
+        if price and tgt and tgt > 0:
+            dist_pct = (tgt-price)/price*100
+            dist_str = f"{dist_pct:+.1f}% al target"
+
+        ai_badge = '<span style="background:#8B5CF622;color:#8B5CF6;border:1px solid #8B5CF644;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;">🤖 AI</span>' if is_ai else '<span style="background:#3B82F622;color:#3B82F6;border:1px solid #3B82F644;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;">👤 MIO</span>'
+
+        strat = item.get("strategia","")
+        orizz = item.get("orizzonte","")
+        note  = item.get("note","")
+        ai_note_section = ""
+        if is_ai and note and not item.get("ai_pending"):
+            ai_note_section = f'''<div style="margin-top:.6rem;background:rgba(139,92,246,.08);border:1px solid #8B5CF633;border-radius:6px;padding:.5rem .7rem;font-size:.75rem;color:#C4B5FD;line-height:1.5;">
+<span style="font-size:.62rem;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.06em;">💡 Perché nel tuo portafoglio</span><br>{note}</div>'''
+        elif note and not is_ai:
+            ai_note_section = f'<div style="margin-top:.5rem;font-size:.75rem;color:#94A3B8;border-top:1px solid #1E2D47;padding-top:.4rem;">{"⏳ " if item.get("ai_pending") else ""}{note}</div>'
+
+        st.markdown(f'''<div style="background:#0F1829;border:1px solid {sc}44;border-left:3px solid {sc};border-radius:10px;padding:1rem;margin-bottom:.5rem;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+  <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:{sc};">{item.get("ticker","")}</span>
+  <div style="display:flex;gap:4px;align-items:center;">
+    {ai_badge}
+    <span style="background:{sc}22;color:{sc};border:1px solid {sc}44;padding:1px 7px;border-radius:20px;font-size:.65rem;font-weight:700;">{sig_display}</span>
+  </div>
 </div>
-{f'<div style="margin-top:.3rem;font-size:.72rem;color:#64748B;">{dist_str}</div>' if dist_str else ""}
-{f'<div style="margin-top:.3rem;font-size:.72rem;color:#64748B;">⏱ {item.get("orizzonte","")}</div>' if item.get("orizzonte") else ""}
-{note_h}</div>""", unsafe_allow_html=True)
-                ba, bb = st.columns(2)
-                with ba:
-                    if anthropic_key and st.button("🤖 Rianalizza", key=f"rai_{i+j}", use_container_width=True):
-                        with st.spinner("AI..."):
-                            td_r = get_technical(item["ticker"])
-                            ctx_r = f"Prezzo:{td_r['price']:.2f}, RSI:{td_r['rsi']:.0f}" if td_r else "N/A"
-                            try:
-                                cl_r = anthropic.Anthropic(api_key=anthropic_key)
-                                ai_r = cl_r.messages.create(
-                                    model="claude-sonnet-4-20250514", max_tokens=300,
-                                    system="Rispondi SOLO in JSON valido senza markdown.",
-                                    messages=[{"role":"user","content":
-                                        f'Rianalizza {item["nome"]} ({item["ticker"]}). Tecnica: {ctx_r}. '
-                                        f'JSON: {{"segnale":"COMPRA","prezzo_target":0.0,"stop_loss":0.0,"orizzonte":"Medio (3-12 mesi)","note":"motivazione"}}'}]
-                                ).content[0].text.strip()
-                                ai_d = json.loads(ai_r)
-                                wl_r_idx = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker"))
-                                st.session_state.data["watchlist"][wl_r_idx].update(ai_d)
-                                save_data(st.session_state.data); st.rerun()
-                            except: st.error("Errore AI")
-                with bb:
-                    if st.button("🗑️ Rimuovi", key=f"rw_{i+j}", use_container_width=True):
-                        wl_rm = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker")), None)
-                        if wl_rm is not None:
-                            st.session_state.data["watchlist"].pop(wl_rm)
-                            save_data(st.session_state.data); st.rerun()
+<div style="font-size:.85rem;font-weight:600;color:#E8EDF5;margin-bottom:.7rem;">{item.get("nome","")}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;font-size:.78rem;">
+  <div><span style="color:#64748B;">Prezzo: </span><span style="font-family:'JetBrains Mono',monospace;">{price_d}</span></div>
+  <div><span style="color:#64748B;">RSI: </span><span>{tech_em} {rsi_str}</span></div>
+  <div><span style="color:#64748B;">Ingresso: </span><span style="color:#60A5FA;font-family:'JetBrains Mono',monospace;">{ing_d}</span></div>
+  <div><span style="color:#64748B;">Target: </span><span style="color:#10B981;font-family:'JetBrains Mono',monospace;">{tgt_d}</span></div>
+  <div><span style="color:#64748B;">Stop: </span><span style="color:#EF4444;font-family:'JetBrains Mono',monospace;">{sl_d}</span></div>
+  <div><span style="color:#64748B;">Strategia: </span><span style="color:#94A3B8;">{strat if strat else "—"}</span></div>
+</div>
+{f'<div style="margin-top:.3rem;font-size:.72rem;color:#64748B;">⏱ {orizz}</div>' if orizz else ""}
+{f'<div style="margin-top:.3rem;font-size:.72rem;color:#10B981;">{dist_str}</div>' if dist_str else ""}
+{ai_note_section}
+</div>''', unsafe_allow_html=True)
+
+        ba, bb = st.columns(2)
+        with ba:
+            if anthropic_key and st.button("🤖 Rianalizza", key=f"rai_{card_idx}", use_container_width=True):
+                with st.spinner("AI..."):
+                    td_r = get_technical(item["ticker"])
+                    ctx_r = f"Prezzo:{td_r['price']:.2f}, RSI:{td_r['rsi']:.0f}, Supp:{td_r['support']:.2f}, Res:{td_r['resistance']:.2f}" if td_r else "N/A"
+                    pf_ctx = f"Portafoglio: {df_main.groupby('Categoria')['CV €'].sum().to_dict()}"
+                    try:
+                        cl_r = anthropic.Anthropic(api_key=anthropic_key)
+                        ai_r = cl_r.messages.create(
+                            model="claude-sonnet-4-20250514", max_tokens=400,
+                            system="Sei un analista finanziario senior. Rispondi SOLO in JSON valido senza markdown.",
+                            messages=[{"role":"user","content":
+                                f'Analizza {item["nome"]} ({item["ticker"]}) nel contesto del portafoglio dell\'investitore. '
+                                f'Tecnica: {ctx_r}. {pf_ctx}. '
+                                f'JSON: {{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"motivazione specifica perche questo titolo si adatta al portafoglio, max 150 caratteri"}}. '
+                                f'segnale: COMPRA, MONITORA o NON_CONSIDERARE'}]
+                        ).content[0].text.strip()
+                        ai_d = json.loads(ai_r)
+                        idx_r = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker"))
+                        st.session_state.data["watchlist"][idx_r].update(ai_d)
+                        save_data(st.session_state.data); st.rerun()
+                    except Exception as e:
+                        st.error(f"Errore AI: {e}")
+        with bb:
+            if st.button("🗑️ Rimuovi", key=f"rw_{card_idx}", use_container_width=True):
+                idx_rm = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker")), None)
+                if idx_rm is not None:
+                    st.session_state.data["watchlist"].pop(idx_rm)
+                    save_data(st.session_state.data); st.rerun()
+
+    # ── RENDER SEZIONE I MIEI TITOLI ──────────────────────────────────────────
+    if utente_filtered:
+        st.markdown('''<div style="display:flex;align-items:center;gap:.5rem;margin:1.2rem 0 .6rem;">
+<div style="width:3px;height:18px;background:#3B82F6;border-radius:2px;"></div>
+<span style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3B82F6;">👤 I miei titoli in watchlist</span>
+<span style="font-size:.7rem;color:#64748B;">({len(utente_filtered)} titoli)</span>
+</div>''', unsafe_allow_html=True)
+        for i in range(0, len(utente_filtered), 3):
+            row_w = utente_filtered[i:i+3]
+            cols_w = st.columns(3)
+            for j, item in enumerate(row_w):
+                with cols_w[j]:
+                    render_wl_card(item, f"u{i+j}", is_ai=False)
+
+    # ── RENDER SEZIONE IDEE AI ────────────────────────────────────────────────
+    if ai_filtered:
+        st.markdown('''<div style="display:flex;align-items:center;gap:.5rem;margin:1.5rem 0 .6rem;">
+<div style="width:3px;height:18px;background:#8B5CF6;border-radius:2px;"></div>
+<span style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8B5CF6;">🤖 Idee dagli agenti AI</span>
+<span style="font-size:.7rem;color:#64748B;">({len(ai_filtered)} titoli)</span>
+</div>''', unsafe_allow_html=True)
+        st.markdown('<div style="background:rgba(139,92,246,.07);border:1px solid #8B5CF622;border-radius:8px;padding:.6rem 1rem;font-size:.78rem;color:#C4B5FD;margin-bottom:.8rem;">Questi titoli sono stati suggeriti dagli agenti AI nell\'ultima analisi del portafoglio, con motivazione specifica per la tua allocazione.</div>', unsafe_allow_html=True)
+        for i in range(0, len(ai_filtered), 3):
+            row_w = ai_filtered[i:i+3]
+            cols_w = st.columns(3)
+            for j, item in enumerate(row_w):
+                with cols_w[j]:
+                    render_wl_card(item, f"a{i+j}", is_ai=True)
+
+    if not utente_filtered and not ai_filtered:
+        st.info("Nessun titolo corrisponde ai filtri selezionati.")
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 6 — BENCHMARK & SCENARI
