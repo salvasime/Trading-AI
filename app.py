@@ -108,7 +108,6 @@ DEFAULT_DATA = {
         {"nome":"WisdomTree Physical Gold","ticker":"PHAU.L","valuta":"EUR","prezzo_carico":173.300,"quantita":21,"categoria":"Materie Prime","prezzo_manuale":None},
     ],
     "watchlist": [
-        # WATCHLIST PERSONALE (sorgente="utente")
         {"ticker":"MSFT","nome":"Microsoft","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"DAL","nome":"Delta Airlines","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"RDDT","nome":"Reddit","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
@@ -116,9 +115,9 @@ DEFAULT_DATA = {
         {"ticker":"KOID","nome":"KraneShares Global Humanoid","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"NUCL","nome":"VanEck Uranium & Nuclear ETF","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"MELI","nome":"MercadoLibre","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"AMPF.MI","nome":"Amplifon","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"AMP.MI","nome":"Amplifon","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"ENEL.MI","nome":"Enel","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"SES.MI","nome":"Sesa","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SES.PA","nome":"Sesa (listata a Parigi)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"NVDA","nome":"NVIDIA","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"XPEL","nome":"XPEL Inc.","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"ICLR","nome":"Icon PLC","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
@@ -126,18 +125,18 @@ DEFAULT_DATA = {
         {"ticker":"AMZN","nome":"Amazon","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"PYPL","nome":"PayPal","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"IONQ","nome":"IonQ","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"SLVP","nome":"Argento (iShares Silver)","categoria":"Materie Prime","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SLV","nome":"iShares Silver Trust","categoria":"Materie Prime","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"NVO","nome":"Novo Nordisk","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"LLY","nome":"Eli Lilly","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"REGN","nome":"Regeneron Pharmaceuticals","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"XCS6.DE","nome":"Xtrackers MSCI China","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"GOOG","nome":"Alphabet (Google)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"CSJP.L","nome":"MSCI Japan UCITS ETF","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"CSPX.L","nome":"MSCI Japan UCITS ETF","categoria":"ETF","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"NKE","nome":"Nike","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
         {"ticker":"HLNE","nome":"Hamilton Lane","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"ARIS.MI","nome":"Ariston","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"MAIRE.MI","nome":"Maire Tecnimont","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"KLARNA","nome":"Klarna (da seguire IPO)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"IPO attesa 2025","ai_pending":False},
+        {"ticker":"ARIS.MI","nome":"Ariston Holding","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MAIRE.MI","nome":"Maire","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"BKNG","nome":"Klarna — segui su IPO (placeholder BKNG)","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"Klarna non ancora quotata. Monitora news IPO.","ai_pending":False},
         {"ticker":"PRT.MI","nome":"Esprinet","categoria":"Azioni","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
     ],
     "agent_cache": {},
@@ -999,8 +998,79 @@ with tab3:
     if tech_rows:
         st.dataframe(pd.DataFrame(tech_rows), use_container_width=True, hide_index=True, height=380)
 
+    # ── RIEPILOGO PORTAFOGLIO ────────────────────────────────────────────────────
+    st.markdown('<div class="section-hd">📋 Riepilogo del tuo portafoglio — cosa fare ora</div>', unsafe_allow_html=True)
+
+    if tech_rows:
+        df_tech = pd.DataFrame(tech_rows)
+        n_incr  = (df_tech["Raccomandazione"] == "INCREMENTA").sum()
+        n_tieni = df_tech["Raccomandazione"].isin(["TIENI","ATTENZIONE"]).sum()
+        n_alle  = (df_tech["Raccomandazione"] == "ALLEGGERISCI").sum()
+        total_tech = len(df_tech)
+
+        # Calcola RSI medio, titoli overbought/oversold
+        rsi_vals = [float(r) for r in df_tech["RSI"] if r != "—"]
+        rsi_medio = sum(rsi_vals)/len(rsi_vals) if rsi_vals else 50
+        overbought = sum(1 for r in rsi_vals if r > 70)
+        oversold   = sum(1 for r in rsi_vals if r < 30)
+
+        # Calcola P&L e allocazione dal df_main
+        pnl_tot_euro = df_main["P&L €"].sum() if not df_main.empty else 0
+        pnl_tot_pct  = (df_main["P&L %"].mean()) if not df_main.empty else 0
+        total_val_pf = df_main["CV €"].sum() if not df_main.empty else 0
+
+        # Colore dello stato generale
+        if n_incr > n_alle and rsi_medio < 65:
+            stato_color = "#10B981"; stato_label = "🟢 Portafoglio in buona salute tecnica"
+        elif n_alle > n_incr or rsi_medio > 70:
+            stato_color = "#EF4444"; stato_label = "🔴 Segnali di debolezza da non ignorare"
+        else:
+            stato_color = "#F59E0B"; stato_label = "🟡 Situazione mista — selettività necessaria"
+
+        # Box riepilogo compatto
+        vix_val = mkt.get("VIX",{}).get("value",20)
+        vix_desc = "basso (mercati sereni)" if vix_val < 15 else ("elevato (mercati nervosi)" if vix_val > 25 else "moderato")
+
+        st.markdown(f"""
+<div style="background:#0F1829;border:1px solid #2E4070;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1rem;">
+<div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:{stato_color};margin-bottom:.8rem;">{stato_label}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.8rem;margin-bottom:1rem;">
+  <div style="background:#162035;border-radius:8px;padding:.7rem;text-align:center;">
+    <div style="font-size:.62rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">Da incrementare</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#10B981;">{n_incr}</div>
+    <div style="font-size:.65rem;color:#64748B;">su {total_tech} titoli</div>
+  </div>
+  <div style="background:#162035;border-radius:8px;padding:.7rem;text-align:center;">
+    <div style="font-size:.62rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">Da tenere</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#F59E0B;">{n_tieni}</div>
+    <div style="font-size:.65rem;color:#64748B;">su {total_tech} titoli</div>
+  </div>
+  <div style="background:#162035;border-radius:8px;padding:.7rem;text-align:center;">
+    <div style="font-size:.62rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">Da alleggerire</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#EF4444;">{n_alle}</div>
+    <div style="font-size:.65rem;color:#64748B;">su {total_tech} titoli</div>
+  </div>
+  <div style="background:#162035;border-radius:8px;padding:.7rem;text-align:center;">
+    <div style="font-size:.62rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">RSI medio</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:{'#EF4444' if rsi_medio>65 else ('#10B981' if rsi_medio<40 else '#E8EDF5')}">{rsi_medio:.0f}</div>
+    <div style="font-size:.65rem;color:#64748B;">{'caldo' if rsi_medio>65 else ('freddo' if rsi_medio<40 else 'neutro')}</div>
+  </div>
+</div>
+<div style="font-size:.85rem;line-height:1.8;color:#94A3B8;">
+{"<b style='color:#E8EDF5'>In sintesi:</b> " +
+(f"Il tuo portafoglio ha <b style='color:#10B981'>{n_incr} titoli con segnali positivi</b> — opportunità di incremento per chi ha liquidità disponibile. " if n_incr > 0 else "") +
+(f"<b style='color:#F59E0B'>{n_tieni} titoli</b> sono in zona neutrale — meglio tenerli fermi e osservare. " if n_tieni > 0 else "") +
+(f"<b style='color:#EF4444'>{n_alle} titoli mostrano segnali negativi</b> — considera di ridurre l'esposizione, specialmente se sei in guadagno su questi. " if n_alle > 0 else "") +
+(f"<br><b style='color:#EF4444'>Attenzione:</b> {overbought} titoli hanno RSI sopra 70 (possibile surriscaldamento — il prezzo potrebbe correggere a breve). " if overbought > 0 else "") +
+(f"<b style='color:#10B981'>{oversold} titoli hanno RSI sotto 30</b> (possibile rimbalzo — potenziali opportunità di acquisto se i fondamentali reggono). " if oversold > 0 else "") +
+f"<br>Il VIX oggi è <b>{vix_val:.1f}</b> ({vix_desc}) — " +
+("un VIX basso favorisce i mercati azionari e le posizioni rischiose." if vix_val < 15 else ("un VIX elevato suggerisce cautela e aumenta la volatilità attesa su tutte le asset class." if vix_val > 25 else "un livello moderato che non suggerisce né euforia né panico."))}
+</div>
+{"<div style='margin-top:.8rem;padding:.6rem .8rem;background:rgba(16,185,129,.08);border-left:3px solid #10B981;border-radius:4px;font-size:.8rem;color:#94A3B8;'><b style='color:#10B981'>Suggerimento pratico:</b> Per approfondire ogni singolo titolo espandi le voci qui sotto. Per un piano operativo completo usa il tab 🤖 Multi-Agente AI.</div>" if total_tech > 0 else ""}
+</div>""", unsafe_allow_html=True)
+
     st.markdown('<div class="section-hd">Analisi dettagliata — perché fare questa scelta su ogni titolo</div>', unsafe_allow_html=True)
-    st.caption("Espandi ogni titolo per i dati tecnici e l'analisi AI in linguaggio semplice.")
+    st.caption("Espandi ogni titolo per i dati tecnici e la spiegazione in linguaggio semplice.")
 
     for idx_t, item_t in enumerate(tradeable_items):
         td_t   = get_technical(item_t["ticker"])
@@ -1495,8 +1565,9 @@ padding:.7rem;text-align:center;">
                 progress_auto = st.progress(0)
                 utente_items_auto = [w for w in st.session_state.data["watchlist"] if w.get("sorgente","utente")=="utente"]
                 for qi, item_a in enumerate(utente_items_auto):
-                    if item_a.get("prezzo_target") or item_a.get("ingresso"):
-                        continue
+                    # Ricalcola sempre (non saltare — l'utente vuole dati freschi)
+                    # if item_a.get("prezzo_target") or item_a.get("ingresso"):
+                    #     continue
                     ticker_a = item_a.get("ticker","")
                     if not ticker_a or ticker_a == "N/A":
                         continue
@@ -1510,13 +1581,11 @@ padding:.7rem;text-align:center;">
                     if sig_lbl_a == "INCREMENTA":    seg_a = "COMPRA"
                     elif sig_lbl_a == "ALLEGGERISCI": seg_a = "NON_CONSIDERARE"
                     else:                             seg_a = "MONITORA"
-                    if seg_a == "NON_CONSIDERARE":
-                        ingresso_a = None
-                        target_a   = None
-                    else:
-                        ideal_entry = sup_a * 1.01
-                        ingresso_a  = round(min(ideal_entry, p_a * 0.99), 2)
-                        target_a    = round(res_a * 0.99, 2)
+                    # Sempre un ingresso concreto, anche per NON_CONSIDERARE
+                    ideal_entry = sup_a * 1.01
+                    ingresso_a  = round(min(ideal_entry, p_a * 0.99), 2)
+                    target_a    = round(res_a * 0.99, 2)
+                    # Per NON_CONSIDERARE, l'ingresso è il livello "se mai dovesse migliorare"
                     stop_a = round(sup_a * 0.96, 2)
                     if ma200_a and p_a > ma200_a * 1.05:
                         strat_a = "Lungo termine"; orizz_a = "Lungo (> 1 anno)"
@@ -1526,11 +1595,17 @@ padding:.7rem;text-align:center;">
                         strat_a = "Breve termine"; orizz_a = "Breve (< 3 mesi)"
                     rsi_note_a = "ipercomprato" if rsi_a > 70 else ("ipervenduto" if rsi_a < 30 else "neutro")
                     if seg_a == "NON_CONSIDERARE":
-                        note_a = f"Segnali negativi: RSI {rsi_a:.0f} ({rsi_note_a}), MACD {'positivo' if macd_a>0 else 'negativo'}. Aspetta miglioramento prima di entrare."
+                        ma_note = f"Prezzo {'sotto' if ma50_a and p_a < ma50_a else 'sopra'} MA50" + (f" e {'sotto' if ma200_a and p_a < ma200_a else 'sopra'} MA200" if ma200_a else "")
+                        note_a = (f"Momento sfavorevole: RSI {rsi_a:.0f} ({rsi_note_a}), MACD {'positivo' if macd_a>0 else 'negativo'}, {ma_note}. "
+                                  f"Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a {ingresso_a}.")
                     elif seg_a == "COMPRA":
-                        note_a = f"Setup favorevole: RSI {rsi_a:.0f} ({rsi_note_a}). Ingresso vicino al supporto ({sup_a:.2f})."
+                        ma_note = "Sopra MA50 e MA200" if (ma50_a and p_a > ma50_a and ma200_a and p_a > ma200_a) else "Trend di breve positivo"
+                        note_a = (f"Setup favorevole: RSI {rsi_a:.0f} ({rsi_note_a}), MACD {'positivo' if macd_a>0 else 'negativo'}, {ma_note}. "
+                                  f"Ingresso ideale vicino al supporto ({sup_a:.2f}), target {target_a}.")
                     else:
-                        note_a = f"RSI {rsi_a:.0f} ({rsi_note_a}). Monitora supporto a {sup_a:.2f} prima di decidere."
+                        trend_dir = "in ripresa" if (ma50_a and p_a > ma50_a) else "in debolezza"
+                        note_a = (f"Segnali misti: RSI {rsi_a:.0f} ({rsi_note_a}), trend {trend_dir}. "
+                                  f"Supporto chiave a {sup_a:.2f}: se regge è un buon punto di ingresso, se rompe aspetta.")
                     idx_wa = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==ticker_a), None)
                     if idx_wa is not None:
                         st.session_state.data["watchlist"][idx_wa].update({
@@ -1581,13 +1656,17 @@ padding:.7rem;text-align:center;">
         tgt = item.get("prezzo_target")
         sl  = item.get("stop_loss")
         ing = item.get("ingresso")
-        tgt_d   = f"{tgt:.2f}" if tgt and tgt > 0 else ("N/A" if sig == "NON_CONSIDERARE" else "—")
+        tgt_d   = f"{tgt:.2f}" if tgt and tgt > 0 else "—"
         sl_d    = f"{sl:.2f}"  if sl  and sl > 0  else "—"
-        ing_d   = f"{ing:.2f}" if ing and ing > 0 else ("Non entrare ora" if sig == "NON_CONSIDERARE" else "—")
+        # Ingresso: sempre un prezzo concreto. Per NON_CONSIDERARE = livello da aspettare
+        if ing and ing > 0:
+            ing_d = f"{ing:.2f}" + (" (attendi)" if sig == "NON_CONSIDERARE" else "")
+        else:
+            ing_d = "—"
         price_d = f"{price:.2f}" if price else "N/A"
 
         dist_str = ""
-        if price and tgt and tgt > 0 and sig != "NON_CONSIDERARE":
+        if price and tgt and tgt > 0:
             dist_pct = (tgt - price) / price * 100
             dist_str = f"{dist_pct:+.1f}% al target"
 
