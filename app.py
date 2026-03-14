@@ -398,7 +398,7 @@ def compute_health_score(df, mkt):
     return max(0, min(100, round(score))), components
 
 # ── MULTI-AGENT AI ─────────────────────────────────────────────────────────────
-def call_agent(client, system_prompt, user_prompt, max_tokens=800):
+def call_agent(client, system_prompt, user_prompt, max_tokens=1200):
     try:
         msg = client.messages.create(
             model="claude-sonnet-4-20250514", max_tokens=max_tokens,
@@ -409,61 +409,215 @@ def call_agent(client, system_prompt, user_prompt, max_tokens=800):
         return f"Errore agente: {e}"
 
 def run_multi_agent_analysis(api_key, portfolio_df, market_data, watchlist, news_items):
+    """
+    5 agenti specializzati. Ogni agente riceve il contesto REALE del portafoglio
+    con nomi, ticker, P&L, allocazione. L'agente optimizer lavora SOLO sui titoli
+    effettivamente in portafoglio, non inventati.
+    """
     client = anthropic.Anthropic(api_key=api_key)
     results = {}
     progress = st.progress(0)
     status_box = st.empty()
-    vix = market_data.get("VIX",{}).get("value",20)
+    vix  = market_data.get("VIX",{}).get("value",20)
     sp500 = market_data.get("S&P 500",{}).get("delta",0)
-    news_text = "\n".join([f"- {n['title']}" for n in news_items[:10]]) if news_items else "Non disponibile"
+    eurusd = market_data.get("EUR/USD",{}).get("value",1.08)
+    ftse = market_data.get("FTSE MIB",{}).get("delta",0)
+    news_text = "\n".join([f"- {n['title']}" for n in news_items[:12]]) if news_items else "Nessuna notizia disponibile"
 
-    def agent_step(n, total, tag, color, label, system, user, max_t=800):
+    # Prepara contesto portafoglio reale completo
+    pf_rows = []
+    for _, row in portfolio_df.iterrows():
+        pnl_str = f"{row['P&L %']:+.1f}%"
+        pf_rows.append(f"  {row['Nome']} ({row['Ticker']}): {row['Categoria']} | CV €{row['CV €']:,.0f} | P&L {pnl_str}")
+    pf_detail = "\n".join(pf_rows) if pf_rows else "Portafoglio vuoto"
+
+    alloc = portfolio_df.groupby("Categoria")["CV €"].sum()
+    total_v = alloc.sum()
+    alloc_str = "\n".join([f"  {c}: €{v:,.0f} ({v/total_v*100:.1f}%)" for c,v in alloc.items()]) if total_v > 0 else "N/D"
+
+    # Dati tecnici per ogni titolo tradeable
+    tradeable = [(r["Nome"],r["Ticker"],r["P&L %"],r["CV €"]) for _,r in portfolio_df.iterrows()
+                 if r["Ticker"] not in ("N/A","",None)]
+    tech_per_titolo = []
+    for nome, ticker, pnl_pct, cv in tradeable[:14]:
+        td = get_technical(ticker)
+        if td:
+            em, lbl, reason = tech_signal(td)
+            tech_per_titolo.append(
+                f"  {nome} ({ticker}): {lbl} | RSI={td['rsi']:.0f} | MACD={td['macd_h']:+.3f} | "
+                f"P.att={td['price']:.2f} | Supp={td['support']:.2f} | Res={td['resistance']:.2f} | "
+                f"P&L={pnl_pct:+.1f}% | CV=€{cv:,.0f} | {reason}")
+        else:
+            tech_per_titolo.append(f"  {nome} ({ticker}): dati tecnici non disponibili | P&L={pnl_pct:+.1f}%")
+
+    tech_detail = "\n".join(tech_per_titolo) if tech_per_titolo else "Nessun dato tecnico"
+
+    def agent_step(n, total, color, label, system, user, max_t=1200):
         status_box.markdown(
-            f'<div class="agent-card"><span style="color:{color};font-size:.65rem;font-weight:700;letter-spacing:.08em;">'
-            f'▶ AGENTE {n}/{total}</span> <b>{label}</b></div>', unsafe_allow_html=True)
+            f'''<div style="background:#0F1829;border:1px solid #243352;border-radius:8px;padding:.7rem 1rem;margin:.3rem 0;">
+<span style="color:{color};font-size:.65rem;font-weight:700;letter-spacing:.08em;">▶ AGENTE {n}/{total}</span>
+<b style="font-size:.85rem;margin-left:.5rem;">{label}</b>
+<span style="font-size:.72rem;color:#64748B;margin-left:.5rem;">in elaborazione...</span></div>''',
+            unsafe_allow_html=True)
         result = call_agent(client, system, user, max_t)
         progress.progress(int(n/total*100))
         return result
 
-    results["macro"] = agent_step(1,5,"macro","#10B981","Analista Macro",
-        "Sei un economista macro istituzionale. Analisi concise, dati precisi, outlook chiaro.",
-        f"""VIX={vix:.1f}, S&P500={sp500:+.2f}%, EUR/USD={market_data.get('EUR/USD',{}).get('value',1.08):.4f}
-NOTIZIE:\n{news_text}
-1) Regime macro (risk-on/off) 2) 3 rischi principali 3) 3 opportunità 4) Impatto per asset class. Max 300 parole, italiano.""")
+    # ── AGENTE 1: MACRO ───────────────────────────────────────────────────────
+    results["macro"] = agent_step(1, 5, "#10B981", "Analista Macro",
+        """Sei un economista macro di livello istituzionale che spiega i mercati in modo chiaro,
+anche a investitori non esperti. Usa sempre esempi concreti e spiega l'impatto pratico sul portafoglio.""",
+        f"""DATI DI MERCATO OGGI:
+VIX={vix:.1f} (paura mercati), S&P500={sp500:+.2f}%, FTSE MIB={ftse:+.2f}%, EUR/USD={eurusd:.4f}
 
-    tradeable = [(r["Nome"],r["Ticker"]) for _,r in portfolio_df.iterrows() if r["Ticker"]!="N/A"]
-    tech_summary = []
-    for nome, ticker in tradeable[:12]:
-        td = get_technical(ticker)
-        if td:
-            em, label, reason = tech_signal(td)
-            tech_summary.append(f"{nome}: {label} | RSI={td['rsi']:.0f} | MACD={td['macd_h']:+.3f} | {reason}")
-    results["tecnica"] = agent_step(2,5,"tecnica","#3B82F6","Analista Tecnico",
-        "Sei un analista tecnico senior. Pattern recognition, livelli chiave, momentum.",
-        f"""ANALISI TECNICA:\n{chr(10).join(tech_summary)}
-1) Top 3 setup rialzisti 2) Top 3 deteriorati 3) Pattern generale 4) Livelli chiave. Max 300 parole, italiano.""")
+NOTIZIE RILEVANTI:
+{news_text}
 
-    alloc = portfolio_df.groupby("Categoria")["CV €"].sum()
-    total_v = alloc.sum()
-    alloc_str = "\n".join([f"- {c}: €{v:,.0f} ({v/total_v*100:.1f}%)" for c,v in alloc.items()])
-    top3 = portfolio_df.nlargest(3,"CV €")[["Nome","CV €"]].to_string(index=False)
-    results["rischio"] = agent_step(3,5,"rischio","#F59E0B","Risk Manager",
-        "Sei un risk manager istituzionale.",
-        f"""TOTALE: €{total_v:,.0f}\nALLOCAZIONE:\n{alloc_str}\nTOP 3:\n{top3}\nVIX:{vix:.1f}
-1) Score rischio 1-10 2) Concentrazione 3) Rischio valutario 4) Ribilanciamento 5) Hedging. Max 300 parole, italiano.""")
+PORTAFOGLIO DA ANALIZZARE (questi sono i titoli REALI dell'investitore):
+{pf_detail}
 
-    results["sentiment"] = agent_step(4,5,"sentiment","#8B5CF6","Sentiment Analyst",
-        "Sei esperto di sentiment e behavioral finance.",
-        f"""VIX:{vix:.1f}, S&P500:{sp500:+.2f}%\nNOTIZIE:\n{news_text}
-1) Fear/Greed 0-100 2) Posizionamento istituzionale 3) Rischi comportamentali 4) Opportunità contrarian. Max 250 parole, italiano.""")
+Analizza in italiano, tono chiaro e comprensibile anche a chi non è esperto di finanza.
+Struttura la risposta così:
+1) SITUAZIONE MERCATI OGGI — spiega in parole semplici se i mercati sono nervosi o tranquilli e perché
+2) 3 RISCHI DA MONITORARE — cosa potrebbe andare male e come impatta su questo portafoglio specifico
+3) 3 OPPORTUNITÀ CONCRETE — cosa potrebbe andare bene nei prossimi mesi
+4) IMPATTO SULLE TUE POSIZIONI — per ogni categoria del portafoglio (Azioni, ETF, Obbligazioni, Crypto, ecc.) spiega cosa potrebbe succedere
+Massimo 400 parole. Sii specifico sui titoli in portafoglio.""")
 
-    wl_str = "\n".join([f"- {w['ticker']}: {w.get('segnale','')} | {w.get('note','')}" for w in watchlist]) or "Nessun titolo"
-    results["ottimizzazione"] = agent_step(5,5,"ottimizzatore","#F97316","Portfolio Optimizer",
-        "Sei il gestore di un family office. Combini macro, tecnica, rischio e sentiment.",
-        f"""SINTESI:\nMACRO: {results['macro'][:400]}\nTECNICA: {results['tecnica'][:400]}\n"""
-        f"""RISCHIO: {results['rischio'][:400]}\nSENTIMENT: {results['sentiment'][:300]}\nWATCHLIST: {wl_str}
-Piano operativo: VENDI/RIDUCI/TIENI/INCREMENTA per ogni posizione + 3-5 nuovi acquisti con ticker/ingresso/target/stop + asset allocation target. Max 500 parole, italiano.""",
-        max_t=1200)
+    # ── AGENTE 2: TECNICO ─────────────────────────────────────────────────────
+    results["tecnica"] = agent_step(2, 5, "#3B82F6", "Analista Tecnico",
+        """Sei un analista tecnico senior che spiega i grafici in modo comprensibile anche a chi non conosce
+il trading. Per ogni titolo dai una spiegazione in linguaggio semplice del perché il segnale è quello che è.""",
+        f"""ANALISI TECNICA DETTAGLIATA DEI TITOLI IN PORTAFOGLIO:
+{tech_detail}
+
+VIX={vix:.1f}, S&P500={sp500:+.2f}%
+
+Spiega in italiano per OGNI titolo con dati disponibili:
+- Cosa sta facendo il titolo (sta salendo, scendendo, lateralizzando?)
+- Perché il segnale è INCREMENTA / TIENI / ATTENZIONE / ALLEGGERISCI
+- Un livello di prezzo chiave da tenere d'occhio (supporto o resistenza)
+- Una frase semplice che spieghi il ragionamento anche a chi non sa cos'è un RSI
+
+Poi un RIEPILOGO con:
+- Top 3 titoli con il setup migliore e perché
+- Top 3 titoli più a rischio e perché
+Massimo 500 parole.""",
+        max_t=1400)
+
+    # ── AGENTE 3: RISCHIO ────────────────────────────────────────────────────
+    top5 = portfolio_df.nlargest(5,"CV €")[["Nome","Ticker","CV €","P&L %"]].to_string(index=False)
+    results["rischio"] = agent_step(3, 5, "#F59E0B", "Risk Manager",
+        """Sei un risk manager di un family office. Sai spiegare i rischi in modo concreto,
+con esempi pratici che capisce anche chi non ha mai sentito parlare di finanza.""",
+        f"""PORTAFOGLIO REALE DA ANALIZZARE:
+Totale: €{total_v:,.0f}
+Allocazione:
+{alloc_str}
+
+Top 5 posizioni per valore:
+{top5}
+
+VIX: {vix:.1f}
+Notizie rilevanti: {news_text[:500]}
+
+Analizza in italiano:
+1) SCORE RISCHIO COMPLESSIVO (1-10) — spiega con parole semplici quanto è rischioso questo portafoglio
+2) CONCENTRAZIONE — ci sono posizioni troppo grandi? Cosa succede se quel titolo crolla?
+3) RISCHIO VALUTARIO — hai USD, GBP, DKK: cosa succede se l'euro si rafforza?
+4) COSA TENERE D'OCCHIO — 3 rischi specifici per questo portafoglio nei prossimi 30-90 giorni
+5) SUGGERIMENTO DI RIBILANCIAMENTO — in termini pratici, cosa cambieresti e perché
+Massimo 350 parole. Parla dei titoli reali.""")
+
+    # ── AGENTE 4: SENTIMENT ───────────────────────────────────────────────────
+    results["sentiment"] = agent_step(4, 5, "#8B5CF6", "Sentiment Analyst",
+        """Sei un esperto di sentiment di mercato e psicologia degli investitori.
+Spieghi in modo semplice cosa "sentono" i mercati e come questo impatta sulle scelte di investimento.""",
+        f"""DATI DI SENTIMENT:
+VIX={vix:.1f} (>25=paura, 15-25=neutro, <15=euforia)
+S&P500 oggi: {sp500:+.2f}%
+EUR/USD: {eurusd:.4f}
+
+NOTIZIE DI OGGI:
+{news_text}
+
+Portafoglio dell'investitore:
+{alloc_str}
+
+Analizza in italiano:
+1) FEAR & GREED OGGI — numero 0-100 e spiegazione in parole semplici (0=panico totale, 100=euforia)
+2) COSA PENSANO I GRANDI INVESTITORI — fondi, banche, hedge fund: stanno comprando o vendendo?
+3) TRAPPOLE PSICOLOGICHE DA EVITARE — quali errori tipici potrebbe fare chi ha questo portafoglio oggi?
+4) OPPORTUNITÀ CONTRARIAN — c'è qualcosa che tutti stanno ignorando o odiando che potrebbe essere un'opportunità?
+Massimo 300 parole.""")
+
+    # ── AGENTE 5: OPTIMIZER ───────────────────────────────────────────────────
+    wl_str = "\n".join([f"- {w['ticker']}: {w['nome']} ({w.get('categoria','')})" for w in watchlist[:15]]) or "Nessun titolo in watchlist"
+    # Agente 5: Optimizer — produce piano testo + JSON separato per watchlist AI
+    results["ottimizzazione"] = agent_step(5, 5, "#F97316", "Portfolio Optimizer",
+        """Sei il gestore principale di un family office che gestisce questo portafoglio.
+Dai indicazioni chiare, pratiche, con motivazioni comprensibili anche a chi non è esperto.
+NON inventare titoli che non sono in portafoglio nella PARTE 1. Lavora SOLO sui titoli elencati.""",
+        f"""HAI A DISPOSIZIONE QUESTE ANALISI:
+MACRO: {results['macro'][:500]}
+TECNICA: {results['tecnica'][:500]}
+RISCHIO: {results['rischio'][:400]}
+SENTIMENT: {results['sentiment'][:300]}
+
+PORTAFOGLIO REALE (lavora SOLO su questi titoli nella PARTE 1):
+{pf_detail}
+
+WATCHLIST PERSONALE (titoli già seguiti dall'investitore, considera per nuovi acquisti):
+{wl_str}
+
+Produci un PIANO OPERATIVO COMPLETO in italiano:
+
+PARTE 1 — AZIONI SUI TITOLI IN PORTAFOGLIO
+Per OGNI titolo in portafoglio scrivi:
+[NOME TITOLO] → AZIONE: TIENI / INCREMENTA / RIDUCI / VENDI
+Perché (2-3 frasi semplici): spiega la motivazione in modo che la capisca anche chi non conosce la finanza.
+Includi almeno una notizia recente o evento specifico sul titolo se rilevante.
+Livello chiave: [prezzo supporto o resistenza da monitorare]
+
+PARTE 2 — NUOVI ACQUISTI SUGGERITI (4-6 titoli con ticker Yahoo Finance reale e valido)
+Per ciascuno scegli titoli che COMPLETANO questo portafoglio (non duplicarli):
+[TICKER] [NOME] → COMPRA o MONITORA
+Perché si adatta: [2 frasi su come completa il portafoglio]
+Ingresso ideale: [prezzo] | Target 12 mesi: [prezzo] | Stop loss: [prezzo] | Strategia: [Breve/Medio/Lungo termine]
+
+PARTE 3 — ALLOCAZIONE TARGET
+Distribuzione % ideale del portafoglio e perché.
+
+Massimo 700 parole. Linguaggio semplice e pratico.""",
+        max_t=1800)
+
+    # Agente 5b: estrai i suggerimenti AI in JSON strutturato per la watchlist
+    try:
+        pf_tickers_set = {p.get("ticker","").upper() for p in st.session_state.data["portfolio"]}
+        wl_tickers_set = {w.get("ticker","").upper() for w in watchlist}
+        cl_json = anthropic.Anthropic(api_key=api_key)
+        json_raw = cl_json.messages.create(
+            model="claude-sonnet-4-20250514", max_tokens=800,
+            system="Estrai dati strutturati. Rispondi SOLO con JSON array valido, niente altro.",
+            messages=[{"role":"user","content":
+                f'Dal seguente piano operativo, estrai SOLO i titoli dalla PARTE 2 (Nuovi acquisti suggeriti). '
+                f'ESCLUDI questi ticker già in portafoglio: {list(pf_tickers_set)}. '
+                f'ESCLUDI questi ticker già in watchlist: {list(wl_tickers_set)}. '
+                f'Per ogni titolo trovato crea un oggetto JSON. '
+                f'Rispondi con SOLO questo array JSON (nessun testo prima o dopo): '
+                f'[{{"ticker":"AAPL","nome":"Apple","categoria":"Azioni","segnale":"COMPRA",'
+                f'"ingresso":150.0,"prezzo_target":180.0,"stop_loss":135.0,'
+                f'"strategia":"Lungo termine","orizzonte":"Medio (6-12 mesi)",'
+                f'"note":"Motivazione perche si adatta al portafoglio, max 120 caratteri"}}] '
+                f'Se non trovi titoli chiari con ticker valido Yahoo Finance, rispondi []. '
+                f'TESTO DA ANALIZZARE: {results["ottimizzazione"][:2000]}'}]
+        ).content[0].text.strip()
+        # Pulisci eventuali backtick markdown
+        json_raw = json_raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+        ai_suggestions = json.loads(json_raw)
+        results["ai_watchlist_suggestions"] = ai_suggestions
+    except Exception as e:
+        results["ai_watchlist_suggestions"] = []
 
     progress.progress(100)
     status_box.empty()
@@ -845,7 +999,129 @@ with tab3:
     if tech_rows:
         st.dataframe(pd.DataFrame(tech_rows), use_container_width=True, hide_index=True, height=380)
 
+    st.markdown('<div class="section-hd">Analisi dettagliata — perché fare questa scelta su ogni titolo</div>', unsafe_allow_html=True)
+    st.caption("Espandi ogni titolo per i dati tecnici e l'analisi AI in linguaggio semplice.")
+
+    for idx_t, item_t in enumerate(tradeable_items):
+        td_t   = get_technical(item_t["ticker"])
+        em_t, lbl_t, reason_t = tech_signal(td_t)
+        sc_map = {"INCREMENTA":"#10B981","TIENI":"#F59E0B","ATTENZIONE":"#F59E0B","ALLEGGERISCI":"#EF4444","N/D":"#64748B"}
+        sc_t   = sc_map.get(lbl_t, "#64748B")
+        with st.expander(em_t + "  " + item_t["nome"] + " (" + item_t["ticker"] + ")  —  " + lbl_t):
+            col_ind, col_ai = st.columns([1, 2])
+            with col_ind:
+                if td_t:
+                    rsi_v  = td_t["rsi"]; macd_v = td_t["macd_h"]
+                    rsi_lb = "ipercomprato 🔥" if rsi_v>70 else ("ipervenduto 💎" if rsi_v<30 else "neutro ✓")
+                    rsi_c  = "#EF4444" if rsi_v>70 else ("#10B981" if rsi_v<30 else "#94A3B8")
+                    mac_c  = "#10B981" if macd_v>0 else "#EF4444"
+                    mac_lb = "↑ rialzista" if macd_v>0 else "↓ ribassista"
+                    ma50s  = str(round(td_t["ma50"],2)) if td_t["ma50"] else "—"
+                    ma200s = str(round(td_t["ma200"],2)) if td_t["ma200"] else "—"
+                    cross_s= "🌟 Golden Cross" if td_t["cross"]=="golden" else ("💀 Death Cross" if td_t["cross"]=="death" else "—")
+                    rows_html = (
+                        "<div style='color:#64748B;'>Prezzo</div><div style='font-family:monospace;'>" + str(round(td_t["price"],2)) + "</div>"
+                        "<div style='color:#64748B;'>RSI</div><div style='color:" + rsi_c + ";font-family:monospace;'>" + str(round(rsi_v)) + " — " + rsi_lb + "</div>"
+                        "<div style='color:#64748B;'>MACD</div><div style='color:" + mac_c + ";font-family:monospace;'>" + ("+"+str(round(macd_v,3)) if macd_v>0 else str(round(macd_v,3))) + " " + mac_lb + "</div>"
+                        "<div style='color:#64748B;'>MA50</div><div style='font-family:monospace;'>" + ma50s + "</div>"
+                        "<div style='color:#64748B;'>MA200</div><div style='font-family:monospace;'>" + ma200s + "</div>"
+                        "<div style='color:#64748B;'>Supporto</div><div style='color:#10B981;font-family:monospace;'>" + str(round(td_t["support"],2)) + "</div>"
+                        "<div style='color:#64748B;'>Resistenza</div><div style='color:#EF4444;font-family:monospace;'>" + str(round(td_t["resistance"],2)) + "</div>"
+                        "<div style='color:#64748B;'>Cross</div><div>" + cross_s + "</div>"
+                    )
+                    st.markdown(
+                        "<div style='background:#0F1829;border:1px solid #243352;border-radius:10px;padding:1rem;'>"
+                        "<div style='font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.8rem;'>Indicatori tecnici</div>"
+                        "<div style='display:grid;grid-template-columns:1fr 1fr;gap:.45rem;font-size:.8rem;'>" + rows_html + "</div>"
+                        "<div style='margin-top:.8rem;background:" + sc_t + "20;border:1px solid " + sc_t + "40;border-radius:6px;padding:.5rem .7rem;font-size:.78rem;color:" + sc_t + ";font-weight:600;'>"
+                        + em_t + " " + lbl_t + " — " + reason_t + "</div></div>",
+                        unsafe_allow_html=True)
+                else:
+                    st.info("Dati tecnici non disponibili per questo ticker")
+
+            with col_ai:
+                ai_cache_key = "techexp_" + item_t["ticker"].replace("=","X").replace("-","_").replace(".","_")
+                cached = st.session_state.get(ai_cache_key)
+                if cached:
+                    st.markdown('<div class="ai-block" style="font-size:.82rem;">' + cached + '</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        '<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:1rem;font-size:.82rem;color:#64748B;">'
+                        'Clicca il bottone per la spiegazione AI: cosa sta facendo il titolo, perché il segnale è questo, '
+                        'cosa succede nel settore e cosa fare concretamente.</div>',
+                        unsafe_allow_html=True)
+                if anthropic_key:
+                    if st.button("🤖 Analisi AI — " + item_t["nome"][:22], key="texp_" + str(idx_t), use_container_width=True):
+                        with st.spinner("Analisi AI in corso..."):
+                            tech_ctx_s = ""
+                            if td_t:
+                                tech_ctx_s = (
+                                    "RSI=" + str(round(td_t["rsi"],1)) +
+                                    ", MACD=" + str(round(td_t["macd_h"],3)) +
+                                    ", Prezzo=" + str(round(td_t["price"],2)) +
+                                    ", MA50=" + (str(round(td_t["ma50"],2)) if td_t["ma50"] else "N/A") +
+                                    ", MA200=" + (str(round(td_t["ma200"],2)) if td_t["ma200"] else "N/A") +
+                                    ", Supporto=" + str(round(td_t["support"],2)) +
+                                    ", Resistenza=" + str(round(td_t["resistance"],2)) +
+                                    ", Cross=" + (td_t["cross"] or "nessuno")
+                                )
+                            pf_ctx_s = ""
+                            if not df_main.empty:
+                                pf_ctx_s = "Il portafoglio vale EUR " + str(round(df_main["CV €"].sum()))
+                            try:
+                                import re as _re
+                                cl_t = anthropic.Anthropic(api_key=anthropic_key)
+                                # Raccoglie contesto notizie se disponibile
+                                news_ctx_s = ""
+                                cached_news = st.session_state.get("last_news_list", [])
+                                if cached_news:
+                                    nome_short = item_t["nome"].split()[0].lower()
+                                    relevant = [n["title"] for n in cached_news if nome_short in n["title"].lower()][:3]
+                                    if relevant:
+                                        news_ctx_s = "Notizie recenti su questo titolo: " + " | ".join(relevant) + ". "
+                                vix_ctx = market_data.get("VIX",{}).get("value",20) if "market_data" in dir() else mkt.get("VIX",{}).get("value",20)
+
+                                prompt_s = (
+                                    "Analizza " + item_t["nome"] + " (" + item_t["ticker"] + ") in modo completo. "
+                                    "Dati tecnici: " + (tech_ctx_s if tech_ctx_s else "non disponibili") + ". "
+                                    + pf_ctx_s + ". VIX mercati=" + str(round(vix_ctx,1)) + ". "
+                                    + news_ctx_s +
+                                    "Scrivi in italiano SEMPLICE (come se spiegassi a un amico che non investe), "
+                                    "usando questi 5 paragrafi con titolo in grassetto: "
+                                    "**COSA STA FACENDO ORA** Spiega il movimento del titolo in parole comuni. "
+                                    "E' in crescita, in calo, fermo? Da quanto tempo? "
+                                    "**PERCHE' IL SEGNALE E' " + lbl_t.upper() + "** "
+                                    "Spiega ogni indicatore tecnico come se non sapessi cos'e' un RSI: "
+                                    "cosa significa praticamente per chi possiede il titolo. "
+                                    "**NOTIZIE E AZIENDA** "
+                                    "Cosa sta succedendo nell'azienda e nel suo settore? "
+                                    "Ci sono eventi recenti (cambi CEO, acquisizioni, utili, cause legali, regolamentazione)? "
+                                    "Come il contesto macro (tassi, inflazione, geopolitica) impatta questo titolo specifico? "
+                                    "**RISCHIO PRINCIPALE** "
+                                    "Qual e' la cosa piu' pericolosa che potrebbe fare scendere questo titolo? "
+                                    "Spiegala in modo concreto. "
+                                    "**COSA FARE ORA** "
+                                    "Azione pratica e chiara: comprare piu' / tenere / ridurre / vendere. "
+                                    "A quale prezzo ha senso agire. Quanto tempo aspettare. "
+                                    "Una frase finale di riepilogo che anche un bambino capirebbe. "
+                                    "Max 280 parole totali. Sii diretto e pratico."
+                                )
+                                explain = cl_t.messages.create(
+                                    model="claude-sonnet-4-20250514", max_tokens=700,
+                                    system="Sei un analista finanziario esperto che sa spiegare concetti complessi in modo semplice e comprensibile anche a chi non conosce il trading.",
+                                    messages=[{"role": "user", "content": prompt_s}]
+                                ).content[0].text
+                                expl_html = _re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', explain)
+                                expl_html  = expl_html.replace("\n\n", "<br><br>").replace("\n", "<br>")
+                                st.session_state[ai_cache_key] = expl_html
+                                st.rerun()
+                            except Exception as e_t:
+                                st.error("Errore: " + str(e_t))
+                else:
+                    st.caption("Aggiungi chiave Anthropic nella sidebar per l'analisi AI")
+
     if non_tradeable:
+
         st.markdown('<div class="section-hd">Asset senza prezzo automatico</div>', unsafe_allow_html=True)
         nc = st.columns(3)
         for i, item in enumerate(non_tradeable):
@@ -960,39 +1236,24 @@ with tab4:
             with st.spinner(""):
                 results = run_multi_agent_analysis(anthropic_key, df_main, mkt, st.session_state.data["watchlist"], news)
                 st.session_state.data["agent_cache"] = {"date":today,"time":datetime.now().strftime("%H:%M"),"results":results}
-                # Estrai idee AI dall'agente optimizer e salvale in watchlist
+                # Usa i suggerimenti AI già estratti dentro run_multi_agent_analysis
                 try:
-                    opt_text = results.get("ottimizzazione","")
-                    if opt_text and anthropic_key:
-                        cl_extract = anthropic.Anthropic(api_key=anthropic_key)
-                        existing_tickers_wl = {w.get("ticker","").upper() for w in st.session_state.data["watchlist"]}
-                        pf_tickers = {p.get("ticker","").upper() for p in st.session_state.data["portfolio"]}
-                        extraction = cl_extract.messages.create(
-                            model="claude-sonnet-4-20250514", max_tokens=600,
-                            system="Estrai i nuovi acquisti suggeriti dall'analisi. Rispondi SOLO in JSON array valido senza markdown.",
-                            messages=[{"role":"user","content":
-                                f'Da questo piano operativo, estrai i titoli suggeriti come NUOVI ACQUISTI (non quelli gia\' in portafoglio). '
-                                f'Tickers gia\' in portafoglio da ESCLUDERE: {list(pf_tickers)}. '
-                                f'Tickers gia\' in watchlist da ESCLUDERE: {list(existing_tickers_wl)}. '
-                                f'TESTO: {opt_text[:1500]} '
-                                f'Rispondi con JSON array (max 5 elementi, solo titoli con ticker Yahoo Finance chiaro): '
-                                f'[{{"ticker":"AAPL","nome":"Apple Inc.","categoria":"Azioni","segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"motivazione specifica max 150 caratteri"}}]. '
-                                f'Se non ci sono titoli chiari con ticker, rispondi con [] (array vuoto).'}]
-                        ).content[0].text.strip()
-                        ai_suggestions = json.loads(extraction)
-                        new_ai_count = 0
-                        for sugg in ai_suggestions:
-                            ticker_up = sugg.get("ticker","").upper()
-                            if ticker_up and ticker_up not in existing_tickers_wl and ticker_up not in pf_tickers:
-                                sugg["sorgente"] = "ai"
-                                sugg["ai_pending"] = False
-                                st.session_state.data["watchlist"].append(sugg)
-                                existing_tickers_wl.add(ticker_up)
-                                new_ai_count += 1
-                        if new_ai_count > 0:
-                            st.success(f"🤖 {new_ai_count} nuovi titoli AI aggiunti alla watchlist!")
+                    ai_suggestions = results.get("ai_watchlist_suggestions", [])
+                    existing_tickers_wl = {w.get("ticker","").upper() for w in st.session_state.data["watchlist"]}
+                    pf_tickers_set2 = {p.get("ticker","").upper() for p in st.session_state.data["portfolio"]}
+                    new_ai_count = 0
+                    for sugg in ai_suggestions:
+                        ticker_up = sugg.get("ticker","").upper()
+                        if ticker_up and ticker_up not in existing_tickers_wl and ticker_up not in pf_tickers_set2:
+                            sugg["sorgente"] = "ai"
+                            sugg["ai_pending"] = False
+                            st.session_state.data["watchlist"].append(sugg)
+                            existing_tickers_wl.add(ticker_up)
+                            new_ai_count += 1
+                    if new_ai_count > 0:
+                        st.info(f"🤖 {new_ai_count} nuovi titoli AI aggiunti alla Watchlist → vai nel tab 👁️")
                 except Exception as e:
-                    pass  # Non bloccare se l'estrazione fallisce
+                    pass
                 save_data(st.session_state.data)
                 cache_valid = True
                 cache = st.session_state.data["agent_cache"]
@@ -1006,6 +1267,7 @@ with tab4:
 
         news = get_news(news_api_key) if news_api_key else []
         if news:
+            st.session_state["last_news_list"] = news  # Cache per analisi per-titolo in tab3
             st.markdown('<div class="section-hd">Radar notizie</div>', unsafe_allow_html=True)
             nc = st.columns(3)
             for i, n in enumerate(news[:9]):
@@ -1180,15 +1442,18 @@ padding:.7rem;text-align:center;">
                     ctx_r = f"Prezzo:{td_r['price']:.2f}, RSI:{td_r['rsi']:.0f}, Supp:{td_r['support']:.2f}, Res:{td_r['resistance']:.2f}" if td_r else "N/A"
                     pf_ctx = f"Portafoglio: {df_main.groupby('Categoria')['CV €'].sum().to_dict()}"
                     try:
+                        pf_alloc_r = df_main.groupby("Categoria")["CV €"].sum().to_dict() if not df_main.empty else {}
+                        pf_ctx_r = ", ".join([f"{k}:{v:.0f}euro" for k,v in pf_alloc_r.items()])
                         cl_r = anthropic.Anthropic(api_key=anthropic_key)
                         ai_r = cl_r.messages.create(
-                            model="claude-sonnet-4-20250514", max_tokens=400,
+                            model="claude-sonnet-4-20250514", max_tokens=700,
                             system="Sei un analista finanziario senior. Rispondi SOLO in JSON valido senza markdown.",
                             messages=[{"role":"user","content":
-                                f'Analizza {item["nome"]} ({item["ticker"]}) nel contesto del portafoglio dell\'investitore. '
-                                f'Tecnica: {ctx_r}. {pf_ctx}. '
-                                f'JSON: {{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"motivazione specifica perche questo titolo si adatta al portafoglio, max 150 caratteri"}}. '
-                                f'segnale: COMPRA, MONITORA o NON_CONSIDERARE'}]
+                                f'Analizza {item["nome"]} ({item["ticker"]}) per investitore con portafoglio: {pf_ctx_r}. '
+                                f'Dati tecnici ora: {ctx_r}. '
+                                f'Rispondi con SOLO questo JSON (tutti i valori numerici devono essere numeri float, non stringhe): '
+                                f'{{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"Scrivi 3 frasi in italiano semplice: 1) Cosa sta succedendo a questo titolo o nel suo settore in questo momento. 2) Perche il segnale e questo. 3) Come si inserisce nel portafoglio e cosa potrebbe portare."}}. '
+                                f'segnale: COMPRA, MONITORA o NON_CONSIDERARE. strategia: Breve termine oppure Medio termine oppure Lungo termine.'}]
                         ).content[0].text.strip()
                         ai_d = json.loads(ai_r)
                         idx_r = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker"))
