@@ -110,36 +110,36 @@ DEFAULT_DATA = {
         {"nome":"Liquidità","ticker":"N/A","valuta":"EUR","prezzo_carico":1.0,"quantita":16000,"categoria":"Liquidità","prezzo_manuale":1.0},
     ],
     "watchlist": [
-        {"ticker":"MSFT",    "nome":"Microsoft",             "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"DAL",     "nome":"Delta Airlines",        "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"RDDT",    "nome":"Reddit",                "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"DIS",     "nome":"Walt Disney",           "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"KOID",    "nome":"KraneShares Humanoid",  "categoria":"ETF",           "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"NLR",     "nome":"VanEck Uranium Nuclear","categoria":"ETF",           "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"MELI",    "nome":"MercadoLibre",          "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"AMP.MI",  "nome":"Amplifon",              "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"ENEL.MI", "nome":"Enel",                  "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"SES.MI",  "nome":"Sesa",                  "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"NVDA",    "nome":"NVIDIA",                "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"XPEL",    "nome":"XPEL Inc.",             "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"ICLR",    "nome":"Icon PLC",              "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"IP.MI",   "nome":"Interpump Group",       "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"AMZN",    "nome":"Amazon",                "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"PYPL",    "nome":"PayPal",                "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"IONQ",    "nome":"IonQ",                  "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"SLV",     "nome":"iShares Silver Trust",  "categoria":"Materie Prime", "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"NVO",     "nome":"Novo Nordisk",          "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"LLY",     "nome":"Eli Lilly",             "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"REGN",    "nome":"Regeneron Pharma",      "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"XCS6.DE", "nome":"Xtrackers MSCI China",  "categoria":"ETF",           "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"GOOG",    "nome":"Alphabet (Google)",     "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"EWJ",     "nome":"iShares MSCI Japan ETF","categoria":"ETF",           "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"NKE",     "nome":"Nike",                  "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"HLNE",    "nome":"Hamilton Lane",         "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"ARIS.MI", "nome":"Ariston Holding",       "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"MAIRE.MI","nome":"Maire",                 "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
-        {"ticker":"N/A",     "nome":"Klarna (IPO attesa)",   "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"Non ancora quotata. Segui news IPO — prevista 2025 su NYSE.","ai_pending":False},
-        {"ticker":"PRT.MI",  "nome":"Esprinet",              "categoria":"Azioni",        "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MSFT",    "nome":"Microsoft",              "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"DAL",     "nome":"Delta Airlines",         "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"RDDT",    "nome":"Reddit",                 "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"DIS",     "nome":"Walt Disney",            "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"KOID",    "nome":"KraneShares Humanoid",   "categoria":"ETF",          "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NLR",     "nome":"VanEck Uranium Nuclear", "categoria":"ETF",          "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MELI",    "nome":"MercadoLibre",           "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"AMP.MI",  "nome":"Amplifon",               "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ENEL.MI", "nome":"Enel",                   "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SES.MI",  "nome":"Sesa",                   "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NVDA",    "nome":"NVIDIA",                 "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"XPEL",    "nome":"XPEL Inc.",              "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ICLR",    "nome":"Icon PLC",               "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"IP.MI",   "nome":"Interpump Group",        "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"AMZN",    "nome":"Amazon",                 "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"PYPL",    "nome":"PayPal",                 "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"IONQ",    "nome":"IonQ",                   "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"SLV",     "nome":"iShares Silver Trust",   "categoria":"Materie Prime","sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"Proxy argento (XAG/USD non supportato da Yahoo Finance)","ai_pending":False},
+        {"ticker":"NVO",     "nome":"Novo Nordisk",           "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"LLY",     "nome":"Eli Lilly",              "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"REGN",    "nome":"Regeneron Pharma",       "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"XX25.MI", "nome":"Xtrackers MSCI China",   "categoria":"ETF",          "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"GOOG",    "nome":"Alphabet (Google)",      "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"XMJP.MI", "nome":"iShares MSCI Japan",     "categoria":"ETF",          "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"NKE",     "nome":"Nike",                   "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"HLNE",    "nome":"Hamilton Lane",          "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"ARIS.MI", "nome":"Ariston Holding",        "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"MAIRE.MI","nome":"Maire",                  "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False},
+        {"ticker":"N/A",     "nome":"Klarna (IPO attesa)",    "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"Non quotata. Segui IPO NYSE 2025.","ai_pending":False},
+        {"ticker":"PRT.MI",  "nome":"Esprinet",               "categoria":"Azioni",       "sorgente":"utente","segnale":"MONITORA","prezzo_target":None,"stop_loss":None,"ingresso":None,"strategia":None,"orizzonte":None,"note":"","ai_pending":False}
     ],
     "agent_cache": {},
     "trade_history": [],
@@ -2422,45 +2422,108 @@ with tab7:
         else:
             st.info("Configura prima l'email qui sopra per abilitare l'invio.")
 
+
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 8 — OPPORTUNITÀ
 # ══════════════════════════════════════════════════════════════════════════════
 with tab8:
-    st.markdown('<div class="section-hd">💡 Opportunità del giorno — aggiornate automaticamente, zero costo API</div>', unsafe_allow_html=True)
-    st.caption("Analisi tecnica su tutti i tuoi titoli in watchlist + portafoglio. Nessuna AI richiesta.")
 
-    # ── Raccoglie tutti i ticker da analizzare ────────────────────────────────
+    # ── Universe di titoli da scansionare nel mondo ──────────────────────────
+    # Titoli fuori dal portafoglio: watchlist + universo globale predefinito
+    GLOBAL_UNIVERSE = [
+        # USA Large Cap Tech
+        ("AAPL","Apple","Azioni","USD"), ("MSFT","Microsoft","Azioni","USD"),
+        ("NVDA","NVIDIA","Azioni","USD"), ("AMZN","Amazon","Azioni","USD"),
+        ("GOOG","Alphabet","Azioni","USD"), ("META","Meta","Azioni","USD"),
+        ("TSLA","Tesla","Azioni","USD"), ("AVGO","Broadcom","Azioni","USD"),
+        # USA Healthcare/Pharma
+        ("LLY","Eli Lilly","Azioni","USD"), ("NVO","Novo Nordisk","Azioni","USD"),
+        ("REGN","Regeneron","Azioni","USD"), ("ISRG","Intuitive Surgical","Azioni","USD"),
+        ("VRTX","Vertex Pharma","Azioni","USD"), ("ABBV","AbbVie","Azioni","USD"),
+        # USA Finance
+        ("BRK-B","Berkshire Hathaway","Azioni","USD"), ("JPM","JPMorgan","Azioni","USD"),
+        ("V","Visa","Azioni","USD"), ("MA","Mastercard","Azioni","USD"),
+        ("PYPL","PayPal","Azioni","USD"), ("HLNE","Hamilton Lane","Azioni","USD"),
+        # USA Consumer/Industrial
+        ("NKE","Nike","Azioni","USD"), ("DIS","Walt Disney","Azioni","USD"),
+        ("MELI","MercadoLibre","Azioni","USD"), ("DAL","Delta Airlines","Azioni","USD"),
+        # USA Small/Mid Cap Innovazione
+        ("RDDT","Reddit","Azioni","USD"), ("IONQ","IonQ","Azioni","USD"),
+        ("XPEL","XPEL","Azioni","USD"), ("ICLR","Icon PLC","Azioni","USD"),
+        # Europa
+        ("ASML","ASML Holding","Azioni","EUR"), ("SAP","SAP SE","Azioni","EUR"),
+        ("AMP.MI","Amplifon","Azioni","EUR"), ("ENEL.MI","Enel","Azioni","EUR"),
+        ("LDO.MI","Leonardo","Azioni","EUR"), ("IP.MI","Interpump","Azioni","EUR"),
+        ("ARIS.MI","Ariston","Azioni","EUR"), ("MAIRE.MI","Maire","Azioni","EUR"),
+        ("SES.MI","Sesa","Azioni","EUR"), ("PRT.MI","Esprinet","Azioni","EUR"),
+        ("IPS.PA","Ipsos","Azioni","EUR"),
+        # ETF tematici
+        ("KOID","KraneShares Humanoid","ETF","USD"), ("NLR","VanEck Uranium","ETF","USD"),
+        ("BOTZ","Global Robotics ETF","ETF","USD"), ("ARKK","ARK Innovation","ETF","USD"),
+        ("ICLN","iShares Clean Energy","ETF","USD"), ("SOXX","iShares Semiconductors","ETF","USD"),
+        # Materie Prime
+        ("GLD","SPDR Gold","Materie Prime","USD"), ("SLV","iShares Silver","Materie Prime","USD"),
+        ("COPA.L","WisdomTree Copper","Materie Prime","EUR"),
+        # Asia / Emergenti
+        ("XX25.MI","Xtrackers MSCI China","ETF","EUR"),
+        ("XMJP.MI","iShares MSCI Japan","ETF","EUR"),
+    ]
+
     fx_opp = get_fx_rates()
     df_opp = build_portfolio_df()
-    total_opp = df_opp["CV €"].sum() if not df_opp.empty else 0
-    liquidity_opp = 16000.0  # €16k cash
+    total_opp    = df_opp["CV €"].sum() if not df_opp.empty else 0
+    liquidity_opp = 16000.0
+    portfolio_tickers = {p["ticker"].upper() for p in st.session_state.data["portfolio"]
+                         if p.get("ticker","N/A") not in ("N/A","",None)}
 
+    st.markdown('<div class="section-hd">💡 Opportunità del giorno — scanner globale automatico</div>', unsafe_allow_html=True)
+    st.caption("Scansiona watchlist + 50 titoli globali selezionati. Zero costo API. Esclusi i titoli già in portafoglio.")
+
+    # Selezione universe
+    col_u1, col_u2 = st.columns([3,1])
+    with col_u1:
+        scan_mode = st.radio("Fonte titoli da scansionare:",
+            ["🌍 Universo globale (50 titoli)", "👁️ Solo watchlist mia", "🔀 Entrambi"],
+            horizontal=True, key="scan_mode")
+    with col_u2:
+        if st.button("🔄 Aggiorna scan", key="btn_scan_opp", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+
+    # Build candidates list
     all_candidates = []
+    seen_add = set()
 
-    # Watchlist
-    for w in st.session_state.data["watchlist"]:
-        if w.get("ticker","N/A") in ("N/A","",None): continue
-        all_candidates.append({"ticker":w["ticker"],"nome":w["nome"],"categoria":w.get("categoria","Azioni"),"fonte":"watchlist"})
+    def add_candidate(ticker, nome, categoria, valuta, fonte):
+        t = ticker.upper()
+        if t in seen_add or t in portfolio_tickers or t in ("N/A","",None): return
+        seen_add.add(t)
+        all_candidates.append({"ticker":ticker,"nome":nome,"categoria":categoria,
+                                "valuta":valuta,"fonte":fonte})
 
-    # Portafoglio (solo titoli tradeable)
-    for p in st.session_state.data["portfolio"]:
-        if p.get("ticker","N/A") in ("N/A","",None): continue
-        all_candidates.append({"ticker":p["ticker"],"nome":p["nome"],"categoria":p["categoria"],"fonte":"portafoglio"})
+    if scan_mode in ["👁️ Solo watchlist mia", "🔀 Entrambi"]:
+        for w in st.session_state.data["watchlist"]:
+            tk = w.get("ticker","N/A")
+            if tk in ("N/A","",None): continue
+            # Guess valuta from ticker
+            if any(sfx in tk for sfx in [".MI",".PA",".AS",".DE",".L",".CO",".SG"]):
+                val_w = "GBP" if ".L" in tk else ("DKK" if ".CO" in tk else "EUR")
+            else:
+                val_w = "USD"
+            add_candidate(tk, w["nome"], w.get("categoria","Azioni"), val_w, "watchlist")
+
+    if scan_mode in ["🌍 Universo globale (50 titoli)", "🔀 Entrambi"]:
+        for tk, nm, cat, val in GLOBAL_UNIVERSE:
+            add_candidate(tk, nm, cat, val, "globale")
 
     # ── Scan tecnico ──────────────────────────────────────────────────────────
-    if st.button("🔄 Aggiorna scan opportunità", key="btn_scan_opp"):
-        st.cache_data.clear()
-
     opp_results = []
     progress_opp = st.progress(0)
     status_opp   = st.empty()
-    seen_tickers = set()
 
     for qi, c in enumerate(all_candidates):
-        if c["ticker"] in seen_tickers: continue
-        seen_tickers.add(c["ticker"])
         progress_opp.progress(int((qi+1)/max(len(all_candidates),1)*100))
-        status_opp.markdown(f'<div style="font-size:.72rem;color:#64748B;">Analisi: {c["ticker"]}...</div>', unsafe_allow_html=True)
+        status_opp.markdown(f'<div style="font-size:.72rem;color:#64748B;">Analisi: {c["ticker"]} — {c["nome"]}...</div>', unsafe_allow_html=True)
         td = get_technical(c["ticker"])
         if not td: continue
 
@@ -2468,58 +2531,42 @@ with tab8:
         sup = td["support"]; res = td["resistance"]
         ma50 = td["ma50"]; ma200 = td["ma200"]; cross = td["cross"]
 
-        signals = []
-        score   = 0
+        signals = []; score = 0
 
-        # Signal 1: RSI ipervenduto + MACD positivo (classico rimbalzo)
         if rsi < 40 and macd > 0:
-            signals.append(("🔄 Rimbalzo tecnico", f"RSI {rsi:.0f} (ipervenduto) con MACD appena tornato positivo — segnale classico di inversione al rialzo"))
+            signals.append(("🔄 Rimbalzo in corso", f"RSI {rsi:.0f} (ipervenduto) con MACD appena tornato positivo — classico segnale di inversione rialzista. Il mercato ha smesso di vendere e inizia a comprare."))
             score += 3
         elif rsi < 35:
-            signals.append(("📉 Ipervenduto", f"RSI {rsi:.0f} — il titolo è stato venduto in modo eccessivo rispetto alla norma storica"))
+            signals.append(("📉 Ipervenduto estremo", f"RSI {rsi:.0f} — venduto in eccesso rispetto alla norma storica. Spesso precede un rimbalzo, ma verifica che non ci siano notizie negative sull'azienda."))
             score += 2
 
-        # Signal 2: Prezzo vicino al supporto (±3%)
-        if abs(p_now - sup) / p_now < 0.03:
-            signals.append(("🎯 Su supporto chiave", f"Prezzo {p_now:.2f} vicino al supporto tecnico {sup:.2f} (distanza {abs(p_now-sup)/p_now*100:.1f}%) — zona storica di acquisto"))
+        if p_now > 0 and abs(p_now - sup) / p_now < 0.03:
+            signals.append(("🎯 Su supporto chiave", f"Prezzo {p_now:.2f} vicino al supporto {sup:.2f} ({abs(p_now-sup)/p_now*100:.1f}% di distanza) — zona storica dove gli acquirenti si fanno avanti."))
             score += 2
 
-        # Signal 3: Golden Cross
         if cross == "golden":
-            signals.append(("🌟 Golden Cross", "Media 50g ha superato la 200g — segnale rialzista di lungo periodo, usato dai grandi fondi"))
+            signals.append(("🌟 Golden Cross", "La media a 50 giorni ha superato quella a 200 giorni — segnale di forza di lungo periodo, seguito dai grandi fondi istituzionali."))
             score += 3
 
-        # Signal 4: Volume anomalo (>1.5x media)
         if td.get("vol_ratio",1) > 1.5:
-            signals.append(("📊 Volume anomalo", f"Volume {td['vol_ratio']:.1f}x la media — possibile accumulo istituzionale o notizia in arrivo"))
+            signals.append(("📊 Volume anomalo", f"Volume {td['vol_ratio']:.1f}x la media — possibile accumulo istituzionale. Quando i grandi fondi entrano, il volume sale prima del prezzo."))
             score += 1
 
-        # Signal 5: Sopra MA50 e MA200 (trend solido)
         if ma50 and ma200 and p_now > ma50 and p_now > ma200:
-            signals.append(("📈 Trend solido", f"Prezzo sopra MA50 ({ma50:.2f}) e MA200 ({ma200:.2f}) — trend positivo confermato su tutti gli orizzonti"))
+            signals.append(("📈 Trend confermato", f"Sopra MA50 ({ma50:.2f}) e MA200 ({ma200:.2f}) — il titolo è in trend positivo su tutti gli orizzonti temporali."))
             score += 2
 
-        # Signal 6: RSI neutro + MACD positivo (momentum sano)
-        if 45 < rsi < 60 and macd > 0:
-            signals.append(("⚡ Momentum sano", f"RSI {rsi:.0f} (neutro) + MACD positivo — buon punto di ingresso senza surriscaldamento"))
+        if 45 < rsi < 62 and macd > 0 and (not ma50 or p_now > ma50):
+            signals.append(("⚡ Setup pulito", f"RSI {rsi:.0f} neutro + MACD positivo + trend favorevole — buon punto di ingresso senza surriscaldamento."))
             score += 1
 
-        if score < 2: continue  # filtra titoli senza segnali forti
+        if score < 2: continue
 
-        # Calcola position sizing
-        stop_est = round(sup * 0.97, 2)
-        val_cur  = c["valuta"] if c["fonte"] == "portafoglio" else "USD"
-        # Guess currency from ticker suffix
-        if ".MI" in c["ticker"] or ".PA" in c["ticker"] or ".AS" in c["ticker"] or ".DE" in c["ticker"]:
-            val_cur = "EUR"
-        elif ".CO" in c["ticker"]:
-            val_cur = "DKK"
-        elif ".L" in c["ticker"]:
-            val_cur = "GBP"
-        else:
-            val_cur = "USD"
+        # Currency detection dalla valuta del candidato
+        val_cur = c.get("valuta","USD")
         fx_r = fx_opp.get(val_cur, 1.0)
 
+        stop_est = round(sup * 0.97, 2)
         ps = calc_position_size(
             portfolio_total_eur = total_opp + liquidity_opp,
             current_price       = p_now,
@@ -2528,252 +2575,220 @@ with tab8:
             fx_rate             = fx_r,
         )
 
+        up_pct = (res * 0.99 - p_now) / p_now * 100 if p_now > 0 else 0
+        dn_pct = (p_now - stop_est) / p_now * 100 if p_now > 0 else 0
+        rr     = up_pct / dn_pct if dn_pct > 0 else 0
+
         opp_results.append({
-            "ticker":   c["ticker"],
-            "nome":     c["nome"],
-            "categoria":c["categoria"],
-            "fonte":    c["fonte"],
-            "score":    score,
-            "price":    p_now,
-            "rsi":      rsi,
-            "macd":     macd,
-            "support":  sup,
-            "resistance":res,
-            "stop_est": stop_est,
-            "target":   round(res * 0.99, 2),
-            "signals":  signals,
-            "ps":       ps,
-            "cross":    cross,
+            "ticker":c["ticker"], "nome":c["nome"], "categoria":c["categoria"],
+            "fonte":c["fonte"], "score":score, "price":p_now, "rsi":rsi, "macd":macd,
+            "support":sup, "resistance":res, "stop_est":stop_est,
+            "target":round(res*0.99,2), "signals":signals, "ps":ps,
+            "cross":cross, "up_pct":up_pct, "dn_pct":dn_pct, "rr":rr,
         })
 
     progress_opp.empty()
     status_opp.empty()
-
-    # Sort by score descending
     opp_results.sort(key=lambda x: -x["score"])
 
+    # ── Summary ───────────────────────────────────────────────────────────────
+    n_strong = sum(1 for o in opp_results if o["score"] >= 4)
+    n_mod    = sum(1 for o in opp_results if 2 <= o["score"] < 4)
+
     if not opp_results:
-        st.info("Nessuna opportunità tecnica rilevante trovata al momento. Riprova domani o aggiorna i dati dalla sidebar.")
+        st.info("Nessuna opportunità tecnica rilevante trovata al momento. Riprova dopo aggiornamento dati.")
     else:
-        # ── Summary banner ────────────────────────────────────────────────────
-        n_strong = sum(1 for o in opp_results if o["score"] >= 4)
-        n_mod    = sum(1 for o in opp_results if 2 <= o["score"] < 4)
+        fonte_icons = {"watchlist":"👁️","globale":"🌍"}
         st.markdown(f"""
-<div style="background:#0F1829;border:1px solid #2E4070;border-radius:12px;padding:1rem 1.3rem;margin-bottom:1rem;display:flex;gap:2rem;align-items:center;">
+<div style="background:#0F1829;border:1px solid #2E4070;border-radius:12px;padding:1rem 1.4rem;margin-bottom:1rem;display:flex;gap:2.5rem;align-items:center;flex-wrap:wrap;">
   <div style="text-align:center;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:#10B981;">{n_strong}</div>
-    <div style="font-size:.7rem;color:#64748B;text-transform:uppercase;">Opportunità forti</div>
+    <div style="font-size:2.2rem;font-weight:700;color:#10B981;font-family:'JetBrains Mono',monospace;">{n_strong}</div>
+    <div style="font-size:.68rem;color:#64748B;text-transform:uppercase;">Opportunità forti (score ≥4)</div>
   </div>
   <div style="text-align:center;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:#F59E0B;">{n_mod}</div>
-    <div style="font-size:.7rem;color:#64748B;text-transform:uppercase;">Opportunità moderate</div>
+    <div style="font-size:2.2rem;font-weight:700;color:#F59E0B;font-family:'JetBrains Mono',monospace;">{n_mod}</div>
+    <div style="font-size:.68rem;color:#64748B;text-transform:uppercase;">Opportunità moderate</div>
   </div>
-  <div style="width:1px;height:40px;background:#1E2D47;"></div>
-  <div style="font-size:.82rem;color:#94A3B8;flex:1;">
-    <b style="color:#E8EDF5;">Come usare questa lista:</b> ogni opportunità mostra i segnali tecnici rilevati, il prezzo di ingresso consigliato, target e stop loss, e — fondamentale — <b>quante azioni/quote comprare</b> per rischiare esattamente l'1% del portafoglio su ogni operazione.
+  <div style="width:1px;height:44px;background:#1E2D47;"></div>
+  <div style="font-size:.8rem;color:#94A3B8;flex:1;line-height:1.6;">
+    <b style="color:#E8EDF5;">Come usare:</b> ogni card mostra i segnali rilevati, il prezzo di ingresso consigliato, target, stop loss, rapporto rischio/rendimento, e quante quote comprare per rischiare esattamente l'1% del portafoglio.<br>
+    <span style="color:#64748B;">Tutti i titoli in portafoglio sono esclusi automaticamente. Score massimo 7/7.</span>
   </div>
 </div>""", unsafe_allow_html=True)
 
-        # ── Tabs per fonte ────────────────────────────────────────────────────
-        opp_wl = [o for o in opp_results if o["fonte"] == "watchlist"]
-        opp_pf = [o for o in opp_results if o["fonte"] == "portafoglio"]
+        # Filtro per categoria
+        cats_found = sorted(set(o["categoria"] for o in opp_results))
+        fonti_found = sorted(set(o["fonte"] for o in opp_results))
+        fc1_opp, fc2_opp = st.columns(2)
+        with fc1_opp:
+            filter_cat = st.multiselect("Filtra per categoria:", cats_found, default=cats_found, key="opp_cat_filter")
+        with fc2_opp:
+            filter_fonte = st.multiselect("Filtra per fonte:", fonti_found, default=fonti_found, key="opp_fonte_filter")
 
-        ot1, ot2 = st.tabs([f"👁️ Da Watchlist ({len(opp_wl)})", f"💼 Da Portafoglio ({len(opp_pf)})"])
+        filtered_opps = [o for o in opp_results if o["categoria"] in filter_cat and o["fonte"] in filter_fonte]
 
-        def render_opp_card(o, card_key):
-            score = o["score"]
-            sc    = "#10B981" if score >= 4 else ("#F59E0B" if score >= 2 else "#64748B")
-            ps    = o["ps"]
-            fonte_badge = '<span style="background:#3B82F622;color:#3B82F6;border:1px solid #3B82F644;padding:1px 6px;border-radius:20px;font-size:.62rem;font-weight:700;">💼 IN PORTAFOGLIO</span>' if o["fonte"] == "portafoglio" else '<span style="background:#10B98122;color:#10B981;border:1px solid #10B98144;padding:1px 6px;border-radius:20px;font-size:.62rem;font-weight:700;">👁️ WATCHLIST</span>'
+        for i, o in enumerate(filtered_opps):
+            sc_score = o["score"]
+            sc = "#10B981" if sc_score >= 4 else "#F59E0B"
+            fonte_label = {"watchlist":"👁️ Watchlist","globale":"🌍 Universo globale"}.get(o["fonte"], o["fonte"])
+            fonte_color = "#10B981" if o["fonte"]=="watchlist" else "#8B5CF6"
 
-            signals_html = ""
-            for icon, desc in o["signals"]:
-                signals_html += f'<div style="padding:.35rem .5rem;margin-bottom:.3rem;background:#162035;border-radius:6px;border-left:2px solid {sc};font-size:.78rem;"><b style="color:{sc};">{icon}</b> — <span style="color:#94A3B8;">{desc}</span></div>'
+            signals_html = "".join([
+                f'<div style="padding:.4rem .6rem;margin-bottom:.3rem;background:#162035;border-radius:6px;border-left:2px solid {sc};font-size:.79rem;"><b style="color:{sc};">{icon}</b> — <span style="color:#94A3B8;">{desc}</span></div>'
+                for icon, desc in o["signals"]
+            ])
 
-            # Position sizing block
+            ps = o["ps"]
             if ps:
-                ps_html = f"""<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:.7rem .9rem;margin-top:.5rem;">
-<div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3B82F6;margin-bottom:.5rem;">📐 Position Sizing — rischio 1% portafoglio</div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.78rem;">
-  <div><span style="color:#64748B;">Quantità consigliata</span><br><b style="color:#E8EDF5;font-size:1.1rem;">{ps['n_shares']}</b> <span style="color:#64748B;font-size:.72rem;">quote</span></div>
-  <div><span style="color:#64748B;">Investimento totale</span><br><b style="color:#E8EDF5;">€{ps['position_eur']:,.0f}</b> <span style="color:#64748B;font-size:.72rem;">({ps['position_pct']:.1f}% portafoglio)</span></div>
-  <div><span style="color:#64748B;">Rischio massimo</span><br><b style="color:#EF4444;">€{ps['risk_eur']:,.0f}</b> <span style="color:#64748B;font-size:.72rem;">(1% del totale)</span></div>
-</div>
-<div style="font-size:.72rem;color:#64748B;margin-top:.5rem;">💡 Se il titolo scende fino allo stop ({o['stop_est']:.2f}), perdi al massimo €{ps['risk_eur']:,.0f} — cioè l'1% del tuo portafoglio. Questa è la regola del rischio controllato.</div>
-</div>"""
+                ps_block = (
+                    f'<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:.7rem .9rem;margin-top:.6rem;">'
+                    f'<div style="font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3B82F6;margin-bottom:.5rem;">📐 Position Sizing — 1% di rischio per operazione</div>'
+                    f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.78rem;">'
+                    f'<div><span style="color:#64748B;">Quantità</span><br><b style="color:#E8EDF5;font-size:1.15rem;">{ps["n_shares"]}</b><span style="color:#64748B;font-size:.7rem;"> quote</span></div>'
+                    f'<div><span style="color:#64748B;">Investimento</span><br><b style="color:#E8EDF5;">€{ps["position_eur"]:,.0f}</b><br><span style="color:#64748B;font-size:.7rem;">{ps["position_pct"]:.1f}% del portafoglio</span></div>'
+                    f'<div><span style="color:#64748B;">Rischio max</span><br><b style="color:#EF4444;">€{ps["risk_eur"]:,.0f}</b><br><span style="color:#64748B;font-size:.7rem;">= 1% del totale</span></div>'
+                    f'</div>'
+                    f'<div style="font-size:.7rem;color:#64748B;margin-top:.4rem;">Se il prezzo scende fino a {o["stop_est"]:.2f} (stop loss), la perdita massima è €{ps["risk_eur"]:,.0f}.</div>'
+                    f'</div>'
+                )
             else:
-                ps_html = '<div style="font-size:.75rem;color:#64748B;margin-top:.4rem;">Position sizing non disponibile — stop loss non calcolabile.</div>'
+                ps_block = '<div style="font-size:.72rem;color:#64748B;margin-top:.4rem;padding:.5rem;background:#162035;border-radius:6px;">Position sizing non calcolabile — dati insufficienti.</div>'
 
-            up_pct = (o["target"] - o["price"]) / o["price"] * 100 if o["price"] > 0 else 0
-            dn_pct = (o["price"]  - o["stop_est"]) / o["price"] * 100 if o["price"] > 0 else 0
-            rr     = up_pct / dn_pct if dn_pct > 0 else 0
+            rr_color = "#10B981" if o["rr"] >= 2 else ("#F59E0B" if o["rr"] >= 1 else "#EF4444")
+            rr_label = "ottimo" if o["rr"] >= 2 else ("accettabile" if o["rr"] >= 1 else "basso")
+
+            # Ingresso ideale
+            ideal_entry = round(min(o["support"]*1.01, o["price"]*0.99), 2)
 
             st.markdown(f"""
-<div style="background:#0F1829;border:1px solid {sc}44;border-left:4px solid {sc};border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:.8rem;">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;">
-  <div>
-    <span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;color:{sc};">{o["ticker"]}</span>
-    <span style="font-size:.85rem;font-weight:600;color:#E8EDF5;margin-left:.5rem;">{o["nome"]}</span>
-    <span style="margin-left:.5rem;">{fonte_badge}</span>
+<div style="background:#0F1829;border:1px solid {sc}44;border-left:4px solid {sc};border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:1rem;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.7rem;flex-wrap:wrap;gap:.4rem;">
+  <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+    <span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.05rem;color:{sc};">{o["ticker"]}</span>
+    <span style="font-size:.88rem;font-weight:600;color:#E8EDF5;">{o["nome"]}</span>
+    <span style="background:{fonte_color}22;color:{fonte_color};border:1px solid {fonte_color}44;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;">{fonte_label}</span>
+    <span style="background:#24335222;color:#94A3B8;border:1px solid #243352;padding:1px 7px;border-radius:20px;font-size:.62rem;">{o["categoria"]}</span>
   </div>
-  <div style="display:flex;gap:.4rem;align-items:center;">
-    <span style="background:{sc}22;color:{sc};border:1px solid {sc}44;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">Score {score}/7</span>
+  <span style="background:{sc}22;color:{sc};border:1px solid {sc}44;padding:2px 12px;border-radius:20px;font-size:.72rem;font-weight:700;">Score {sc_score}/7</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.45rem;margin-bottom:.7rem;">
+  <div style="background:#162035;border-radius:6px;padding:.45rem;text-align:center;">
+    <div style="font-size:.6rem;color:#64748B;text-transform:uppercase;">Prezzo ora</div>
+    <div style="font-weight:700;font-size:.9rem;">{o["price"]:.2f}</div>
+  </div>
+  <div style="background:#162035;border-radius:6px;padding:.45rem;text-align:center;">
+    <div style="font-size:.6rem;color:#64748B;text-transform:uppercase;">Ingresso ideale</div>
+    <div style="font-weight:700;color:#60A5FA;font-size:.9rem;">{ideal_entry:.2f}</div>
+  </div>
+  <div style="background:#162035;border-radius:6px;padding:.45rem;text-align:center;">
+    <div style="font-size:.6rem;color:#64748B;text-transform:uppercase;">Target</div>
+    <div style="font-weight:700;color:#10B981;font-size:.9rem;">{o["target"]:.2f} <span style="font-size:.65rem;">+{o["up_pct"]:.1f}%</span></div>
+  </div>
+  <div style="background:#162035;border-radius:6px;padding:.45rem;text-align:center;">
+    <div style="font-size:.6rem;color:#64748B;text-transform:uppercase;">Stop loss</div>
+    <div style="font-weight:700;color:#EF4444;font-size:.9rem;">{o["stop_est"]:.2f} <span style="font-size:.65rem;">-{o["dn_pct"]:.1f}%</span></div>
+  </div>
+  <div style="background:#162035;border-radius:6px;padding:.45rem;text-align:center;">
+    <div style="font-size:.6rem;color:#64748B;text-transform:uppercase;">R/R ratio</div>
+    <div style="font-weight:700;color:{rr_color};font-size:.9rem;">{o["rr"]:.1f}:1 <span style="font-size:.62rem;">{rr_label}</span></div>
   </div>
 </div>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.7rem;font-size:.78rem;">
-  <div style="background:#162035;border-radius:6px;padding:.5rem;text-align:center;">
-    <div style="color:#64748B;font-size:.62rem;text-transform:uppercase;">Prezzo</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-weight:700;">{o['price']:.2f}</div>
-  </div>
-  <div style="background:#162035;border-radius:6px;padding:.5rem;text-align:center;">
-    <div style="color:#64748B;font-size:.62rem;text-transform:uppercase;">Ingresso ideale</div>
-    <div style="font-family:'JetBrains Mono',monospace;color:#60A5FA;font-weight:700;">{min(o['support']*1.01, o['price']*0.99):.2f}</div>
-  </div>
-  <div style="background:#162035;border-radius:6px;padding:.5rem;text-align:center;">
-    <div style="color:#64748B;font-size:.62rem;text-transform:uppercase;">Target</div>
-    <div style="font-family:'JetBrains Mono',monospace;color:#10B981;font-weight:700;">{o['target']:.2f} <span style="font-size:.65rem;">+{up_pct:.1f}%</span></div>
-  </div>
-  <div style="background:#162035;border-radius:6px;padding:.5rem;text-align:center;">
-    <div style="color:#64748B;font-size:.62rem;text-transform:uppercase;">Stop loss</div>
-    <div style="font-family:'JetBrains Mono',monospace;color:#EF4444;font-weight:700;">{o['stop_est']:.2f} <span style="font-size:.65rem;">-{dn_pct:.1f}%</span></div>
-  </div>
-</div>
-<div style="font-size:.72rem;color:#64748B;margin-bottom:.5rem;">RSI {o['rsi']:.0f} · MACD {'↑ positivo' if o['macd']>0 else '↓ negativo'} · R/R {rr:.1f}:1 {'✅ ottimo' if rr>=2 else ('⚠️ accettabile' if rr>=1 else '🔴 basso')}</div>
+<div style="font-size:.72rem;color:#64748B;margin-bottom:.5rem;">RSI {o["rsi"]:.0f} · MACD {"↑ positivo" if o["macd"]>0 else "↓ negativo"} · {"🌟 Golden Cross attivo · " if o["cross"]=="golden" else ""}Volume {"anomalo" if td and td.get("vol_ratio",1)>1.5 else "normale"}</div>
 {signals_html}
-{ps_html}
+{ps_block}
 </div>""", unsafe_allow_html=True)
 
-        with ot1:
-            if not opp_wl:
-                st.info("Nessuna opportunità tecnica nei titoli della watchlist al momento.")
-            else:
-                cols_opp = st.columns(2)
-                for i, o in enumerate(opp_wl):
-                    with cols_opp[i % 2]:
-                        render_opp_card(o, f"wl_{i}")
-
-        with ot2:
-            if not opp_pf:
-                st.info("Nessun titolo del portafoglio mostra segnali di incremento al momento.")
-            else:
-                st.caption("Questi sono titoli che già possiedi e che mostrano segnali favorevoli per incrementare la posizione.")
-                cols_opp2 = st.columns(2)
-                for i, o in enumerate(opp_pf):
-                    with cols_opp2[i % 2]:
-                        render_opp_card(o, f"pf_{i}")
-
     # ── FONDAMENTALI ──────────────────────────────────────────────────────────
-    st.markdown('<div class="section-hd">📊 Ratio fondamentali — i numeri chiave di ogni titolo</div>', unsafe_allow_html=True)
-    st.caption("P/E, PEG, P/B, Debt/Equity, ROE. Aggiornati 1 volta al giorno da Yahoo Finance — zero costo API.")
-
-    with st.expander("📖 Guida alla lettura dei ratio fondamentali"):
-        fg1, fg2, fg3 = st.columns(3)
-        fund_guide = [
-            ("P/E (Price/Earnings)", "Quanto paghi per ogni euro di utile. P/E 15 = paghi 15€ per ogni €1 di profitto annuo. Sotto 15 = economico. Sopra 30 = caro. Dipende molto dal settore."),
-            ("PEG (P/E ÷ Crescita)", "Corregge il P/E per la crescita. PEG sotto 1 = titolo economico rispetto alla crescita attesa. Sopra 2 = paghi troppo la crescita."),
-            ("P/B (Price/Book)", "Quanto paghi rispetto al valore contabile. Sotto 1 = compri a sconto. Banche e industriali solitamente < 2. Tech può essere 10+."),
-            ("Debt/Equity", "Quanto debito ha l'azienda rispetto al capitale proprio. Sopra 2 = molto indebitata. Sotto 0.5 = solida. Varia molto per settore."),
-            ("ROE (Return on Equity)", "Quanto l'azienda guadagna sul capitale investito. Sopra 15% = eccellente. Sotto 8% = mediocre. Warren Buffett cerca ROE > 15% costante."),
-            ("Crescita ricavi/EPS", "Quanto stanno crescendo fatturato e utili. Positivo e in accelerazione = ottimo. Negativo = campanello d'allarme."),
-        ]
-        for i, (title, desc) in enumerate(fund_guide):
+    st.markdown('<div class="section-hd">📊 Ratio fondamentali — P/E, PEG, ROE, Debt/Equity</div>', unsafe_allow_html=True)
+    st.caption("Aggiornati ogni 24h da Yahoo Finance. Clicca per aggiornare.")
+    with st.expander("📖 Come leggere i ratio"):
+        fg1,fg2,fg3 = st.columns(3)
+        for i,(t,d) in enumerate([
+            ("P/E","Quanto paghi per ogni €1 di utile. Sotto 15 = economico. Sopra 30 = caro. Dipende dal settore."),
+            ("PEG","P/E diviso crescita attesa. Sotto 1 = conveniente. Sopra 2 = paghi troppo la crescita."),
+            ("P/B","Prezzo diviso valore contabile. Sotto 1 = compri a sconto sul patrimonio."),
+            ("Debt/Equity","Debito diviso capitale. Sopra 2 = molto indebitata. Sotto 0.5 = solida."),
+            ("ROE","Rendimento sul capitale. Sopra 15% = eccellente. Warren Buffett: cerca ROE > 15% costante."),
+            ("Rev Growth","Crescita del fatturato. Positivo e in accelerazione = ottimo segnale.")
+        ]):
             with [fg1,fg2,fg3][i%3]:
-                st.markdown(f'<div class="tooltip-box" style="margin-bottom:.5rem;"><b>{title}</b><br>{desc}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="tooltip-box" style="margin-bottom:.5rem;"><b>{t}</b><br>{d}</div>', unsafe_allow_html=True)
 
-    # Fetch fondamentali per i titoli watchlist (solo quelli con segnali)
-    fund_tickers = [o["ticker"] for o in opp_results[:12]] if opp_results else \
-                   [w["ticker"] for w in st.session_state.data["watchlist"] if w.get("ticker","N/A") not in ("N/A","",None)][:12]
+    fund_tickers = [o["ticker"] for o in opp_results[:15]]
+    if not fund_tickers:
+        fund_tickers = [w["ticker"] for w in st.session_state.data["watchlist"]
+                        if w.get("ticker","N/A") not in ("N/A","",None)][:12]
 
     fund_rows = []
     for ticker in fund_tickers:
         fd = get_fundamentals(ticker)
         if not fd: continue
-        nome = next((o["nome"] for o in all_candidates if o["ticker"]==ticker), ticker)
-        def fmt(v, mult=1, suffix="", decimals=1):
-            if v is None: return "—"
-            try: return f"{float(v)*mult:.{decimals}f}{suffix}"
+        nome_f = next((o["nome"] for o in opp_results if o["ticker"]==ticker),
+                      next((w["nome"] for w in st.session_state.data["watchlist"] if w["ticker"]==ticker), ticker))
+        def fmt_f(v, mult=1, suffix="", dec=1):
+            try: return f"{float(v)*mult:.{dec}f}{suffix}" if v is not None else "—"
             except: return "—"
         pe_v = fd["pe"]
-        pe_color = "#10B981" if pe_v and pe_v < 15 else ("#EF4444" if pe_v and pe_v > 30 else "#E8EDF5") if pe_v else "#64748B"
         peg_v = fd["peg"]
-        peg_color = "#10B981" if peg_v and peg_v < 1 else ("#EF4444" if peg_v and peg_v > 2 else "#E8EDF5") if peg_v else "#64748B"
         roe_v = fd["roe"]
-        roe_color = "#10B981" if roe_v and roe_v > 0.15 else ("#EF4444" if roe_v and roe_v < 0.05 else "#E8EDF5") if roe_v else "#64748B"
         fund_rows.append({
-            "Ticker": ticker,
-            "Nome":   nome[:20],
-            "P/E":    fmt(pe_v, decimals=1),
-            "PEG":    fmt(peg_v, decimals=2),
-            "P/B":    fmt(fd["pb"], decimals=1),
-            "D/E":    fmt(fd["de"], decimals=2),
-            "ROE":    fmt(fd["roe"], mult=100, suffix="%", decimals=1),
-            "Rev Growth": fmt(fd["rev_growth"], mult=100, suffix="%", decimals=1),
-            "Settore": (fd["sector"] or "—")[:18],
-            "_pe_c": pe_color, "_peg_c": peg_color, "_roe_c": roe_color,
+            "Ticker": ticker, "Nome": str(nome_f)[:20],
+            "P/E":       fmt_f(pe_v, dec=1),
+            "PEG":       fmt_f(peg_v, dec=2),
+            "P/B":       fmt_f(fd["pb"], dec=1),
+            "D/E":       fmt_f(fd["de"], dec=2),
+            "ROE":       fmt_f(roe_v, mult=100, suffix="%", dec=1),
+            "Rev Gr.":   fmt_f(fd["rev_growth"], mult=100, suffix="%", dec=1),
+            "Settore":   (fd["sector"] or "—")[:16],
         })
-
     if fund_rows:
-        df_fund = pd.DataFrame(fund_rows)
-        st.dataframe(df_fund[["Ticker","Nome","P/E","PEG","P/B","D/E","ROE","Rev Growth","Settore"]],
-                     use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(fund_rows), use_container_width=True, hide_index=True)
     else:
-        st.info("Carica prima la sezione opportunità per visualizzare i fondamentali.")
+        st.info("Nessun dato fondamentale disponibile per i titoli selezionati.")
 
     # ── EARNINGS CALENDAR ─────────────────────────────────────────────────────
-    st.markdown('<div class="section-hd">📅 Calendario earnings — prossime date utili</div>', unsafe_allow_html=True)
-    st.caption("Attenzione: non entrare mai su una posizione 2-3 giorni prima degli utili senza sapere la data.")
+    st.markdown('<div class="section-hd">📅 Earnings — prossime date utili</div>', unsafe_allow_html=True)
+    st.caption("Non entrare mai in posizione 2-3 giorni prima degli earnings senza saperlo.")
 
-    all_tickers_earn = tuple(set(
+    earn_all_tickers = tuple(set(
         [p["ticker"] for p in st.session_state.data["portfolio"] if p.get("ticker","N/A") not in ("N/A","",None)] +
         [w["ticker"] for w in st.session_state.data["watchlist"] if w.get("ticker","N/A") not in ("N/A","",None)]
     ))
-    earn_cal = get_earnings_calendar(all_tickers_earn)
-
+    earn_cal = get_earnings_calendar(earn_all_tickers)
     if earn_cal:
-        now_str = datetime.now().strftime("%d/%m/%Y")
         earn_items = sorted(earn_cal.items(), key=lambda x: x[1])
-        earn_cols = st.columns(3)
-        for i, (ticker_e, date_e) in enumerate(earn_items[:12]):
-            nome_e = next((c["nome"] for c in all_candidates if c["ticker"]==ticker_e), ticker_e)
-            fonte_e = next((c["fonte"] for c in all_candidates if c["ticker"]==ticker_e), "")
-            color_e = "#F59E0B" if fonte_e == "portafoglio" else "#3B82F6"
-            with earn_cols[i%3]:
-                st.markdown(f"""<div style="background:#0F1829;border:1px solid {color_e}33;border-left:3px solid {color_e};border-radius:8px;padding:.7rem .9rem;margin-bottom:.4rem;">
-<div style="font-size:.72rem;color:{color_e};font-weight:700;margin-bottom:.2rem;">📅 {date_e}</div>
-<div style="font-size:.82rem;font-weight:600;color:#E8EDF5;">{nome_e[:22]}</div>
-<div style="font-size:.7rem;color:#64748B;">{ticker_e} · {'💼 In portafoglio' if fonte_e=='portafoglio' else '👁️ Watchlist'}</div>
-</div>""", unsafe_allow_html=True)
+        ec = st.columns(3)
+        for i,(tk,dt) in enumerate(earn_items[:12]):
+            nm_e = next((w["nome"] for w in st.session_state.data["watchlist"] if w["ticker"]==tk),
+                        next((p["nome"] for p in st.session_state.data["portfolio"] if p["ticker"]==tk), tk))
+            in_pf = tk in portfolio_tickers
+            ec_col = "#F59E0B" if in_pf else "#3B82F6"
+            with ec[i%3]:
+                st.markdown(f'<div style="background:#0F1829;border:1px solid {ec_col}33;border-left:3px solid {ec_col};border-radius:8px;padding:.65rem .9rem;margin-bottom:.4rem;"><div style="font-size:.7rem;color:{ec_col};font-weight:700;">📅 {dt}</div><div style="font-size:.82rem;font-weight:600;color:#E8EDF5;">{str(nm_e)[:22]}</div><div style="font-size:.68rem;color:#64748B;">{tk} · {"💼 portafoglio" if in_pf else "👁️ watchlist"}</div></div>', unsafe_allow_html=True)
     else:
-        st.info("Date earnings non disponibili — Yahoo Finance non le espone per tutti i titoli. Verifica su earnings.com o Yahoo Finance direttamente.")
+        st.info("Date earnings non disponibili da Yahoo Finance per questi ticker. Verifica su earnings.com.")
 
-    # ── VOLATILITÀ & DRAWDOWN ─────────────────────────────────────────────────
-    st.markdown('<div class="section-hd">📉 Volatilità storica e drawdown massimo</div>', unsafe_allow_html=True)
-    st.caption("Quanto oscilla ogni titolo? Qual è il peggior calo che ha subito nell'ultimo anno?")
-
+    # ── VOLATILITÀ ────────────────────────────────────────────────────────────
+    st.markdown('<div class="section-hd">📉 Volatilità e drawdown massimo — titoli portafoglio</div>', unsafe_allow_html=True)
     vol_data = []
     for item in st.session_state.data["portfolio"]:
-        if item.get("ticker","N/A") in ("N/A","",None): continue
+        if item.get("ticker","N/A") in ("N/A","",None,"Liquidità"): continue
         vd = get_volatility(item["ticker"])
         if not vd: continue
-        vol_data.append({
-            "Nome":       item["nome"][:22],
-            "Ticker":     item["ticker"],
-            "Vol. annua %": f"{vd['vol_ann']:.1f}%",
-            "Max Drawdown": f"{vd['max_drawdown']:.1f}%",
-            "_vol": vd["vol_ann"], "_dd": vd["max_drawdown"]
-        })
-
+        vol_data.append({"Nome":item["nome"][:22],"_vol":vd["vol_ann"],"_dd":vd["max_drawdown"],
+                          "Vol annua":f"{vd['vol_ann']:.1f}%","Max Drawdown":f"{vd['max_drawdown']:.1f}%"})
     if vol_data:
         vol_data.sort(key=lambda x: -x["_vol"])
-        vcols = st.columns(2)
-        with vcols[0]:
-            st.markdown("**Titoli più volatili** (oscillano di più — rischio maggiore)")
+        vc1,vc2 = st.columns(2)
+        with vc1:
+            st.markdown("**Più volatili** (oscillano di più)")
             for v in vol_data[:6]:
-                vol_c = "#EF4444" if v["_vol"] > 40 else ("#F59E0B" if v["_vol"] > 20 else "#10B981")
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:#0F1829;border-radius:6px;margin-bottom:.3rem;font-size:.8rem;"><span style="color:#94A3B8;">{v["Nome"]}</span><span style="color:{vol_c};font-weight:700;">{v["Vol. annua %"]}</span></div>', unsafe_allow_html=True)
-        with vcols[1]:
-            st.markdown("**Peggior drawdown 1 anno** (massimo ribasso subito)")
-            vol_data_dd = sorted(vol_data, key=lambda x: x["_dd"])
-            for v in vol_data_dd[:6]:
-                dd_c = "#EF4444" if v["_dd"] < -40 else ("#F59E0B" if v["_dd"] < -20 else "#10B981")
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:#0F1829;border-radius:6px;margin-bottom:.3rem;font-size:.8rem;"><span style="color:#94A3B8;">{v["Nome"]}</span><span style="color:{dd_c};font-weight:700;">{v["Max Drawdown"]}</span></div>', unsafe_allow_html=True)
+                c_ = "#EF4444" if v["_vol"]>40 else ("#F59E0B" if v["_vol"]>20 else "#10B981")
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:.35rem .6rem;background:#0F1829;border-radius:6px;margin-bottom:.25rem;font-size:.8rem;"><span style="color:#94A3B8;">{v["Nome"]}</span><span style="color:{c_};font-weight:700;">{v["Vol annua"]}</span></div>', unsafe_allow_html=True)
+        with vc2:
+            st.markdown("**Peggiori drawdown 1 anno**")
+            for v in sorted(vol_data, key=lambda x: x["_dd"])[:6]:
+                c_ = "#EF4444" if v["_dd"]<-40 else ("#F59E0B" if v["_dd"]<-20 else "#10B981")
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:.35rem .6rem;background:#0F1829;border-radius:6px;margin-bottom:.25rem;font-size:.8rem;"><span style="color:#94A3B8;">{v["Nome"]}</span><span style="color:{c_};font-weight:700;">{v["Max Drawdown"]}</span></div>', unsafe_allow_html=True)
+    else:
+        st.info("Dati volatilità non disponibili.")
