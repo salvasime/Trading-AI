@@ -1041,7 +1041,7 @@ with tab3:
 
             with col_ai:
                 # ── Spiegazione automatica GRATUITA (solo dati tecnici Yahoo Finance) ──
-                def explain_free(td, lbl, nome, ticker, pnl_pct=None):
+                def explain_free(td, lbl, nome, ticker, pnl_pct=None, cv_eur=None, peso_pct=None):
                     """Genera spiegazione in linguaggio semplice dai dati tecnici. Zero costi API."""
                     if not td:
                         return "<i style='color:#64748B'>Dati tecnici non disponibili per questo ticker.</i>"
@@ -1100,52 +1100,66 @@ with tab3:
                         key_txt += "<br>💀 <b>Death Cross attivo</b>: la media di 50 giorni è scesa sotto quella di 200 giorni. È uno dei segnali più negativi del trading tecnico — molti istituzionali escono in questi casi."
                     parts.append("<b>🎯 LIVELLI DA TENERE D'OCCHIO</b><br>" + key_txt)
 
-                    # 4. COSA FARE (basato sul segnale)
-                    azioni_map = {
-                        "INCREMENTA": (
-                            "I segnali tecnici sono <b>favorevoli</b>. "
-                            "Se sei già dentro, puoi valutare di aumentare la posizione gradualmente. "
-                            "Ingresso ideale vicino al supporto (" + f"{sup:.2f}" + "). "
-                            "Target tecnico: resistenza a " + f"{res:.2f}" + ". "
-                            "Stop loss consigliato: sotto il supporto (" + f"{sup*0.97:.2f}" + ")."
-                        ),
-                        "TIENI": (
-                            "La situazione è <b>stabile</b>. Non c'è urgenza di fare nulla. "
-                            "Tieni la posizione e aspetta segnali più chiari. "
-                            "Monitorare il supporto a " + f"{sup:.2f}" + ": se lo rompe al ribasso rivaluta. "
-                            "Se supera la resistenza a " + f"{res:.2f}" + " considera di aumentare."
-                        ),
-                        "ATTENZIONE": (
-                            "I segnali sono <b>contrastanti</b>: qualcosa non va nella direzione giusta. "
-                            "Non aggiungere posizione ora. Osserva come si comporta il titolo nelle prossime settimane. "
-                            "Livello critico da monitorare: supporto a " + f"{sup:.2f}" + "."
-                        ),
-                        "ALLEGGERISCI": (
-                            "I segnali tecnici sono <b>negativi</b>. "
-                            "Considera di ridurre la posizione, specialmente se sei in guadagno. "
-                            "Se rompe il supporto a " + f"{sup:.2f}" + " valuta di uscire completamente. "
-                            "Non aggiungere posizione finché il quadro non migliora."
-                        ),
-                    }
-                    azione_txt = azioni_map.get(lbl, "Valuta la posizione in base al contesto generale del portafoglio.")
-                    if pnl_pct is not None:
-                        if pnl_pct > 20 and lbl == "ALLEGGERISCI":
-                            azione_txt += f"<br><i>Sei in guadagno del {pnl_pct:.1f}%: una presa di profitto parziale sarebbe razionale.</i>"
-                        elif pnl_pct < -15 and lbl in ("ATTENZIONE","ALLEGGERISCI"):
-                            azione_txt += f"<br><i>Sei in perdita del {abs(pnl_pct):.1f}%: valuta se le motivazioni dell'acquisto iniziale sono ancora valide.</i>"
-                    parts.append("<b>✅ COSA FARE ORA</b><br>" + azione_txt)
+                    # ── Posizione reale ──────────────────────────────────
+                    pos_html = ""
+                    if cv_eur is not None or pnl_pct is not None:
+                        pos_lines = []
+                        if cv_eur is not None and peso_pct is not None:
+                            pos_lines.append(f"Hai investito <b>€{cv_eur:,.0f}</b> ({peso_pct:.1f}% del portafoglio totale)")
+                        if pnl_pct is not None:
+                            c = "#10B981" if pnl_pct >= 0 else "#EF4444"
+                            s = "+" if pnl_pct >= 0 else ""
+                            pos_lines.append(f"Performance attuale: <b style='color:{c}'>{s}{pnl_pct:.1f}%</b> rispetto al prezzo di acquisto")
+                        pos_html = " — ".join(pos_lines) + "."
+                    if pos_html:
+                        parts.insert(0, "<b>💼 LA TUA POSIZIONE</b><br>" + pos_html)
+
+                    # ── Cosa fare — contestualizzato ──────────────────────────
+                    if lbl == "INCREMENTA":
+                        if peso_pct and peso_pct > 15:
+                            azione_txt = (f"Segnali favorevoli, ma <b>sei già esposto per il {peso_pct:.1f}% del portafoglio</b> su questo titolo. "
+                                         f"Aggiungere ancora aumenterebbe la concentrazione oltre i livelli consigliati (max 15%). "
+                                         f"Se vuoi incrementare, fallo in piccole dosi. Target: {res:.2f}. Stop: {sup*0.97:.2f}.")
+                        else:
+                            azione_txt = (f"Segnali favorevoli e la tua esposizione attuale è ragionevole. "
+                                         f"Puoi valutare di <b>aumentare gradualmente</b>, idealmente vicino al supporto ({sup:.2f}). "
+                                         f"Target tecnico: {res:.2f}. Stop loss: {sup*0.97:.2f}.")
+                    elif lbl == "TIENI":
+                        azione_txt = (f"Situazione stabile. <b>Mantieni la posizione</b> senza modifiche urgenti. "
+                                     f"Tieni d'occhio il supporto a {sup:.2f}: se lo rompe, rivaluta. "
+                                     f"Se supera {res:.2f}, potresti considerare un piccolo incremento.")
+                    elif lbl == "ATTENZIONE":
+                        azione_txt = (f"Segnali contrastanti. <b>Non aggiungere posizione ora.</b> "
+                                     f"Osserva le prossime settimane. Livello critico: {sup:.2f}.")
+                    else:  # ALLEGGERISCI
+                        if pnl_pct is not None and pnl_pct > 15:
+                            azione_txt = (f"Segnali negativi e sei <b>in guadagno del {pnl_pct:.1f}%</b>: "
+                                         f"ha senso prendere una parte dei profitti ora. "
+                                         f"Se scende sotto {sup:.2f}, valuta di uscire completamente.")
+                        elif pnl_pct is not None and pnl_pct < -15:
+                            azione_txt = (f"Segnali negativi con una <b>perdita del {abs(pnl_pct):.1f}%</b>. "
+                                         f"Valuta se le ragioni dell'acquisto sono ancora valide. "
+                                         f"Se rompe {sup:.2f} al ribasso, considera di limitare le perdite.")
+                        else:
+                            azione_txt = (f"Segnali tecnici negativi. <b>Considera di ridurre la posizione.</b> "
+                                         f"Non aggiungere. Se rompe {sup:.2f}, valuta di uscire.")
+                    parts.append("<b>✅ COSA FARE — LA TUA SITUAZIONE</b><br>" + azione_txt)
 
                     return "<br><br>".join(parts)
 
-                # Recupera P&L % per il titolo corrente dal df_main
-                pnl_this = None
+                # Recupera dati posizione reale
+                pnl_this = None; cv_this = None; peso_this = None
                 if not df_main.empty:
                     match = df_main[df_main["Ticker"] == item_t["ticker"]]
                     if not match.empty:
-                        pnl_this = float(match.iloc[0]["P&L %"])
+                        pnl_this  = float(match.iloc[0]["P&L %"])
+                        cv_this   = float(match.iloc[0]["CV €"])
+                        total_pf  = df_main["CV €"].sum()
+                        peso_this = (cv_this / total_pf * 100) if total_pf > 0 else None
 
-                # Mostra sempre la spiegazione gratuita
-                free_html = explain_free(td_t, lbl_t, item_t["nome"], item_t["ticker"], pnl_this)
+                # Spiegazione gratuita contestualizzata alla tua posizione reale
+                free_html = explain_free(td_t, lbl_t, item_t["nome"], item_t["ticker"],
+                                         pnl_pct=pnl_this, cv_eur=cv_this, peso_pct=peso_this)
                 ai_cache_key = "techexp_" + item_t["ticker"].replace("=","X").replace("-","_").replace(".","_")
                 ai_cached = st.session_state.get(ai_cache_key)
 
@@ -1496,9 +1510,14 @@ padding:.7rem;text-align:center;">
                     if sig_lbl_a == "INCREMENTA":    seg_a = "COMPRA"
                     elif sig_lbl_a == "ALLEGGERISCI": seg_a = "NON_CONSIDERARE"
                     else:                             seg_a = "MONITORA"
-                    ingresso_a = round(sup_a * 1.01, 2)
-                    stop_a     = round(sup_a * 0.96, 2)
-                    target_a   = round(res_a * 0.99, 2)
+                    if seg_a == "NON_CONSIDERARE":
+                        ingresso_a = None
+                        target_a   = None
+                    else:
+                        ideal_entry = sup_a * 1.01
+                        ingresso_a  = round(min(ideal_entry, p_a * 0.99), 2)
+                        target_a    = round(res_a * 0.99, 2)
+                    stop_a = round(sup_a * 0.96, 2)
                     if ma200_a and p_a > ma200_a * 1.05:
                         strat_a = "Lungo termine"; orizz_a = "Lungo (> 1 anno)"
                     elif ma50_a and p_a > ma50_a:
@@ -1506,7 +1525,12 @@ padding:.7rem;text-align:center;">
                     else:
                         strat_a = "Breve termine"; orizz_a = "Breve (< 3 mesi)"
                     rsi_note_a = "ipercomprato" if rsi_a > 70 else ("ipervenduto" if rsi_a < 30 else "neutro")
-                    note_a = f"RSI {rsi_a:.0f} ({rsi_note_a}). MACD {'positivo' if macd_a>0 else 'negativo'}. Livelli da supporto/resistenza tecnica."
+                    if seg_a == "NON_CONSIDERARE":
+                        note_a = f"Segnali negativi: RSI {rsi_a:.0f} ({rsi_note_a}), MACD {'positivo' if macd_a>0 else 'negativo'}. Aspetta miglioramento prima di entrare."
+                    elif seg_a == "COMPRA":
+                        note_a = f"Setup favorevole: RSI {rsi_a:.0f} ({rsi_note_a}). Ingresso vicino al supporto ({sup_a:.2f})."
+                    else:
+                        note_a = f"RSI {rsi_a:.0f} ({rsi_note_a}). Monitora supporto a {sup_a:.2f} prima di decidere."
                     idx_wa = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==ticker_a), None)
                     if idx_wa is not None:
                         st.session_state.data["watchlist"][idx_wa].update({
@@ -1557,14 +1581,14 @@ padding:.7rem;text-align:center;">
         tgt = item.get("prezzo_target")
         sl  = item.get("stop_loss")
         ing = item.get("ingresso")
-        tgt_d = f"{tgt:.2f}" if tgt and tgt>0 else "—"
-        sl_d  = f"{sl:.2f}"  if sl  and sl>0  else "—"
-        ing_d = f"{ing:.2f}" if ing and ing>0  else "—"
+        tgt_d   = f"{tgt:.2f}" if tgt and tgt > 0 else ("N/A" if sig == "NON_CONSIDERARE" else "—")
+        sl_d    = f"{sl:.2f}"  if sl  and sl > 0  else "—"
+        ing_d   = f"{ing:.2f}" if ing and ing > 0 else ("Non entrare ora" if sig == "NON_CONSIDERARE" else "—")
         price_d = f"{price:.2f}" if price else "N/A"
 
         dist_str = ""
-        if price and tgt and tgt > 0:
-            dist_pct = (tgt-price)/price*100
+        if price and tgt and tgt > 0 and sig != "NON_CONSIDERARE":
+            dist_pct = (tgt - price) / price * 100
             dist_str = f"{dist_pct:+.1f}% al target"
 
         ai_badge = '<span style="background:#8B5CF622;color:#8B5CF6;border:1px solid #8B5CF644;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;">🤖 AI</span>' if is_ai else '<span style="background:#3B82F622;color:#3B82F6;border:1px solid #3B82F644;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;">👤 MIO</span>'
