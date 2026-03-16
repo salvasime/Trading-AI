@@ -3,6 +3,11 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 import json, requests, time, smtplib, ssl
+try:
+    import psycopg2
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
@@ -146,38 +151,124 @@ DEFAULT_DATA = {
     "email_settings": {}
 }
 
+# ── SUPABASE PERSISTENCE ──────────────────────────────────────────────────────
+def _get_supabase_url():
+    """Legge la stringa di connessione Supabase dai Secrets di Streamlit."""
+    try:
+        return st.secrets.get("SUPABASE_URL", "") if hasattr(st, "secrets") else ""
+    except: return ""
+
+def _db_connect():
+    """Apre connessione a Supabase. Restituisce conn o None."""
+    if not HAS_PSYCOPG2: return None
+    url = _get_supabase_url()
+    if not url: return None
+    try:
+        conn = psycopg2.connect(url, connect_timeout=5)
+        return conn
+    except: return None
+
+def _db_ensure_table(conn):
+    """Crea la tabella se non esiste."""
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS portfolio_data (
+                id   TEXT PRIMARY KEY DEFAULT 'main',
+                data JSONB NOT NULL,
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+        conn.commit()
+        cur.close()
+        return True
+    except: return False
+
 def load_data():
     """
-    Strategia di caricamento:
-    1. Se esiste data/portfolio.json -> usalo (contiene i prezzi manuali salvati)
-    2. Se NON esiste -> usa DEFAULT_DATA (primo avvio o reset)
-    I prezzi manuali vengono preservati: il file JSON e' la fonte di verita'.
+    Carica dati da Supabase (persistente) se disponibile,
+    altrimenti da file locale, altrimenti da DEFAULT_DATA.
     """
+    # ── Prova Supabase ────────────────────────────────────────────────────────
+    conn = _db_connect()
+    if conn:
+        try:
+            _db_ensure_table(conn)
+            cur = conn.cursor()
+            cur.execute("SELECT data FROM portfolio_data WHERE id = 'main'")
+            row = cur.fetchone()
+            cur.close()
+            conn.close()
+            if row:
+                d = row[0] if isinstance(row[0], dict) else json.loads(row[0])
+                # Integra chiavi mancanti
+                for k in ["agent_cache","trade_history","email_settings","watchlist"]:
+                    if k not in d:
+                        d[k] = {} if k in ["agent_cache","email_settings"] else []
+                # Aggiungi nuovi asset di DEFAULT_DATA senza toccare esistenti
+                existing_t = {p.get("ticker","") for p in d.get("portfolio",[])}
+                for item in DEFAULT_DATA["portfolio"]:
+                    if item.get("ticker","N/A") not in existing_t:
+                        d["portfolio"].append(item)
+                existing_wl = {w.get("ticker","") for w in d.get("watchlist",[])}
+                for wl in DEFAULT_DATA["watchlist"]:
+                    if wl.get("ticker","") not in existing_wl:
+                        d["watchlist"].append(wl)
+                return d
+        except Exception as e:
+            try: conn.close()
+            except: pass
+
+    # ── Fallback: file locale ─────────────────────────────────────────────────
     if DATA_FILE.exists():
         try:
             d = json.loads(DATA_FILE.read_text())
-            # Aggiungi chiavi mancanti senza sovrascrivere nulla
             for k in ["agent_cache","trade_history","email_settings","watchlist"]:
                 if k not in d:
                     d[k] = {} if k in ["agent_cache","email_settings"] else []
-            # Aggiorna portafoglio con nuovi asset di DEFAULT_DATA senza toccare quelli esistenti
-            existing_tickers = {p.get("ticker","") for p in d.get("portfolio",[])}
-            for default_item in DEFAULT_DATA["portfolio"]:
-                if default_item.get("ticker","N/A") not in existing_tickers:
-                    d["portfolio"].append(default_item)
-            # Aggiorna watchlist con nuovi titoli utente senza toccare quelli esistenti
-            existing_wl_tickers = {w.get("ticker","") for w in d.get("watchlist",[])}
-            for default_wl in DEFAULT_DATA["watchlist"]:
-                if default_wl.get("ticker","") not in existing_wl_tickers:
-                    d["watchlist"].append(default_wl)
+            existing_t = {p.get("ticker","") for p in d.get("portfolio",[])}
+            for item in DEFAULT_DATA["portfolio"]:
+                if item.get("ticker","N/A") not in existing_t:
+                    d["portfolio"].append(item)
+            existing_wl = {w.get("ticker","") for w in d.get("watchlist",[])}
+            for wl in DEFAULT_DATA["watchlist"]:
+                if wl.get("ticker","") not in existing_wl:
+                    d["watchlist"].append(wl)
             return d
-        except Exception as e:
-            # File corrotto: usa default ma segnala
-            st.warning(f"File dati corrotto, ripristino default: {e}")
+        except: pass
+
+    # ── Primo avvio: DEFAULT_DATA ─────────────────────────────────────────────
     return DEFAULT_DATA.copy()
 
 def save_data(d):
-    DATA_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False))
+    """
+    Salva su Supabase (persistente) E su file locale (fallback).
+    """
+    # ── Salva su Supabase ─────────────────────────────────────────────────────
+    conn = _db_connect()
+    if conn:
+        try:
+            _db_ensure_table(conn)
+            cur = conn.cursor()
+            # Rimuovi agent_cache (troppo grande, non serve persistere)
+            d_save = {k:v for k,v in d.items() if k != "agent_cache"}
+            cur.execute("""
+                INSERT INTO portfolio_data (id, data, updated_at)
+                VALUES ('main', %s, NOW())
+                ON CONFLICT (id) DO UPDATE
+                SET data = EXCLUDED.data, updated_at = NOW()
+            """, (json.dumps(d_save, ensure_ascii=False),))
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            try: conn.close()
+            except: pass
+
+    # ── Salva anche in locale (fallback offline) ──────────────────────────────
+    try:
+        DATA_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False))
+    except: pass
 
 if "data" not in st.session_state:
     st.session_state.data = load_data()
@@ -930,9 +1021,9 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ── TABS ───────────────────────────────────────────────────────────────────────
-tab1,tab2,tab3,tab4,tab5,tab6,tab7,tab8 = st.tabs([
+tab1,tab2,tab3,tab4,tab5,tab6,tab7,tab8,tab9 = st.tabs([
     "🌍 Mercati","💼 Portafoglio","📡 Tecnica","🤖 Multi-Agente AI",
-    "👁️ Watchlist","📊 Benchmark & Scenari","✏️ Gestione","💡 Opportunità"])
+    "👁️ Watchlist","📊 Benchmark & Scenari","✏️ Gestione","💡 Opportunità","🎯 Reversal Radar"])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 1 — MERCATI
@@ -2844,3 +2935,510 @@ with tab8:
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:.35rem .6rem;background:#0F1829;border-radius:6px;margin-bottom:.25rem;font-size:.8rem;"><span style="color:#94A3B8;">{v["Nome"]}</span><span style="color:{c_};font-weight:700;">{v["Max Drawdown"]}</span></div>', unsafe_allow_html=True)
     else:
         st.info("Dati volatilità non disponibili.")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 9 — REVERSAL RADAR
+# ══════════════════════════════════════════════════════════════════════════════
+with tab9:
+
+    # ── Helper: scarica dati intraday ─────────────────────────────────────────
+    @st.cache_data(ttl=300)
+    def get_intraday(ticker, interval="1h", period="5d"):
+        """Scarica candele intraday. interval: 1h, 15m, 5m."""
+        if ticker in ("N/A","",None): return None
+        try:
+            h = yf.Ticker(ticker).history(period=period, interval=interval)
+            return h if not h.empty else None
+        except: return None
+
+    @st.cache_data(ttl=3600)
+    def get_daily(ticker, period="6mo"):
+        if ticker in ("N/A","",None): return None
+        try:
+            h = yf.Ticker(ticker).history(period=period)
+            return h if not h.empty else None
+        except: return None
+
+    def compute_key_levels(h_daily, h_hourly):
+        """
+        Calcola livelli chiave da dati giornalieri + orari.
+        Restituisce dict con: supporti, resistenze, pivot, zone.
+        """
+        levels = {"supports":[], "resistances":[], "pivot":None,
+                  "s1":None,"s2":None,"r1":None,"r2":None,
+                  "week_high":None,"week_low":None,
+                  "month_high":None,"month_low":None,
+                  "vwap":None}
+
+        if h_daily is not None and len(h_daily) >= 5:
+            c = h_daily["Close"]
+            # Rolling pivots (ultima settimana = 5 giorni)
+            last5 = h_daily.tail(5)
+            levels["week_high"] = float(last5["High"].max())
+            levels["week_low"]  = float(last5["Low"].min())
+            last20 = h_daily.tail(20)
+            levels["month_high"] = float(last20["High"].max())
+            levels["month_low"]  = float(last20["Low"].min())
+
+            # Pivot Point classico (su dati ieri)
+            prev = h_daily.iloc[-2]
+            H, L, C_prev = float(prev["High"]), float(prev["Low"]), float(prev["Close"])
+            P  = (H + L + C_prev) / 3
+            R1 = 2*P - L;  S1 = 2*P - H
+            R2 = P + (H-L); S2 = P - (H-L)
+            levels["pivot"] = round(P,2)
+            levels["r1"] = round(R1,2); levels["r2"] = round(R2,2)
+            levels["s1"] = round(S1,2); levels["s2"] = round(S2,2)
+
+            # Supporti e resistenze dinamici (ultime 20 candele)
+            highs = h_daily["High"].tail(20).values
+            lows  = h_daily["Low"].tail(20).values
+            # Cerca swing high/low semplici
+            for i in range(1, len(highs)-1):
+                if highs[i] > highs[i-1] and highs[i] > highs[i+1]:
+                    levels["resistances"].append(round(float(highs[i]),2))
+                if lows[i] < lows[i-1] and lows[i] < lows[i+1]:
+                    levels["supports"].append(round(float(lows[i]),2))
+            # Deduplicazione livelli vicini (cluster a 0.5%)
+            def cluster(lst, tol=0.005):
+                if not lst: return []
+                lst = sorted(set(lst))
+                out = [lst[0]]
+                for v in lst[1:]:
+                    if abs(v - out[-1]) / out[-1] > tol:
+                        out.append(v)
+                return out
+            levels["supports"]   = cluster(levels["supports"])[-5:]   # ultimi 5
+            levels["resistances"]= cluster(levels["resistances"])[:5]  # primi 5
+
+        if h_hourly is not None and len(h_hourly) >= 10:
+            # VWAP intraday (ultime 48 ore)
+            try:
+                typical = (h_hourly["High"] + h_hourly["Low"] + h_hourly["Close"]) / 3
+                vwap_v  = (typical * h_hourly["Volume"]).cumsum() / h_hourly["Volume"].cumsum()
+                levels["vwap"] = round(float(vwap_v.iloc[-1]), 2)
+            except: pass
+
+        return levels
+
+    def reversal_signal(price, levels, rsi, macd, prev_close=None):
+        """
+        Genera segnale ENTRA / ASPETTA / ESCI con motivazione dettagliata.
+        Restituisce: (segnale, colore, forza 1-5, motivazioni[], avvisi[])
+        """
+        score = 0; motivazioni = []; avvisi = []
+        p = price
+
+        # 1. Vicinanza al supporto (±1.5%)
+        for sup in levels["supports"]:
+            if abs(p - sup) / p < 0.015:
+                score += 2
+                dist = (p - sup)/p*100
+                motivazioni.append(f"🎯 Prezzo su supporto storico {sup:.2f} (distanza {abs(dist):.1f}%) — zona dove storicamente gli acquirenti si fanno avanti")
+                break
+
+        # 2. Vicinanza alla resistenza (±1.5%)
+        for res in levels["resistances"]:
+            if abs(p - res) / p < 0.015:
+                score -= 2
+                dist = (res - p)/p*100
+                avvisi.append(f"⚠️ Prezzo su resistenza storica {res:.2f} (distanza {abs(dist):.1f}%) — zona dove storicamente i venditori bloccano il rialzo")
+                break
+
+        # 3. Pivot Point
+        if levels["pivot"] and abs(p - levels["pivot"])/p < 0.01:
+            motivazioni.append(f"⚖️ Prezzo sul Pivot Point {levels['pivot']:.2f} — livello di equilibrio calcolato sui dati di ieri (H+L+C/3). Zona di indecisione.")
+
+        # 4. S1/S2/R1/R2
+        if levels["s1"] and abs(p - levels["s1"])/p < 0.015:
+            score += 1
+            motivazioni.append(f"🟢 Su S1={levels['s1']:.2f} — primo supporto pivot. Zona di potenziale rimbalzo.")
+        if levels["r1"] and abs(p - levels["r1"])/p < 0.015:
+            score -= 1
+            avvisi.append(f"🔴 Su R1={levels['r1']:.2f} — prima resistenza pivot. Zona di potenziale blocco.")
+
+        # 5. VWAP
+        if levels["vwap"]:
+            if p < levels["vwap"] * 0.98:
+                score += 1
+                motivazioni.append(f"📊 Prezzo sotto il VWAP ({levels['vwap']:.2f}) — i compratori intraday sono in vantaggio se il prezzo risale sopra il VWAP")
+            elif p > levels["vwap"] * 1.02:
+                score -= 1
+                avvisi.append(f"📊 Prezzo sopra il VWAP ({levels['vwap']:.2f}) — i venditori intraday hanno ancora spazio prima di trovare resistenza")
+
+        # 6. RSI
+        if rsi < 30:
+            score += 2
+            motivazioni.append(f"💎 RSI {rsi:.0f} — titolo ipervenduto. Storicamente a questi livelli segue un rimbalzo tecnico.")
+        elif rsi < 40:
+            score += 1
+            motivazioni.append(f"📉 RSI {rsi:.0f} — zona di debolezza ma non estrema. Monitorare se scende ancora.")
+        elif rsi > 70:
+            score -= 2
+            avvisi.append(f"🔥 RSI {rsi:.0f} — titolo ipercomprato. Il prezzo ha corso troppo velocemente, rischio di correzione.")
+        elif rsi > 60:
+            score -= 1
+            avvisi.append(f"🌡️ RSI {rsi:.0f} — momentum elevato. Non inseguire il rialzo, aspetta un ritracciamento.")
+
+        # 7. MACD
+        if macd > 0:
+            score += 1
+            motivazioni.append(f"⚡ MACD positivo ({macd:+.3f}) — momentum rialzista attivo")
+        else:
+            score -= 1
+            avvisi.append(f"⬇️ MACD negativo ({macd:+.3f}) — pressione ribassista prevalente")
+
+        # 8. Minimo/massimo settimana
+        if levels["week_low"] and abs(p - levels["week_low"])/p < 0.02:
+            score += 1
+            motivazioni.append(f"📅 Vicino al minimo settimanale ({levels['week_low']:.2f}) — zona di potenziale inversione di breve")
+        if levels["week_high"] and abs(p - levels["week_high"])/p < 0.02:
+            score -= 1
+            avvisi.append(f"📅 Vicino al massimo settimanale ({levels['week_high']:.2f}) — zona di potenziale distribuzione")
+
+        forza = min(5, max(1, abs(score) + 1))
+
+        if score >= 2:
+            return "ENTRA", "#10B981", forza, motivazioni, avvisi
+        elif score <= -2:
+            return "ESCI/ASPETTA", "#EF4444", forza, motivazioni, avvisi
+        else:
+            return "ASPETTA", "#F59E0B", forza, motivazioni, avvisi
+
+    # ── UI ────────────────────────────────────────────────────────────────────
+    st.markdown('<div class="section-hd">🎯 Reversal Radar — analisi intraday multi-timeframe</div>', unsafe_allow_html=True)
+    st.caption("Giornaliero per i livelli storici · Orario per il timing intraday · Aggiornamento automatico ogni 5 minuti")
+
+    # Raccoglie tutti i ticker
+    radar_tickers = []
+    seen_r = set()
+    for p in st.session_state.data["portfolio"]:
+        tk = p.get("ticker","N/A")
+        if tk not in ("N/A","",None) and tk.upper() not in seen_r:
+            radar_tickers.append({"ticker":tk,"nome":p["nome"],"fonte":"portafoglio"})
+            seen_r.add(tk.upper())
+    for w in st.session_state.data["watchlist"]:
+        tk = w.get("ticker","N/A")
+        if tk not in ("N/A","",None) and tk.upper() not in seen_r:
+            radar_tickers.append({"ticker":tk,"nome":w["nome"],"fonte":"watchlist"})
+            seen_r.add(tk.upper())
+
+    # Selezione titolo
+    sel_col1, sel_col2, sel_col3 = st.columns([3,1,1])
+    with sel_col1:
+        ticker_names = [f"{t['ticker']} — {t['nome']} ({'💼' if t['fonte']=='portafoglio' else '👁️'})" for t in radar_tickers]
+        sel_radar = st.selectbox("Seleziona titolo da analizzare:", range(len(ticker_names)),
+                                  format_func=lambda i: ticker_names[i], key="radar_sel")
+    with sel_col2:
+        tf_choice = st.selectbox("Timeframe intraday:", ["1h","30m","15m"], key="radar_tf",
+                                  help="1h = visione 5 giorni · 30m = 2-3 giorni · 15m = ultima giornata")
+    with sel_col3:
+        period_map = {"1h":"5d","30m":"2d","15m":"1d"}
+        st.markdown("<div style='height:1.7rem'></div>", unsafe_allow_html=True)
+        if st.button("🔄 Aggiorna", key="btn_radar_refresh", use_container_width=True):
+            st.cache_data.clear()
+
+    if sel_radar is not None and radar_tickers:
+        selected = radar_tickers[sel_radar]
+        tk_r = selected["ticker"]
+        nome_r = selected["nome"]
+
+        with st.spinner(f"Caricamento dati per {nome_r}..."):
+            h_1d  = get_daily(tk_r, period="3mo")
+            h_hr  = get_intraday(tk_r, interval=tf_choice, period=period_map[tf_choice])
+            td_r  = get_technical(tk_r)
+
+        if h_1d is None and h_hr is None:
+            st.warning(f"Dati non disponibili per {tk_r}. Verifica che il ticker sia corretto su Yahoo Finance.")
+        else:
+            levels  = compute_key_levels(h_1d, h_hr)
+            price_r = float(h_1d["Close"].iloc[-1]) if h_1d is not None else (float(h_hr["Close"].iloc[-1]) if h_hr is not None else 0)
+            rsi_r   = td_r["rsi"]   if td_r else 50
+            macd_r  = td_r["macd_h"] if td_r else 0
+
+            segnale, sig_color, forza, motivazioni, avvisi = reversal_signal(price_r, levels, rsi_r, macd_r)
+
+            # ── HEADER: semaforo + KPI ────────────────────────────────────────
+            hdr1, hdr2, hdr3, hdr4, hdr5 = st.columns([2,1,1,1,1])
+            with hdr1:
+                forza_stars = "●" * forza + "○" * (5-forza)
+                st.markdown(f"""
+<div style="background:#0F1829;border:2px solid {sig_color};border-radius:14px;padding:1.2rem 1.4rem;text-align:center;">
+  <div style="font-size:.65rem;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;">{nome_r} · {tk_r}</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:{sig_color};">{segnale}</div>
+  <div style="font-size:.82rem;color:{sig_color};margin-top:.3rem;">{forza_stars} forza {forza}/5</div>
+</div>""", unsafe_allow_html=True)
+            for col, (label, val, color) in zip([hdr2,hdr3,hdr4,hdr5],[
+                ("Prezzo ora",   f"{price_r:.2f}", "#E8EDF5"),
+                ("RSI",          f"{rsi_r:.0f}", "#EF4444" if rsi_r>70 else ("#10B981" if rsi_r<30 else "#E8EDF5")),
+                ("Pivot",        f"{levels['pivot']:.2f}" if levels['pivot'] else "—", "#F59E0B"),
+                ("VWAP",         f"{levels['vwap']:.2f}" if levels['vwap'] else "—", "#8B5CF6"),
+            ]):
+                with col:
+                    st.markdown(f"""<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.8rem;text-align:center;height:100%;">
+<div style="font-size:.6rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">{label}</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:{color};">{val}</div>
+</div>""", unsafe_allow_html=True)
+
+            st.markdown("<div style='height:.5rem'></div>", unsafe_allow_html=True)
+
+            # ── GRAFICI AFFIANCATI ────────────────────────────────────────────
+            g_col1, g_col2 = st.columns([1,1])
+
+            # ── Grafico 1: Candele intraday + livelli ─────────────────────────
+            with g_col1:
+                st.markdown('<div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748B;margin-bottom:.4rem;">Candele intraday + livelli chiave</div>', unsafe_allow_html=True)
+                if h_hr is not None and len(h_hr) > 0:
+                    fig_intra = go.Figure()
+
+                    # Candele
+                    fig_intra.add_trace(go.Candlestick(
+                        x=h_hr.index, open=h_hr["Open"], high=h_hr["High"],
+                        low=h_hr["Low"], close=h_hr["Close"], name="Prezzo",
+                        increasing_line_color="#10B981", decreasing_line_color="#EF4444",
+                        increasing_fillcolor="#10B981", decreasing_fillcolor="#EF4444"))
+
+                    # Livelli pivot
+                    if levels["pivot"]:
+                        fig_intra.add_hline(y=levels["pivot"], line_color="#F59E0B", line_dash="dot", line_width=1.5,
+                            annotation_text=f"Pivot {levels['pivot']:.2f}", annotation_font_color="#F59E0B", annotation_font_size=10)
+                    if levels["r1"]:
+                        fig_intra.add_hline(y=levels["r1"], line_color="#EF4444", line_dash="dash", line_width=1,
+                            annotation_text=f"R1 {levels['r1']:.2f}", annotation_font_color="#EF4444", annotation_font_size=10)
+                    if levels["r2"]:
+                        fig_intra.add_hline(y=levels["r2"], line_color="#EF4444", line_dash="dot", line_width=1, opacity=0.6,
+                            annotation_text=f"R2 {levels['r2']:.2f}", annotation_font_color="#EF4444", annotation_font_size=10)
+                    if levels["s1"]:
+                        fig_intra.add_hline(y=levels["s1"], line_color="#10B981", line_dash="dash", line_width=1,
+                            annotation_text=f"S1 {levels['s1']:.2f}", annotation_font_color="#10B981", annotation_font_size=10)
+                    if levels["s2"]:
+                        fig_intra.add_hline(y=levels["s2"], line_color="#10B981", line_dash="dot", line_width=1, opacity=0.6,
+                            annotation_text=f"S2 {levels['s2']:.2f}", annotation_font_color="#10B981", annotation_font_size=10)
+
+                    # VWAP
+                    if levels["vwap"]:
+                        fig_intra.add_hline(y=levels["vwap"], line_color="#8B5CF6", line_dash="dash", line_width=1.5,
+                            annotation_text=f"VWAP {levels['vwap']:.2f}", annotation_font_color="#8B5CF6", annotation_font_size=10)
+
+                    # Zone supporto/resistenza storiche (semitrasparenti)
+                    for sup in levels["supports"]:
+                        fig_intra.add_hrect(y0=sup*0.998, y1=sup*1.002,
+                            fillcolor="rgba(16,185,129,0.12)", line_width=0)
+                    for res in levels["resistances"]:
+                        fig_intra.add_hrect(y0=res*0.998, y1=res*1.002,
+                            fillcolor="rgba(239,68,68,0.12)", line_width=0)
+
+                    fig_intra.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(22,32,53,.8)",
+                        font_color="#E8EDF5", xaxis_rangeslider_visible=False,
+                        xaxis=dict(gridcolor="#1E2D47", color="#64748B"),
+                        yaxis=dict(gridcolor="#1E2D47"),
+                        legend=dict(bgcolor="rgba(0,0,0,0)"),
+                        height=380, margin=dict(t=5,b=5,l=5,r=80))
+                    st.plotly_chart(fig_intra, use_container_width=True)
+                else:
+                    st.info("Dati intraday non disponibili per questo ticker.")
+
+            # ── Grafico 2: Giornaliero 3 mesi + supporti/resistenze storici ──
+            with g_col2:
+                st.markdown('<div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748B;margin-bottom:.4rem;">Giornaliero 3 mesi + struttura di mercato</div>', unsafe_allow_html=True)
+                if h_1d is not None and len(h_1d) > 10:
+                    fig_daily = go.Figure()
+
+                    fig_daily.add_trace(go.Candlestick(
+                        x=h_1d.index, open=h_1d["Open"], high=h_1d["High"],
+                        low=h_1d["Low"], close=h_1d["Close"], name="Giornaliero",
+                        increasing_line_color="#10B981", decreasing_line_color="#EF4444",
+                        increasing_fillcolor="#10B981", decreasing_fillcolor="#EF4444"))
+
+                    # MA50 e MA200
+                    c_d = h_1d["Close"]
+                    if len(c_d) >= 50:
+                        fig_daily.add_trace(go.Scatter(x=h_1d.index, y=c_d.rolling(50).mean(),
+                            name="MA50", line=dict(color="#F59E0B", width=1.5, dash="dot")))
+                    if len(c_d) >= 200:
+                        fig_daily.add_trace(go.Scatter(x=h_1d.index, y=c_d.rolling(200).mean(),
+                            name="MA200", line=dict(color="#8B5CF6", width=1.5, dash="dash")))
+
+                    # Supporti e resistenze storici come zone
+                    for sup in levels["supports"]:
+                        fig_daily.add_hrect(y0=sup*0.997, y1=sup*1.003,
+                            fillcolor="rgba(16,185,129,0.15)", line_color="#10B981", line_width=1,
+                            annotation_text=f"Sup {sup:.2f}", annotation_font_color="#10B981", annotation_font_size=9)
+                    for res in levels["resistances"]:
+                        fig_daily.add_hrect(y0=res*0.997, y1=res*1.003,
+                            fillcolor="rgba(239,68,68,0.15)", line_color="#EF4444", line_width=1,
+                            annotation_text=f"Res {res:.2f}", annotation_font_color="#EF4444", annotation_font_size=9)
+
+                    # Bande di Bollinger
+                    bm = c_d.rolling(20).mean(); bs = c_d.rolling(20).std()
+                    fig_daily.add_trace(go.Scatter(x=h_1d.index, y=bm+2*bs,
+                        name="Boll+", line=dict(color="#3B82F6",width=1,dash="dot"), opacity=0.5))
+                    fig_daily.add_trace(go.Scatter(x=h_1d.index, y=bm-2*bs,
+                        name="Boll-", line=dict(color="#3B82F6",width=1,dash="dot"),
+                        fill="tonexty", fillcolor="rgba(59,130,246,0.05)", opacity=0.5))
+
+                    fig_daily.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(22,32,53,.8)",
+                        font_color="#E8EDF5", xaxis_rangeslider_visible=False,
+                        xaxis=dict(gridcolor="#1E2D47", color="#64748B"),
+                        yaxis=dict(gridcolor="#1E2D47"),
+                        legend=dict(bgcolor="rgba(0,0,0,0)", font_size=9),
+                        height=380, margin=dict(t=5,b=5,l=5,r=80))
+                    st.plotly_chart(fig_daily, use_container_width=True)
+
+            # ── RSI intraday subplot ──────────────────────────────────────────
+            if h_hr is not None and len(h_hr) > 14:
+                c_h = h_hr["Close"]
+                d_h = c_h.diff()
+                rsi_h = 100 - 100/(1 + d_h.clip(lower=0).rolling(14).mean() /
+                                   (-d_h.clip(upper=0)).rolling(14).mean().replace(0,1e-9))
+                fig_rsi_h = go.Figure()
+                fig_rsi_h.add_trace(go.Scatter(x=h_hr.index, y=rsi_h,
+                    line=dict(color="#3B82F6",width=2), fill="tonexty",
+                    fillcolor="rgba(59,130,246,0.08)", name="RSI"))
+                fig_rsi_h.add_hline(y=70, line_color="#EF4444", line_dash="dot",
+                    annotation_text="Ipercomprato 70", annotation_font_color="#EF4444", annotation_font_size=10)
+                fig_rsi_h.add_hline(y=30, line_color="#10B981", line_dash="dot",
+                    annotation_text="Ipervenduto 30", annotation_font_color="#10B981", annotation_font_size=10)
+                fig_rsi_h.add_hline(y=50, line_color="#64748B", line_dash="dot", opacity=0.5)
+                fig_rsi_h.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(22,32,53,.8)",
+                    font_color="#E8EDF5", showlegend=False,
+                    xaxis=dict(gridcolor="#1E2D47"), yaxis=dict(gridcolor="#1E2D47", range=[0,100]),
+                    height=120, margin=dict(t=0,b=5,l=5,r=80),
+                    title=dict(text="RSI intraday", font=dict(size=10,color="#64748B"), x=0))
+                st.plotly_chart(fig_rsi_h, use_container_width=True)
+
+            # ── SPIEGAZIONE TESTUALE ──────────────────────────────────────────
+            st.markdown('<div class="section-hd">🧠 Analisi — cosa sta succedendo e cosa fare</div>', unsafe_allow_html=True)
+
+            exp_col1, exp_col2 = st.columns(2)
+
+            with exp_col1:
+                if motivazioni:
+                    st.markdown(f'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:1rem 1.1rem;">'
+                        f'<div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#10B981;margin-bottom:.6rem;">✅ Segnali a favore di un ingresso</div>'
+                        + "".join([f'<div style="font-size:.81rem;color:#94A3B8;padding:.35rem 0;border-bottom:1px solid #1E2D47;">{m}</div>' for m in motivazioni])
+                        + '</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.9rem;font-size:.82rem;color:#64748B;">Nessun segnale rialzista rilevante al momento.</div>', unsafe_allow_html=True)
+
+            with exp_col2:
+                if avvisi:
+                    st.markdown(f'<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:1rem 1.1rem;">'
+                        f'<div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#EF4444;margin-bottom:.6rem;">⚠️ Segnali di cautela o uscita</div>'
+                        + "".join([f'<div style="font-size:.81rem;color:#94A3B8;padding:.35rem 0;border-bottom:1px solid #1E2D47;">{a}</div>' for a in avvisi])
+                        + '</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.9rem;font-size:.82rem;color:#64748B;">Nessun segnale ribassista rilevante al momento.</div>', unsafe_allow_html=True)
+
+            # ── RIEPILOGO LIVELLI ─────────────────────────────────────────────
+            st.markdown('<div class="section-hd">📐 Mappa dei livelli — dove si trova il prezzo</div>', unsafe_allow_html=True)
+
+            all_levels_map = []
+            if levels["r2"]: all_levels_map.append(("R2 — Resistenza forte",  levels["r2"], "#EF4444", "Zona di forte pressione ribassista. Se superata con volume, segnale molto rialzista."))
+            if levels["r1"]: all_levels_map.append(("R1 — Resistenza pivot",  levels["r1"], "#EF4444", "Prima resistenza pivot giornaliera. Spesso il prezzo si ferma qui."))
+            for res in reversed(levels["resistances"][-3:]):
+                all_levels_map.append((f"Resistenza storica {res:.2f}", res, "#F97316", "Swing high recente — zona dove i venditori hanno prevalso in passato."))
+            if levels["vwap"]: all_levels_map.append(("VWAP", levels["vwap"], "#8B5CF6", "Prezzo medio ponderato per volume — benchmark intraday degli istituzionali."))
+            if levels["pivot"]: all_levels_map.append(("Pivot Point", levels["pivot"], "#F59E0B", "Livello di equilibrio calcolato da dati di ieri (H+L+C)/3."))
+            for sup in levels["supports"][-3:]:
+                all_levels_map.append((f"Supporto storico {sup:.2f}", sup, "#10B981", "Swing low recente — zona dove gli acquirenti hanno prevalso in passato."))
+            if levels["s1"]: all_levels_map.append(("S1 — Supporto pivot",  levels["s1"], "#10B981", "Primo supporto pivot — zona di potenziale rimbalzo giornaliero."))
+            if levels["s2"]: all_levels_map.append(("S2 — Supporto forte",  levels["s2"], "#10B981", "Zona di supporto forte. Rottura al ribasso = segnale molto negativo."))
+
+            # Sort by level value descending (dal più alto al più basso)
+            all_levels_map.sort(key=lambda x: -x[1])
+
+            for label, lv, color, desc in all_levels_map:
+                is_current = abs(price_r - lv) / price_r < 0.02 if price_r > 0 else False
+                highlight = f"border:2px solid {color};" if is_current else f"border:1px solid {color}33;"
+                bg = f"background:rgba(59,130,246,.08);" if is_current else "background:#0F1829;"
+                arrow = f"<span style='font-size:.9rem;'>◄ PREZZO QUI</span> " if is_current else ""
+                dist_str = ""
+                if price_r > 0:
+                    dist = (lv - price_r) / price_r * 100
+                    dist_str = f"<span style='color:#64748B;font-size:.72rem;'> {dist:+.1f}%</span>"
+                st.markdown(
+                    f'<div style="{bg}{highlight}border-radius:8px;padding:.55rem 1rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.8rem;">'
+                    f'<div style="width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0;"></div>'
+                    f'<div style="flex:1;font-size:.8rem;color:#E8EDF5;font-weight:{"700" if is_current else "400"};">'
+                    f'{arrow}{label} — <b style="color:{color};">{lv:.2f}</b>{dist_str}'
+                    f'</div>'
+                    f'<div style="font-size:.72rem;color:#64748B;max-width:300px;text-align:right;">{desc}</div>'
+                    f'</div>', unsafe_allow_html=True)
+
+            # ── ALERT CONFIGURAZIONE ──────────────────────────────────────────
+            st.markdown('<div class="section-hd">🔔 Alert automatico email quando il prezzo tocca un livello</div>', unsafe_allow_html=True)
+            em_cfg = st.session_state.data.get("email_settings",{})
+            if not em_cfg.get("from_email"):
+                st.info("Configura prima l'email nel tab ✏️ Gestione → Alert Email per abilitare gli alert automatici.")
+            else:
+                al1, al2, al3 = st.columns(3)
+                with al1:
+                    alert_level = st.number_input("Livello di prezzo da monitorare", value=float(levels["s1"] or price_r),
+                                                   step=0.01, format="%.2f", key="alert_level_r")
+                with al2:
+                    alert_dir = st.selectbox("Direzione alert:", ["Sotto (rimbalzo — entra)", "Sopra (resistenza — esci/attenzione)"], key="alert_dir_r")
+                with al3:
+                    st.markdown("<div style='height:1.7rem'></div>", unsafe_allow_html=True)
+                    if st.button("📧 Invia alert se tocca questo livello", key="btn_alert_r", use_container_width=True):
+                        dir_label = "scende sotto" if "Sotto" in alert_dir else "sale sopra"
+                        action    = "🟢 POSSIBILE INGRESSO — il prezzo è su supporto" if "Sotto" in alert_dir else "🔴 ATTENZIONE — il prezzo ha raggiunto resistenza"
+                        html_alert = f"""
+<div style="font-family:Inter,sans-serif;background:#070D1A;color:#E8EDF5;padding:1.5rem;border-radius:10px;max-width:520px;">
+  <div style="font-size:1rem;font-weight:700;margin-bottom:1rem;">🎯 Reversal Radar Alert</div>
+  <div style="background:#0F1829;border-radius:8px;padding:1rem;margin-bottom:.8rem;">
+    <div style="font-size:.8rem;color:#64748B;">Titolo monitorato</div>
+    <div style="font-size:1.1rem;font-weight:700;">{nome_r} ({tk_r})</div>
+  </div>
+  <div style="font-size:.9rem;line-height:1.8;color:#94A3B8;">
+    Il prezzo ha {dir_label} il livello <b style="color:#E8EDF5;">{alert_level:.2f}</b>.<br>
+    Prezzo attuale: <b style="color:#E8EDF5;">{price_r:.2f}</b><br><br>
+    <b style="color:#E8EDF5;">{action}</b>
+  </div>
+</div>"""
+                        ok_a, msg_a = send_email_alert(em_cfg,
+                            f"🎯 Alert {nome_r}: prezzo su livello {alert_level:.2f}",
+                            html_alert)
+                        if ok_a: st.success(f"✅ Alert inviato a {em_cfg['to_email']}")
+                        else:    st.error(f"❌ {msg_a}")
+                        st.info("💡 Per alert automatici ricorrenti (quando il prezzo tocca il livello durante il giorno), configura uno scheduler esterno o controlla manualmente.")
+
+    # ── RADAR VELOCE: semaforo su tutti i titoli ──────────────────────────────
+    st.markdown('<div class="section-hd">⚡ Radar veloce — semaforo su tutti i titoli</div>', unsafe_allow_html=True)
+    st.caption("Panoramica rapida dello stato di ogni titolo rispetto ai livelli chiave. Clicca su un titolo per l'analisi completa.")
+
+    if st.button("🔄 Calcola semaforo su tutti i titoli", key="btn_radar_all"):
+        radar_rows = []
+        prog_r = st.progress(0)
+        for qi2, t_item in enumerate(radar_tickers[:25]):  # max 25 per performance
+            prog_r.progress(int((qi2+1)/min(len(radar_tickers),25)*100))
+            td2 = get_technical(t_item["ticker"])
+            if not td2: continue
+            h1d2 = get_daily(t_item["ticker"], period="3mo")
+            h1h2 = get_intraday(t_item["ticker"], interval="1h", period="5d")
+            lv2  = compute_key_levels(h1d2, h1h2)
+            p2   = td2["price"]
+            sig2, col2, forza2, mot2, avv2 = reversal_signal(p2, lv2, td2["rsi"], td2["macd_h"])
+            near_sup = any(abs(p2-s)/p2 < 0.02 for s in lv2["supports"] if s > 0)
+            near_res = any(abs(p2-r)/p2 < 0.02 for r in lv2["resistances"] if r > 0)
+            radar_rows.append({
+                "Segnale":   f"{'🟢' if sig2=='ENTRA' else ('🔴' if sig2=='ESCI/ASPETTA' else '🟡')} {sig2}",
+                "Ticker":    t_item["ticker"],
+                "Nome":      t_item["nome"][:20],
+                "Fonte":     "💼" if t_item["fonte"]=="portafoglio" else "👁️",
+                "Prezzo":    f"{p2:.2f}",
+                "RSI":       f"{td2['rsi']:.0f}",
+                "MACD":      "↑" if td2["macd_h"]>0 else "↓",
+                "Su supporto": "✅" if near_sup else "—",
+                "Su resistenza": "⚠️" if near_res else "—",
+                "Forza":     "●"*forza2+"○"*(5-forza2),
+            })
+        prog_r.empty()
+        if radar_rows:
+            df_radar = pd.DataFrame(radar_rows)
+            st.dataframe(df_radar, use_container_width=True, hide_index=True, height=500)
+        else:
+            st.info("Nessun dato disponibile.")
