@@ -79,7 +79,7 @@
       "prezzo_carico": 97.09,
       "quantita": 14,
       "categoria": "Certificati",
-      "prezzo_manuale": null
+      "prezzo_manuale": 98.42
     },
     {
       "nome": "Von Expe 2027",
@@ -88,7 +88,7 @@
       "prezzo_carico": 980.84,
       "quantita": 2,
       "categoria": "Certificati",
-      "prezzo_manuale": null
+      "prezzo_manuale": 802.0
     },
     {
       "nome": "Von Expe 2029",
@@ -106,7 +106,7 @@
       "prezzo_carico": 98.097,
       "quantita": 7000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 102.35
     },
     {
       "nome": "BTP 4.45% 2043",
@@ -115,7 +115,7 @@
       "prezzo_carico": 100.14,
       "quantita": 6000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 103.26
     },
     {
       "nome": "BTP 4.50% 2053",
@@ -124,7 +124,7 @@
       "prezzo_carico": 100.02,
       "quantita": 6000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 100.56
     },
     {
       "nome": "BTP 4.15% 2039",
@@ -133,7 +133,7 @@
       "prezzo_carico": 98.409,
       "quantita": 6000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 101.74
     },
     {
       "nome": "Romania 5.25% 2032",
@@ -142,7 +142,7 @@
       "prezzo_carico": 99.94,
       "quantita": 1000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 100.85
     },
     {
       "nome": "USA T-Bond 4.00% 2030",
@@ -151,7 +151,7 @@
       "prezzo_carico": 98.71,
       "quantita": 6000,
       "categoria": "Obbligazioni",
-      "prezzo_manuale": null
+      "prezzo_manuale": 100.75
     },
     {
       "nome": "Barclays 30GE45 100C",
