@@ -332,6 +332,24 @@
       "quantita": 36.0,
       "categoria": "ETF",
       "prezzo_manuale": null
+    },
+    {
+      "nome": "iShares Edge MSCI World Value Factor",
+      "ticker": "IWWL.L",
+      "valuta": "EUR",
+      "prezzo_carico": 42.429,
+      "quantita": 36,
+      "categoria": "ETF",
+      "prezzo_manuale": null
+    },
+    {
+      "nome": "iShares MSCI India",
+      "ticker": "ISHARESMSCII.SI",
+      "valuta": "EUR",
+      "prezzo_carico": 8.594,
+      "quantita": 176,
+      "categoria": "ETF",
+      "prezzo_manuale": null
     }
   ],
   "watchlist": [
@@ -754,6 +772,20 @@
       "orizzonte": "Breve (< 3 mesi)",
       "note": "Momento sfavorevole: RSI 25 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 4.57.",
       "ai_pending": false
+    },
+    {
+      "ticker": "MARR.MI",
+      "nome": "Marr",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "⏳ In attesa analisi AI...",
+      "ai_pending": true
     }
   ],
   "trade_history": [
