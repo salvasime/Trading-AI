@@ -244,6 +244,8 @@ def save_data(d):
     """
     Salva su Supabase (persistente) E su file locale (fallback).
     """
+    saved_to_supabase = False
+
     # ── Salva su Supabase ─────────────────────────────────────────────────────
     conn = _db_connect()
     if conn:
@@ -261,14 +263,24 @@ def save_data(d):
             conn.commit()
             cur.close()
             conn.close()
+            saved_to_supabase = True
         except Exception as e:
             try: conn.close()
             except: pass
+            # Mostra errore visibile per debug
+            if hasattr(st, "session_state"):
+                st.session_state["_last_save_error"] = str(e)
+    elif _get_supabase_url():
+        # URL configurato ma connessione fallita
+        if hasattr(st, "session_state"):
+            st.session_state["_last_save_error"] = "Connessione Supabase fallita — controlla URL e password nei Secrets"
 
     # ── Salva anche in locale (fallback offline) ──────────────────────────────
     try:
         DATA_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False))
     except: pass
+
+    return saved_to_supabase
 
 if "data" not in st.session_state:
     st.session_state.data = load_data()
@@ -910,6 +922,29 @@ def build_daily_email(df, mkt, health_score, agent_results):
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚙️ Configurazione")
+
+    # ── Stato connessione Supabase ─────────────────────────────────────────
+    _supa_url = _get_supabase_url()
+    if not _supa_url:
+        st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">⚠️ <b>Supabase non configurato</b> — i dati non vengono salvati in modo permanente.<br>Aggiungi SUPABASE_URL nei Secrets di Streamlit.</div>', unsafe_allow_html=True)
+    elif not HAS_PSYCOPG2:
+        st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">⚠️ <b>psycopg2 non installato</b> — aggiungi psycopg2-binary al requirements.txt.</div>', unsafe_allow_html=True)
+    else:
+        # Test connessione reale
+        _test_conn = _db_connect()
+        if _test_conn:
+            try: _test_conn.close()
+            except: pass
+            st.markdown('<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#10B981;margin-bottom:.4rem;">🗄️ <b>Supabase connesso</b> — dati salvati in modo permanente.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">❌ <b>Supabase: connessione fallita</b> — controlla la stringa SUPABASE_URL nei Secrets. La password nella stringa è corretta?</div>', unsafe_allow_html=True)
+
+    # Mostra ultimo errore di salvataggio se presente
+    if st.session_state.get("_last_save_error"):
+        st.markdown(f'<div style="background:rgba(239,68,68,.1);border:1px solid #EF444444;border-radius:8px;padding:.5rem .8rem;font-size:.7rem;color:#EF4444;margin-bottom:.4rem;">❌ Errore salvataggio: {st.session_state["_last_save_error"]}</div>', unsafe_allow_html=True)
+        if st.button("✕ Chiudi errore", key="btn_clear_err"):
+            del st.session_state["_last_save_error"]
+            st.rerun()
 
     # Leggi dai Secrets di Streamlit Cloud (se configurati)
     _sec_ant  = st.secrets.get("ANTHROPIC_API_KEY", "") if hasattr(st, "secrets") else ""
