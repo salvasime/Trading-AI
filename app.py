@@ -2254,28 +2254,63 @@ with tab6:
         else:
             # Summary KPIs
             total_trades = len(trade_history)
-            realized_pnl = sum((t.get("pnl_realizzato") or 0) for t in trade_history)
+            realized_pnl = sum((t.get("pnl_realizzato") or 0) for t in trade_history
+                               if t.get("tipo") == "vendita")
+            cedole_tot   = sum((t.get("pnl_realizzato") or 0) for t in trade_history
+                               if t.get("tipo") in ("cedola","dividendo","distribuzione"))
             buys  = sum(1 for t in trade_history if t.get("tipo")=="acquisto")
             sells = sum(1 for t in trade_history if t.get("tipo")=="vendita")
 
-            th1,th2,th3,th4 = st.columns(4)
-            with th1: st.metric("Operazioni totali", total_trades)
-            with th2: st.metric("P&L realizzato", f"€ {realized_pnl:+,.0f}")
-            with th3: st.metric("Acquisti", buys)
-            with th4: st.metric("Vendite/Uscite", sells)
+            th1,th2,th3,th4,th5 = st.columns(5)
+            with th1: st.metric("Operazioni", total_trades)
+            with th2: st.metric("P&L vendite", f"€ {realized_pnl:+,.0f}")
+            with th3: st.metric("Cedole/Dividendi", f"€ {cedole_tot:,.0f}")
+            with th4: st.metric("Acquisti", buys)
+            with th5: st.metric("Vendite", sells)
 
             # Timeline
-            for t in reversed(trade_history[-30:]):
+            tipo_colors = {
+                "acquisto":"#3B82F6","vendita":"#10B981","cedola":"#F59E0B",
+                "dividendo":"#F59E0B","distribuzione":"#F59E0B",
+                "versamento":"#10B981","prelievo":"#EF4444"
+            }
+            tipo_icons = {
+                "acquisto":"🛒","vendita":"📈","cedola":"💰","dividendo":"💰",
+                "distribuzione":"💰","versamento":"💵","prelievo":"💸"
+            }
+            for t in reversed(trade_history[-50:]):
                 tipo = t.get("tipo","acquisto")
-                tipo_color = "#10B981" if tipo=="acquisto" else ("#EF4444" if tipo=="vendita" else "#3B82F6")
-                pnl = t.get("pnl_realizzato")
-                pnl_str = f" · P&L: <span style='color:{'#10B981' if (pnl or 0)>=0 else '#EF4444'};font-family:var(--mono);'>€{pnl:+,.0f}</span>" if pnl is not None else ""
-                st.markdown(f"""<div style="background:#0F1829;border:1px solid #243352;border-left:3px solid {tipo_color};border-radius:8px;padding:.6rem 1rem;margin-bottom:.4rem;display:flex;align-items:center;gap:1rem;font-size:.82rem;">
-<div style="color:#64748B;min-width:90px;font-family:'JetBrains Mono',monospace;font-size:.75rem;">{t.get('data','')}</div>
-<span style="background:{tipo_color}22;color:{tipo_color};border:1px solid {tipo_color}44;padding:1px 8px;border-radius:20px;font-size:.68rem;font-weight:700;text-transform:uppercase;">{tipo}</span>
-<div style="flex:1;color:#E8EDF5;"><b>{t.get('nome','')}</b> ({t.get('ticker','')})</div>
-<div style="color:#94A3B8;font-family:'JetBrains Mono',monospace;font-size:.78rem;">{t.get('quantita',0)} @ {t.get('prezzo',0):.3f} {t.get('valuta','EUR')}{pnl_str}</div>
-</div>""", unsafe_allow_html=True)
+                tc   = tipo_colors.get(tipo,"#64748B")
+                icon = tipo_icons.get(tipo,"📋")
+                pnl  = t.get("pnl_realizzato")
+
+                # Build detail string
+                details = []
+                if t.get("quantita",0) > 0:
+                    details.append(f"{t['quantita']} @ {t.get('prezzo',0):.3f} {t.get('valuta','EUR')}")
+                if t.get("commissione"):
+                    details.append(f"comm. €{t['commissione']:.2f}")
+                if t.get("tasse"):
+                    details.append(f"tasse €{t['tasse']:.2f} ({t.get('aliquota','')})")
+                if t.get("importo_lordo"):
+                    details.append(f"lordo €{t['importo_lordo']:.2f}")
+                if t.get("note"):
+                    details.append(t["note"])
+                detail_str = " · ".join(details)
+
+                pnl_html = ""
+                if pnl is not None:
+                    pc = "#10B981" if pnl >= 0 else "#EF4444"
+                    label = "Netto" if tipo == "vendita" else ("Cedola netta" if tipo in ("cedola","dividendo","distribuzione") else "")
+                    pnl_html = f" · <b style='color:{pc};'>{label} €{pnl:+,.2f}</b>"
+
+                st.markdown(
+                    f'<div style="background:#0F1829;border:1px solid #243352;border-left:3px solid {tc};border-radius:8px;padding:.6rem 1rem;margin-bottom:.35rem;display:flex;align-items:center;gap:.8rem;font-size:.8rem;flex-wrap:wrap;">'
+                    f'<div style="color:#64748B;min-width:100px;font-family:JetBrains Mono,monospace;font-size:.72rem;">{t.get("data","")}</div>'
+                    f'<span style="background:{tc}22;color:{tc};border:1px solid {tc}44;padding:1px 7px;border-radius:20px;font-size:.67rem;font-weight:700;">{icon} {tipo.upper()}</span>'
+                    f'<div style="flex:1;color:#E8EDF5;min-width:120px;"><b>{t.get("nome","")}</b></div>'
+                    f'<div style="color:#94A3B8;font-size:.77rem;">{detail_str}{pnl_html}</div>'
+                    f'</div>', unsafe_allow_html=True)
 
         # Export
         if trade_history:
@@ -2290,60 +2325,308 @@ with tab7:
     g1, g2, g3 = st.tabs(["➕ Nuova operazione", "📋 Modifica posizioni", "📧 Alert Email"])
 
     with g1:
-        st.markdown('<div class="section-hd">Registra acquisto o vendita</div>', unsafe_allow_html=True)
-        fc1,fc2,fc3 = st.columns(3)
-        with fc1:
-            gn  = st.text_input("Nome asset *", key="gn")
-            gt  = st.text_input("Ticker Yahoo Finance *", placeholder="AAPL · LDO.MI · BTC-EUR", key="gt")
-            gc  = st.selectbox("Categoria *", ["Azioni","ETF","Obbligazioni","Crypto","Certificati","Materie Prime"], key="gc")
-        with fc2:
-            gv  = st.selectbox("Valuta *", ["EUR","USD","GBP","DKK","CHF"], key="gv")
-            gp  = st.number_input("Prezzo medio *", min_value=0.0, step=0.001, format="%.3f", key="gp")
-            gq  = st.number_input("Quantità *",     min_value=0.0, step=0.001, format="%.4f", key="gq")
-        with fc3:
-            gop = st.radio("Tipo", ["Nuovo acquisto","Incrementa esistente","Vendi/Elimina"], key="gop")
-            st.markdown("""<div class="tooltip-box">💡 Ticker Yahoo Finance:<br>
-🇮🇹 IT: LDO.MI · ENI.MI · UCG.MI<br>
+        # ── Helper: trova il record Liquidità ─────────────────────────────────
+        def get_liquidity_idx():
+            return next((i for i,p in enumerate(st.session_state.data["portfolio"])
+                         if p["categoria"]=="Liquidità"), None)
+        def get_liquidity_eur():
+            idx = get_liquidity_idx()
+            if idx is None: return 0.0
+            p = st.session_state.data["portfolio"][idx]
+            return float(p.get("prezzo_manuale") or p.get("prezzo_carico",0) or 0) * float(p.get("quantita",1))
+        def update_liquidity(delta_eur):
+            """Aggiunge o sottrae euro dalla voce Liquidità."""
+            idx = get_liquidity_idx()
+            if idx is None: return
+            cur = get_liquidity_eur()
+            new_val = max(0, cur + delta_eur)
+            st.session_state.data["portfolio"][idx]["quantita"] = round(new_val, 2)
+
+        liq_eur = get_liquidity_eur()
+
+        # ── Tipo operazione ────────────────────────────────────────────────────
+        op_type = st.radio("Tipo di operazione:",
+            ["🛒 Acquisto","📈 Vendita","💰 Cedola / Dividendo","💵 Movimento liquidità"],
+            horizontal=True, key="op_type_sel")
+
+        st.markdown("---")
+
+        # ══════════════════════════════════════════════════════════════════════
+        # ACQUISTO
+        # ══════════════════════════════════════════════════════════════════════
+        if op_type == "🛒 Acquisto":
+            st.markdown('<div class="section-hd">Registra acquisto</div>', unsafe_allow_html=True)
+            # Mostra liquidità disponibile
+            liq_color = "#10B981" if liq_eur > 1000 else ("#F59E0B" if liq_eur > 0 else "#EF4444")
+            st.markdown(f'<div style="background:{liq_color}12;border:1px solid {liq_color}33;border-radius:8px;padding:.6rem 1rem;font-size:.82rem;margin-bottom:.8rem;">💵 Liquidità disponibile: <b style="color:{liq_color};">€{liq_eur:,.2f}</b></div>', unsafe_allow_html=True)
+
+            fc1,fc2,fc3 = st.columns(3)
+            with fc1:
+                gn = st.text_input("Nome asset *", key="gn")
+                gt = st.text_input("Ticker Yahoo Finance *", placeholder="AAPL · LDO.MI · N/A", key="gt")
+                gc = st.selectbox("Categoria *", ["Azioni","ETF","Obbligazioni","Crypto","Certificati","Materie Prime"], key="gc")
+            with fc2:
+                gv = st.selectbox("Valuta *", ["EUR","USD","GBP","DKK","CHF"], key="gv")
+                gp = st.number_input("Prezzo unitario *", min_value=0.0, step=0.001, format="%.3f", key="gp")
+                gq = st.number_input("Quantità *", min_value=0.0, step=0.001, format="%.4f", key="gq")
+            with fc3:
+                gop = st.radio("Tipo acquisto", ["Nuovo titolo","Incrementa esistente"], key="gop")
+                commissione_a = st.number_input("Commissione (€)", min_value=0.0, step=0.5, format="%.2f", key="comm_a",
+                    help="Commissione pagata al broker per questa operazione")
+                st.markdown("""<div class="tooltip-box">💡 Ticker Yahoo Finance:<br>
+🇮🇹 IT: LDO.MI · ENI.MI<br>
 🇺🇸 USA: AAPL · MSFT · NVDA<br>
-🌍 EU: AIR.PA · SIE.DE<br>
 📊 ETF: SWDA.MI · VWCE.DE<br>
 🪙 Crypto: BTC-EUR · ETH-EUR<br>
-<a href="https://finance.yahoo.com" target="_blank" style="color:#3B82F6;">Cerca su Yahoo →</a></div>""", unsafe_allow_html=True)
+📜 Senza prezzo auto: N/A</div>""", unsafe_allow_html=True)
 
-        if st.button("✅ Registra operazione", key="btn_op"):
-            if gn and gt and gp > 0 and gq > 0:
-                existing_idx = next((i for i,p in enumerate(st.session_state.data["portfolio"]) if p["ticker"].upper()==gt.upper()), None)
-                # Record in trade history
-                trade_entry = {"data":datetime.now().strftime("%d/%m/%Y %H:%M"),
-                               "tipo":"vendita" if gop=="Vendi/Elimina" else "acquisto",
-                               "nome":gn,"ticker":gt.upper(),"quantita":gq,
-                               "prezzo":gp,"valuta":gv,"categoria":gc,"pnl_realizzato":None}
-                if gop == "Vendi/Elimina" and existing_idx is not None:
-                    old = st.session_state.data["portfolio"][existing_idx]
+            if st.button("✅ Registra acquisto", key="btn_buy"):
+                if gn and gt and gp > 0 and gq > 0:
                     fx_cur = get_fx_rates()
-                    pnl_r = to_eur((gp - old["prezzo_carico"]) * gq, gv, fx_cur)
-                    trade_entry["pnl_realizzato"] = round(pnl_r, 2)
-                    st.session_state.data["portfolio"].pop(existing_idx)
-                    st.session_state.data["trade_history"].append(trade_entry)
-                    save_data(st.session_state.data); st.cache_data.clear()
-                    st.success(f"✅ {gt} venduto · P&L realizzato: €{pnl_r:+,.0f}"); st.rerun()
-                elif gop == "Incrementa esistente" and existing_idx is not None:
-                    old = st.session_state.data["portfolio"][existing_idx]
-                    nq = old["quantita"] + gq
-                    np_ = (old["prezzo_carico"]*old["quantita"] + gp*gq) / nq
-                    st.session_state.data["portfolio"][existing_idx].update({"quantita":nq,"prezzo_carico":np_})
-                    st.session_state.data["trade_history"].append(trade_entry)
-                    save_data(st.session_state.data); st.cache_data.clear()
-                    st.success(f"✅ {gt} incrementato · Nuovo p.medio: {np_:.3f}"); st.rerun()
+                    # Calcola costo totale in EUR
+                    costo_eur = to_eur(gp * gq, gv, fx_cur) + (commissione_a or 0)
+                    # Controlla liquidità
+                    if liq_eur > 0 and costo_eur > liq_eur:
+                        st.error(f"❌ Liquidità insufficiente — operazione da €{costo_eur:,.2f} ma hai solo €{liq_eur:,.2f} disponibili. Aggiungi liquidità prima di procedere.")
+                    else:
+                        existing_idx = next((i for i,p in enumerate(st.session_state.data["portfolio"])
+                                             if p["ticker"].upper()==gt.upper()), None)
+                        trade_entry = {
+                            "data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                            "tipo": "acquisto",
+                            "nome": gn, "ticker": gt.upper(), "quantita": gq,
+                            "prezzo": gp, "valuta": gv, "categoria": gc,
+                            "commissione": commissione_a,
+                            "costo_totale_eur": round(costo_eur, 2),
+                            "pnl_realizzato": None
+                        }
+                        if gop == "Incrementa esistente" and existing_idx is not None:
+                            old = st.session_state.data["portfolio"][existing_idx]
+                            nq = old["quantita"] + gq
+                            np_ = (old["prezzo_carico"]*old["quantita"] + gp*gq) / nq
+                            st.session_state.data["portfolio"][existing_idx].update({"quantita":nq,"prezzo_carico":np_})
+                        else:
+                            st.session_state.data["portfolio"].append(
+                                {"nome":gn,"ticker":gt.upper(),"valuta":gv,"prezzo_carico":gp,
+                                 "quantita":gq,"categoria":gc,"prezzo_manuale":None})
+                        # Scala la liquidità
+                        update_liquidity(-costo_eur)
+                        st.session_state.data["trade_history"].append(trade_entry)
+                        save_data(st.session_state.data); st.cache_data.clear()
+                        comm_str = f" (comm. €{commissione_a:.2f})" if commissione_a > 0 else ""
+                        st.success(f"✅ {gn} registrato · Costo totale €{costo_eur:,.2f}{comm_str} · Liquidità residua €{get_liquidity_eur():,.2f}")
+                        st.rerun()
                 else:
-                    st.session_state.data["portfolio"].append(
-                        {"nome":gn,"ticker":gt.upper(),"valuta":gv,"prezzo_carico":gp,
-                         "quantita":gq,"categoria":gc,"prezzo_manuale":None})
+                    st.error("Compila tutti i campi obbligatori (*)")
+
+        # ══════════════════════════════════════════════════════════════════════
+        # VENDITA
+        # ══════════════════════════════════════════════════════════════════════
+        elif op_type == "📈 Vendita":
+            st.markdown('<div class="section-hd">Registra vendita</div>', unsafe_allow_html=True)
+
+            # Selezione titolo da vendere
+            tradeable_pf = [(i,p) for i,p in enumerate(st.session_state.data["portfolio"])
+                            if p["categoria"] != "Liquidità"]
+            if not tradeable_pf:
+                st.info("Nessun titolo in portafoglio da vendere.")
+            else:
+                sell_names = [f"{p['nome']} ({p['ticker']}) — {p['quantita']} unità @ {p['prezzo_carico']:.3f} {p['valuta']}"
+                              for _,p in tradeable_pf]
+                sell_sel = st.selectbox("Titolo da vendere *", range(len(sell_names)),
+                                        format_func=lambda i: sell_names[i], key="sell_sel")
+                sell_idx, sell_item = tradeable_pf[sell_sel]
+
+                sv1, sv2 = st.columns(2)
+                with sv1:
+                    sell_qty = st.number_input("Quantità da vendere *",
+                        min_value=0.001, max_value=float(sell_item["quantita"]),
+                        value=float(sell_item["quantita"]),
+                        step=0.001, format="%.4f", key="sell_qty")
+                    sell_price = st.number_input("Prezzo di vendita *",
+                        min_value=0.001, value=float(sell_item["prezzo_carico"]),
+                        step=0.001, format="%.3f", key="sell_price")
+                    sell_comm = st.number_input("Commissione broker (€)",
+                        min_value=0.0, step=0.5, format="%.2f", key="sell_comm")
+
+                with sv2:
+                    # Calcolo P&L lordo in tempo reale
+                    fx_sell = get_fx_rates()
+                    pnl_lordo = to_eur((sell_price - sell_item["prezzo_carico"]) * sell_qty, sell_item["valuta"], fx_sell)
+                    incasso_lordo = to_eur(sell_price * sell_qty, sell_item["valuta"], fx_sell)
+
+                    st.markdown(f"""<div style="background:#0F1829;border:1px solid #2E4070;border-radius:10px;padding:1rem;margin-bottom:.8rem;">
+<div style="font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.6rem;">Anteprima operazione</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.82rem;">
+  <div><span style="color:#64748B;">Incasso lordo</span><br><b style="color:#E8EDF5;">€{incasso_lordo:,.2f}</b></div>
+  <div><span style="color:#64748B;">P&L lordo</span><br><b style="color:{'#10B981' if pnl_lordo>=0 else '#EF4444'};">€{pnl_lordo:+,.2f}</b></div>
+</div></div>""", unsafe_allow_html=True)
+
+                    # Tassazione
+                    st.markdown("**Tassazione sulla plusvalenza**")
+                    tax_type = st.radio("Aliquota:",
+                        ["26% (azioni/ETF standard)", "12.5% (titoli stato)", "0% (minus/esenzione)", "Altro"],
+                        key="tax_type")
+                    if tax_type == "Altro":
+                        tax_pct = st.number_input("Aliquota %", min_value=0.0, max_value=100.0,
+                                                   value=26.0, step=0.5, format="%.1f", key="tax_custom") / 100
+                    elif tax_type == "26% (azioni/ETF standard)": tax_pct = 0.26
+                    elif tax_type == "12.5% (titoli stato)":       tax_pct = 0.125
+                    else:                                           tax_pct = 0.0
+
+                    # Calcolo finale
+                    plusvalenza = max(0, pnl_lordo)  # tassa solo su plus, non su minus
+                    tasse_eur   = round(plusvalenza * tax_pct, 2)
+                    comm_eur    = sell_comm or 0
+                    incasso_netto = incasso_lordo - tasse_eur - comm_eur
+
+                    st.markdown(f"""<div style="background:#0F1829;border:1px solid {'#10B981' if incasso_netto>0 else '#EF4444'}33;border-radius:10px;padding:1rem;">
+<div style="font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.6rem;">Riepilogo netto</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.8rem;">
+  <div><span style="color:#64748B;">Tasse ({tax_pct*100:.1f}% su plus)</span><br><b style="color:#EF4444;">-€{tasse_eur:,.2f}</b></div>
+  <div><span style="color:#64748B;">Commissione</span><br><b style="color:#EF4444;">-€{comm_eur:,.2f}</b></div>
+  <div style="grid-column:span 2;border-top:1px solid #1E2D47;padding-top:.4rem;margin-top:.2rem;">
+    <span style="color:#64748B;">Incasso netto in liquidità</span><br>
+    <b style="font-size:1.1rem;color:{'#10B981' if incasso_netto>0 else '#EF4444'};">€{incasso_netto:,.2f}</b>
+  </div>
+</div></div>""", unsafe_allow_html=True)
+
+                if st.button("✅ Registra vendita", key="btn_sell"):
+                    fx_sell2 = get_fx_rates()
+                    pnl_l2 = to_eur((sell_price - sell_item["prezzo_carico"]) * sell_qty, sell_item["valuta"], fx_sell2)
+                    inc_l2 = to_eur(sell_price * sell_qty, sell_item["valuta"], fx_sell2)
+                    plus2  = max(0, pnl_l2)
+                    tasse2 = round(plus2 * tax_pct, 2)
+                    inc_n2 = inc_l2 - tasse2 - (sell_comm or 0)
+                    pnl_netto = pnl_l2 - tasse2 - (sell_comm or 0)
+
+                    trade_entry = {
+                        "data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "tipo": "vendita",
+                        "nome": sell_item["nome"], "ticker": sell_item["ticker"],
+                        "quantita": sell_qty, "prezzo": sell_price,
+                        "valuta": sell_item["valuta"], "categoria": sell_item["categoria"],
+                        "pnl_lordo": round(pnl_l2, 2),
+                        "tasse": tasse2,
+                        "commissione": sell_comm or 0,
+                        "pnl_realizzato": round(pnl_netto, 2),
+                        "incasso_netto": round(inc_n2, 2),
+                        "aliquota": f"{tax_pct*100:.1f}%"
+                    }
+
+                    # Aggiorna o rimuovi dal portafoglio
+                    if sell_qty >= sell_item["quantita"] - 0.0001:
+                        st.session_state.data["portfolio"].pop(sell_idx)
+                    else:
+                        st.session_state.data["portfolio"][sell_idx]["quantita"] -= sell_qty
+
+                    # Aggiungi incasso netto alla liquidità
+                    update_liquidity(inc_n2)
                     st.session_state.data["trade_history"].append(trade_entry)
                     save_data(st.session_state.data); st.cache_data.clear()
-                    st.success(f"✅ {gn} aggiunto"); st.rerun()
-            else:
-                st.error("Compila tutti i campi obbligatori (*)")
+                    st.success(f"✅ Vendita registrata · P&L lordo €{pnl_l2:+,.2f} · Tasse €{tasse2:.2f} · P&L netto €{pnl_netto:+,.2f} · Liquidità +€{inc_n2:,.2f}")
+                    st.rerun()
+
+        # ══════════════════════════════════════════════════════════════════════
+        # CEDOLA / DIVIDENDO
+        # ══════════════════════════════════════════════════════════════════════
+        elif op_type == "💰 Cedola / Dividendo":
+            st.markdown('<div class="section-hd">Registra cedola o dividendo</div>', unsafe_allow_html=True)
+            st.caption("Le cedole e i dividendi vengono aggiunti automaticamente alla liquidità al netto della ritenuta.")
+
+            ced1, ced2 = st.columns(2)
+            with ced1:
+                # Selezione titolo
+                pf_names = [f"{p['nome']} ({p['ticker']})" for p in st.session_state.data["portfolio"]
+                            if p["categoria"] != "Liquidità"]
+                ced_sel = st.selectbox("Titolo che ha pagato *", range(len(pf_names)),
+                                       format_func=lambda i: pf_names[i], key="ced_sel") if pf_names else None
+                ced_importo = st.number_input("Importo lordo ricevuto (€) *",
+                    min_value=0.01, step=1.0, format="%.2f", key="ced_importo")
+                ced_tipo = st.radio("Tipo", ["Cedola obbligazione","Dividendo azione/ETF","Distribuzione fondo"], key="ced_tipo", horizontal=True)
+
+            with ced2:
+                ced_tax = st.radio("Ritenuta applicata:",
+                    ["26% (standard)", "12.5% (titoli stato)", "0% (già al netto)", "Altro"],
+                    key="ced_tax")
+                if ced_tax == "Altro":
+                    ced_tax_pct = st.number_input("Ritenuta %", 0.0, 100.0, 26.0, 0.5, "%.1f", key="ced_tax_custom") / 100
+                elif ced_tax == "26% (standard)":  ced_tax_pct = 0.26
+                elif ced_tax == "12.5% (titoli stato)": ced_tax_pct = 0.125
+                else: ced_tax_pct = 0.0
+
+                ced_netto = ced_importo * (1 - ced_tax_pct)
+                st.markdown(f"""<div style="background:#0F1829;border:1px solid #10B98133;border-radius:10px;padding:1rem;margin-top:.5rem;">
+<div style="font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.5rem;">Importo netto in liquidità</div>
+<div style="font-size:1.4rem;font-weight:700;color:#10B981;">+€{ced_netto:,.2f}</div>
+<div style="font-size:.75rem;color:#64748B;">Lordo €{ced_importo:.2f} − ritenuta {ced_tax_pct*100:.1f}% = €{ced_netto:.2f}</div>
+</div>""", unsafe_allow_html=True)
+
+            if st.button("✅ Registra cedola/dividendo", key="btn_cedola"):
+                if ced_importo > 0 and pf_names:
+                    ced_item = [p for p in st.session_state.data["portfolio"] if p["categoria"] != "Liquidità"][ced_sel]
+                    trade_entry = {
+                        "data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "tipo": ced_tipo.lower().split()[0],
+                        "nome": ced_item["nome"], "ticker": ced_item["ticker"],
+                        "quantita": 0, "prezzo": 0, "valuta": "EUR",
+                        "categoria": ced_item["categoria"],
+                        "importo_lordo": round(ced_importo, 2),
+                        "ritenuta": round(ced_importo * ced_tax_pct, 2),
+                        "pnl_realizzato": round(ced_netto, 2),
+                        "note": ced_tipo
+                    }
+                    update_liquidity(ced_netto)
+                    st.session_state.data["trade_history"].append(trade_entry)
+                    save_data(st.session_state.data); st.cache_data.clear()
+                    st.success(f"✅ {ced_tipo} registrata · Netto +€{ced_netto:,.2f} aggiunto alla liquidità")
+                    st.rerun()
+                else:
+                    st.error("Inserisci l'importo")
+
+        # ══════════════════════════════════════════════════════════════════════
+        # MOVIMENTO LIQUIDITÀ
+        # ══════════════════════════════════════════════════════════════════════
+        elif op_type == "💵 Movimento liquidità":
+            st.markdown('<div class="section-hd">Aggiungi o preleva liquidità</div>', unsafe_allow_html=True)
+
+            lm1, lm2 = st.columns(2)
+            with lm1:
+                liq_dir = st.radio("Tipo movimento:", ["➕ Versamento (aggiungi)", "➖ Prelievo (togli)"], key="liq_dir")
+                liq_amt = st.number_input("Importo (€) *", min_value=0.01, step=100.0, format="%.2f", key="liq_amt")
+                liq_note = st.text_input("Note (opzionale)", placeholder="es. bonifico in entrata, prelievo mensile", key="liq_note")
+
+            with lm2:
+                delta = liq_amt if "Versamento" in liq_dir else -liq_amt
+                new_liq = liq_eur + delta
+                col = "#10B981" if delta >= 0 else "#EF4444"
+                st.markdown(f"""<div style="background:#0F1829;border:1px solid {col}33;border-radius:10px;padding:1rem;">
+<div style="font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.5rem;">Riepilogo</div>
+<div style="font-size:.82rem;color:#94A3B8;margin-bottom:.4rem;">Liquidità attuale: <b style="color:#E8EDF5;">€{liq_eur:,.2f}</b></div>
+<div style="font-size:.82rem;color:#94A3B8;margin-bottom:.4rem;">Movimento: <b style="color:{col};">{'+' if delta>=0 else ''}€{delta:,.2f}</b></div>
+<div style="font-size:1rem;font-weight:700;color:{col};">Nuovo saldo: €{max(0,new_liq):,.2f}</div>
+</div>""", unsafe_allow_html=True)
+                if new_liq < 0:
+                    st.warning(f"⚠️ Il prelievo supera la liquidità disponibile di €{abs(new_liq):,.2f}")
+
+            if st.button("✅ Registra movimento", key="btn_liq"):
+                if liq_amt > 0:
+                    update_liquidity(delta)
+                    trade_entry = {
+                        "data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "tipo": "versamento" if delta >= 0 else "prelievo",
+                        "nome": "Liquidità", "ticker": "N/A",
+                        "quantita": 0, "prezzo": 0, "valuta": "EUR", "categoria": "Liquidità",
+                        "pnl_realizzato": None,
+                        "importo_lordo": liq_amt,
+                        "note": liq_note or ""
+                    }
+                    st.session_state.data["trade_history"].append(trade_entry)
+                    save_data(st.session_state.data); st.cache_data.clear()
+                    st.success(f"✅ {'+' if delta>=0 else ''}€{delta:,.2f} · Nuova liquidità: €{max(0,get_liquidity_eur()):,.2f}")
+                    st.rerun()
+                else:
+                    st.error("Inserisci un importo")
 
     with g2:
         portfolio = st.session_state.data["portfolio"]
