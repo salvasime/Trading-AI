@@ -2277,7 +2277,7 @@ with tab6:
         else:
             # Summary KPIs
             total_trades = len(trade_history)
-            realized_pnl = sum(t.get("pnl_realizzato",0) for t in trade_history)
+            realized_pnl = sum((t.get("pnl_realizzato") or 0) for t in trade_history)
             buys  = sum(1 for t in trade_history if t.get("tipo")=="acquisto")
             sells = sum(1 for t in trade_history if t.get("tipo")=="vendita")
 
