@@ -1842,7 +1842,9 @@ padding:.7rem;text-align:center;">
                            and not (w.get("prezzo_target") or w.get("ingresso")))
         if missing_count > 0:
             st.markdown(f'<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;margin-bottom:.5rem;"><b>{missing_count} titoli</b> senza segnale e livelli di prezzo.<br><span style="font-size:.75rem;color:#94A3B8;">Clicca per calcolarli automaticamente dai dati di mercato — <b>gratuito, zero API</b>.</span></div>', unsafe_allow_html=True)
-            if st.button("⚡ Calcola segnali e livelli per tutti (gratis)", key="btn_auto_all", use_container_width=True):
+            use_ai_batch = bool(st.session_state.get("_ant_key",""))
+            btn_label = "🤖 Rianalizza tutti con AI" if use_ai_batch else "⚡ Calcola segnali e livelli per tutti (gratis)"
+            if st.button(btn_label, key="btn_auto_all", use_container_width=True):
                 updated = 0
                 progress_auto = st.progress(0)
                 utente_items_auto = [w for w in st.session_state.data["watchlist"] if w.get("sorgente","utente")=="utente"]
@@ -1890,11 +1892,37 @@ padding:.7rem;text-align:center;">
                                   f"Supporto chiave a {sup_a:.2f}: se regge è un buon punto di ingresso, se rompe aspetta.")
                     idx_wa = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==ticker_a), None)
                     if idx_wa is not None:
-                        st.session_state.data["watchlist"][idx_wa].update({
-                            "segnale":seg_a,"ingresso":ingresso_a,"prezzo_target":target_a,
-                            "stop_loss":stop_a,"strategia":strat_a,"orizzonte":orizz_a,
-                            "note":note_a,"ai_pending":False
-                        })
+                        if use_ai_batch and st.session_state.get("_ant_key",""):
+                            # Usa AI per analisi completa
+                            try:
+                                ctx_b = f"Prezzo:{p_a:.2f}, RSI:{rsi_a:.0f}, MA50:{ma50_a or 'N/A'}, MA200:{ma200_a or 'N/A'}, Supp:{sup_a:.2f}, Res:{res_a:.2f}, MACD:{macd_a:+.3f}"
+                                pf_alloc_b = df_main.groupby("Categoria")["CV €"].sum().to_dict() if not df_main.empty else {}
+                                pf_ctx_b = ", ".join([f"{k}:{v:.0f}EUR" for k,v in pf_alloc_b.items()])
+                                cl_b = anthropic.Anthropic(api_key=st.session_state.get("_ant_key",""))
+                                nome_b = item_a.get("nome", ticker_a)
+                                ai_b = cl_b.messages.create(
+                                    model="claude-sonnet-4-20250514", max_tokens=500,
+                                    system="Analista finanziario. Rispondi SOLO con JSON valido, nessun testo, nessun backtick.",
+                                    messages=[{"role":"user","content":
+                                        f'Analizza {nome_b} ({ticker_a}). Portafoglio: {pf_ctx_b}. Tecnica: {ctx_b}. '
+                                        f'JSON: {{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,'
+                                        f'"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)",'
+                                        f'"note":"3 frasi: cosa succede al titolo, perche questo segnale, come si inserisce nel portafoglio."}}. '
+                                        f'segnale: COMPRA, MONITORA o NON_CONSIDERARE.'}]
+                                ).content[0].text.strip().replace("```json","").replace("```","").strip()
+                                ai_bd = json.loads(ai_b)
+                                st.session_state.data["watchlist"][idx_wa].update({**ai_bd,"ai_pending":False})
+                            except:
+                                # Fallback tecnica se AI fallisce
+                                st.session_state.data["watchlist"][idx_wa].update({
+                                    "segnale":seg_a,"ingresso":ingresso_a,"prezzo_target":target_a,
+                                    "stop_loss":stop_a,"strategia":strat_a,"orizzonte":orizz_a,
+                                    "note":note_a,"ai_pending":False})
+                        else:
+                            st.session_state.data["watchlist"][idx_wa].update({
+                                "segnale":seg_a,"ingresso":ingresso_a,"prezzo_target":target_a,
+                                "stop_loss":stop_a,"strategia":strat_a,"orizzonte":orizz_a,
+                                "note":note_a,"ai_pending":False})
                         updated += 1
                     progress_auto.progress(int((qi+1)/max(len(utente_items_auto),1)*100))
                 save_data(st.session_state.data)
@@ -1988,31 +2016,37 @@ padding:.7rem;text-align:center;">
 
         ba, bb = st.columns(2)
         with ba:
-            if anthropic_key and st.button("🤖 Rianalizza", key=f"rai_{card_idx}", use_container_width=True):
-                with st.spinner("AI..."):
+            _key_for_rai = st.session_state.get("_ant_key","")
+            if _key_for_rai and st.button("🤖 Rianalizza", key=f"rai_{card_idx}", use_container_width=True):
+                with st.spinner("Analisi AI in corso..."):
                     td_r = get_technical(item["ticker"])
-                    ctx_r = f"Prezzo:{td_r['price']:.2f}, RSI:{td_r['rsi']:.0f}, Supp:{td_r['support']:.2f}, Res:{td_r['resistance']:.2f}" if td_r else "N/A"
-                    pf_ctx = f"Portafoglio: {df_main.groupby('Categoria')['CV €'].sum().to_dict()}"
+                    ctx_r = f"Prezzo:{td_r['price']:.2f}, RSI:{td_r['rsi']:.0f}, MA50:{td_r['ma50'] or 'N/A'}, MA200:{td_r['ma200'] or 'N/A'}, Supp:{td_r['support']:.2f}, Res:{td_r['resistance']:.2f}, MACD:{td_r['macd_h']:+.3f}" if td_r else "N/A"
                     try:
                         pf_alloc_r = df_main.groupby("Categoria")["CV €"].sum().to_dict() if not df_main.empty else {}
-                        pf_ctx_r = ", ".join([f"{k}:{v:.0f}euro" for k,v in pf_alloc_r.items()])
-                        cl_r = anthropic.Anthropic(api_key=anthropic_key)
+                        pf_ctx_r = ", ".join([f"{k}:{v:.0f}EUR" for k,v in pf_alloc_r.items()])
+                        cl_r = anthropic.Anthropic(api_key=_key_for_rai)
                         ai_r = cl_r.messages.create(
                             model="claude-sonnet-4-20250514", max_tokens=700,
-                            system="Sei un analista finanziario senior. Rispondi SOLO in JSON valido senza markdown.",
+                            system="Sei un analista finanziario senior. Rispondi SOLO con JSON valido, nessun testo prima o dopo, nessun backtick markdown.",
                             messages=[{"role":"user","content":
                                 f'Analizza {item["nome"]} ({item["ticker"]}) per investitore con portafoglio: {pf_ctx_r}. '
-                                f'Dati tecnici ora: {ctx_r}. '
-                                f'Rispondi con SOLO questo JSON (tutti i valori numerici devono essere numeri float, non stringhe): '
-                                f'{{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)","note":"Scrivi 3 frasi in italiano semplice: 1) Cosa sta succedendo a questo titolo o nel suo settore in questo momento. 2) Perche il segnale e questo. 3) Come si inserisce nel portafoglio e cosa potrebbe portare."}}. '
-                                f'segnale: COMPRA, MONITORA o NON_CONSIDERARE. strategia: Breve termine oppure Medio termine oppure Lungo termine.'}]
+                                f'Dati tecnici attuali: {ctx_r}. '
+                                f'Rispondi con SOLO questo JSON (valori numerici come float): '
+                                f'{{"segnale":"COMPRA","ingresso":0.0,"prezzo_target":0.0,"stop_loss":0.0,'
+                                f'"strategia":"Lungo termine","orizzonte":"Medio (3-12 mesi)",'
+                                f'"note":"3 frasi in italiano semplice: 1) cosa sta succedendo al titolo/settore ora. 2) perche questo segnale. 3) come si inserisce nel portafoglio."}}. '
+                                f'segnale: COMPRA, MONITORA o NON_CONSIDERARE. strategia: Breve termine / Medio termine / Lungo termine.'}]
                         ).content[0].text.strip()
+                        # Pulisci eventuali backtick
+                        ai_r = ai_r.replace("```json","").replace("```","").strip()
                         ai_d = json.loads(ai_r)
                         idx_r = next(k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker"))
                         st.session_state.data["watchlist"][idx_r].update(ai_d)
                         save_data(st.session_state.data); st.rerun()
                     except Exception as e:
                         st.error(f"Errore AI: {e}")
+            elif not st.session_state.get("_ant_key",""):
+                st.caption("Chiave Anthropic mancante")
         with bb:
             if st.button("🗑️ Rimuovi", key=f"rw_{card_idx}", use_container_width=True):
                 idx_rm = next((k for k,x in enumerate(st.session_state.data["watchlist"]) if x.get("ticker")==item.get("ticker")), None)
