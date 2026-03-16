@@ -151,136 +151,88 @@ DEFAULT_DATA = {
     "email_settings": {}
 }
 
-# ── SUPABASE PERSISTENCE ──────────────────────────────────────────────────────
-def _get_supabase_url():
-    """Legge la stringa di connessione Supabase dai Secrets di Streamlit."""
+# ── GITHUB PERSISTENCE ────────────────────────────────────────────────────────
+_GH_FILE = "data/portfolio_data.json"
+
+def _gh_token():
     try:
-        return st.secrets.get("SUPABASE_URL", "") if hasattr(st, "secrets") else ""
+        return st.secrets.get("GITHUB_TOKEN","") if hasattr(st,"secrets") else ""
     except: return ""
 
-def _db_connect():
-    """Apre connessione a Supabase. Restituisce conn o None."""
-    if not HAS_PSYCOPG2: return None
-    url = _get_supabase_url()
-    if not url: return None
+def _gh_repo():
     try:
-        conn = psycopg2.connect(url, connect_timeout=5)
-        return conn
-    except: return None
+        return st.secrets.get("GITHUB_REPO","salvasime/Trading-AI") if hasattr(st,"secrets") else "salvasime/Trading-AI"
+    except: return "salvasime/Trading-AI"
 
-def _db_ensure_table(conn):
-    """Crea la tabella se non esiste."""
+def _gh_read():
+    token = _gh_token()
+    if not token: return None, None
     try:
-        cur = conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS portfolio_data (
-                id   TEXT PRIMARY KEY DEFAULT 'main',
-                data JSONB NOT NULL,
-                updated_at TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        conn.commit()
-        cur.close()
-        return True
+        import base64
+        r = requests.get(
+            f"https://api.github.com/repos/{_gh_repo()}/contents/{_GH_FILE}",
+            headers={"Authorization": f"token {token}", "Accept": "application/vnd.github+json"},
+            timeout=8)
+        if r.status_code == 200:
+            data = r.json()
+            content = base64.b64decode(data["content"]).decode("utf-8")
+            return json.loads(content), data["sha"]
+        return None, None
+    except: return None, None
+
+def _gh_write(d, sha=None):
+    token = _gh_token()
+    if not token: return False
+    try:
+        import base64
+        content = base64.b64encode(
+            json.dumps(d, indent=2, ensure_ascii=False).encode("utf-8")
+        ).decode("utf-8")
+        payload = {"message": f"Update {datetime.now().strftime('%Y-%m-%d %H:%M')}", "content": content}
+        if sha: payload["sha"] = sha
+        r = requests.put(
+            f"https://api.github.com/repos/{_gh_repo()}/contents/{_GH_FILE}",
+            headers={"Authorization": f"token {token}", "Accept": "application/vnd.github+json"},
+            json=payload, timeout=12)
+        return r.status_code in (200, 201)
     except: return False
 
-def load_data():
-    """
-    Carica dati da Supabase (persistente) se disponibile,
-    altrimenti da file locale, altrimenti da DEFAULT_DATA.
-    """
-    # ── Prova Supabase ────────────────────────────────────────────────────────
-    conn = _db_connect()
-    if conn:
-        try:
-            _db_ensure_table(conn)
-            cur = conn.cursor()
-            cur.execute("SELECT data FROM portfolio_data WHERE id = 'main'")
-            row = cur.fetchone()
-            cur.close()
-            conn.close()
-            if row:
-                d = row[0] if isinstance(row[0], dict) else json.loads(row[0])
-                # Integra chiavi mancanti
-                for k in ["agent_cache","trade_history","email_settings","watchlist"]:
-                    if k not in d:
-                        d[k] = {} if k in ["agent_cache","email_settings"] else []
-                # Aggiungi nuovi asset di DEFAULT_DATA senza toccare esistenti
-                existing_t = {p.get("ticker","") for p in d.get("portfolio",[])}
-                for item in DEFAULT_DATA["portfolio"]:
-                    if item.get("ticker","N/A") not in existing_t:
-                        d["portfolio"].append(item)
-                existing_wl = {w.get("ticker","") for w in d.get("watchlist",[])}
-                for wl in DEFAULT_DATA["watchlist"]:
-                    if wl.get("ticker","") not in existing_wl:
-                        d["watchlist"].append(wl)
-                return d
-        except Exception as e:
-            try: conn.close()
-            except: pass
+def _merge_defaults(d):
+    for k in ["agent_cache","trade_history","email_settings","watchlist"]:
+        if k not in d: d[k] = {} if k in ["agent_cache","email_settings"] else []
+    existing_t = {p.get("ticker","") for p in d.get("portfolio",[])};
+    for item in DEFAULT_DATA["portfolio"]:
+        if item.get("ticker","N/A") not in existing_t: d["portfolio"].append(item)
+    existing_wl = {w.get("ticker","") for w in d.get("watchlist",[])};
+    for wl in DEFAULT_DATA["watchlist"]:
+        if wl.get("ticker","") not in existing_wl: d["watchlist"].append(wl)
+    return d
 
-    # ── Fallback: file locale ─────────────────────────────────────────────────
+def load_data():
+    d_gh, _ = _gh_read()
+    if d_gh: return _merge_defaults(d_gh)
     if DATA_FILE.exists():
         try:
             d = json.loads(DATA_FILE.read_text())
-            for k in ["agent_cache","trade_history","email_settings","watchlist"]:
-                if k not in d:
-                    d[k] = {} if k in ["agent_cache","email_settings"] else []
-            existing_t = {p.get("ticker","") for p in d.get("portfolio",[])}
-            for item in DEFAULT_DATA["portfolio"]:
-                if item.get("ticker","N/A") not in existing_t:
-                    d["portfolio"].append(item)
-            existing_wl = {w.get("ticker","") for w in d.get("watchlist",[])}
-            for wl in DEFAULT_DATA["watchlist"]:
-                if wl.get("ticker","") not in existing_wl:
-                    d["watchlist"].append(wl)
-            return d
+            return _merge_defaults(d)
         except: pass
-
-    # ── Primo avvio: DEFAULT_DATA ─────────────────────────────────────────────
     return DEFAULT_DATA.copy()
 
 def save_data(d):
-    """
-    Salva su Supabase (persistente) E su file locale (fallback).
-    """
-    saved_to_supabase = False
-
-    # ── Salva su Supabase ─────────────────────────────────────────────────────
-    conn = _db_connect()
-    if conn:
+    saved = False
+    if _gh_token():
         try:
-            _db_ensure_table(conn)
-            cur = conn.cursor()
-            # Rimuovi agent_cache (troppo grande, non serve persistere)
             d_save = {k:v for k,v in d.items() if k != "agent_cache"}
-            cur.execute("""
-                INSERT INTO portfolio_data (id, data, updated_at)
-                VALUES ('main', %s, NOW())
-                ON CONFLICT (id) DO UPDATE
-                SET data = EXCLUDED.data, updated_at = NOW()
-            """, (json.dumps(d_save, ensure_ascii=False),))
-            conn.commit()
-            cur.close()
-            conn.close()
-            saved_to_supabase = True
+            _, sha = _gh_read()
+            saved = _gh_write(d_save, sha)
+            if not saved and hasattr(st,"session_state"):
+                st.session_state["_last_save_error"] = "GitHub: salvataggio fallito"
         except Exception as e:
-            try: conn.close()
-            except: pass
-            # Mostra errore visibile per debug
-            if hasattr(st, "session_state"):
-                st.session_state["_last_save_error"] = str(e)
-    elif _get_supabase_url():
-        # URL configurato ma connessione fallita
-        if hasattr(st, "session_state"):
-            st.session_state["_last_save_error"] = "Connessione Supabase fallita — controlla URL e password nei Secrets"
-
-    # ── Salva anche in locale (fallback offline) ──────────────────────────────
-    try:
-        DATA_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False))
+            if hasattr(st,"session_state"):
+                st.session_state["_last_save_error"] = str(e)[:150]
+    try: DATA_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False))
     except: pass
-
-    return saved_to_supabase
+    return saved
 
 if "data" not in st.session_state:
     st.session_state.data = load_data()
@@ -924,20 +876,10 @@ with st.sidebar:
     st.markdown("### ⚙️ Configurazione")
 
     # ── Stato connessione Supabase ─────────────────────────────────────────
-    _supa_url = _get_supabase_url()
-    if not _supa_url:
-        st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">⚠️ <b>Supabase non configurato</b> — i dati non vengono salvati in modo permanente.<br>Aggiungi SUPABASE_URL nei Secrets di Streamlit.</div>', unsafe_allow_html=True)
-    elif not HAS_PSYCOPG2:
-        st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">⚠️ <b>psycopg2 non installato</b> — aggiungi psycopg2-binary al requirements.txt.</div>', unsafe_allow_html=True)
+    if _gh_token():
+        st.markdown('<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#10B981;margin-bottom:.4rem;">&#128190; <b>Salvataggio attivo su GitHub</b> — i dati vengono salvati ad ogni modifica.</div>', unsafe_allow_html=True)
     else:
-        # Test connessione reale
-        _test_conn = _db_connect()
-        if _test_conn:
-            try: _test_conn.close()
-            except: pass
-            st.markdown('<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#10B981;margin-bottom:.4rem;">🗄️ <b>Supabase connesso</b> — dati salvati in modo permanente.</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#EF4444;margin-bottom:.4rem;">❌ <b>Supabase: connessione fallita</b> — controlla la stringa SUPABASE_URL nei Secrets. La password nella stringa è corretta?</div>', unsafe_allow_html=True)
+        st.markdown('<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#F59E0B;margin-bottom:.4rem;">&#9888; GITHUB_TOKEN mancante — i prezzi non vengono salvati permanentemente.</div>', unsafe_allow_html=True)
 
     # Mostra ultimo errore di salvataggio se presente
     if st.session_state.get("_last_save_error"):
