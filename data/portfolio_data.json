@@ -452,20 +452,6 @@
       "ai_pending": false
     },
     {
-      "ticker": "AMP.MI",
-      "nome": "Amplifon",
-      "categoria": "Azioni",
-      "sorgente": "utente",
-      "segnale": "NON_CONSIDERARE",
-      "prezzo_target": 13.41,
-      "stop_loss": 8.66,
-      "ingresso": 8.93,
-      "strategia": "Breve termine",
-      "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 16 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 8.93.",
-      "ai_pending": false
-    },
-    {
       "ticker": "ENEL.MI",
       "nome": "Enel",
       "categoria": "Azioni",
