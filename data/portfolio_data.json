@@ -182,10 +182,10 @@
     },
     {
       "nome": "iShares Edge MSCI World Value Factor",
-      "ticker": "IWWL.L",
+      "ticker": "IWVL.L",
       "valuta": "EUR",
       "prezzo_carico": 42.429,
-      "quantita": 36,
+      "quantita": 36.0,
       "categoria": "ETF",
       "prezzo_manuale": null
     },
