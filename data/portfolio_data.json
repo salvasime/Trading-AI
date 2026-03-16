@@ -305,6 +305,24 @@
       "quantita": 150.0,
       "categoria": "Azioni",
       "prezzo_manuale": null
+    },
+    {
+      "nome": "iShares Edge MSCI World Value Factor",
+      "ticker": "IWVL.L",
+      "valuta": "EUR",
+      "prezzo_carico": 42.429,
+      "quantita": 36.0,
+      "categoria": "ETF",
+      "prezzo_manuale": null
+    },
+    {
+      "nome": "iShares MSCI India",
+      "ticker": "ISHARESMSCII.SI",
+      "valuta": "EUR",
+      "prezzo_carico": 8.594,
+      "quantita": 176,
+      "categoria": "ETF",
+      "prezzo_manuale": null
     }
   ],
   "watchlist": [
