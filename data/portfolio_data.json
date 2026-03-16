@@ -167,9 +167,9 @@
       "ticker": "IE00BJBYDP94.SG",
       "valuta": "EUR",
       "prezzo_carico": 156.66,
-      "quantita": 14,
+      "quantita": 14.0,
       "categoria": "ETF",
-      "prezzo_manuale": null
+      "prezzo_manuale": 167.47
     },
     {
       "nome": "Lyxor ETF MSCI Emerging Markets",
