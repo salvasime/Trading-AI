@@ -2710,8 +2710,10 @@ with tab7:
             issues = sum(1 for p in cat_items if p["ticker"]=="N/A" and not (p.get("prezzo_manuale") or 0)>0)
             badge = f" 🔴 {issues} da aggiornare" if issues else " ✅"
             st.markdown(f'<div style="color:{cat_col};font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;margin:1rem 0 .4rem;">{cat} ({len(cat_items)}){badge}</div>', unsafe_allow_html=True)
-            for item in cat_items:
-                idx = portfolio.index(item)
+            for item_loop_i, item in enumerate(cat_items):
+                # Usa enumerate per evitare duplicati quando portfolio.index() restituisce lo stesso idx
+                idx = next(k for k,p in enumerate(portfolio) if p is item)
+                uniq = f"{cat}_{item_loop_i}"  # chiave univoca per i widget
                 pm = item.get("prezzo_manuale") or 0
                 lp = get_price(item["ticker"]) if item["ticker"]!="N/A" else None
                 if item["ticker"]!="N/A" and lp:   dot,slbl,sc_="🔵",f"Live: {lp:,.3f}","#3B82F6"
@@ -2726,27 +2728,27 @@ with tab7:
                         st.markdown(f'<div style="background:rgba(59,130,246,.1);border:1px solid #3B82F644;border-radius:7px;padding:.5rem .8rem;font-size:.8rem;color:#60A5FA;margin-bottom:.7rem;">🔵 Live: {lp:,.3f}</div>', unsafe_allow_html=True)
                     e1,e2,e3 = st.columns(3)
                     with e1:
-                        nn = st.text_input("Nome",        value=item["nome"],         key=f"en_{idx}")
-                        nt = st.text_input("Ticker Yahoo",value=item["ticker"],        key=f"et_{idx}")
+                        nn = st.text_input("Nome",        value=item["nome"],         key=f"en_{uniq}")
+                        nt = st.text_input("Ticker Yahoo",value=item["ticker"],        key=f"et_{uniq}")
                     with e2:
-                        npc= st.number_input("P.carico",  value=float(item["prezzo_carico"]),step=0.001,format="%.3f",key=f"ep_{idx}")
-                        nq = st.number_input("Quantità",  value=float(item["quantita"]),     step=0.001,format="%.4f",key=f"eq_{idx}")
+                        npc= st.number_input("P.carico",  value=float(item["prezzo_carico"]),step=0.001,format="%.3f",key=f"ep_{uniq}")
+                        nq = st.number_input("Quantità",  value=float(item["quantita"]),     step=0.001,format="%.4f",key=f"eq_{uniq}")
                     with e3:
                         vl = ["EUR","USD","GBP","DKK","CHF"]
-                        nv = st.selectbox("Valuta",vl,index=vl.index(item["valuta"]) if item["valuta"] in vl else 0,key=f"ev_{idx}")
+                        nv = st.selectbox("Valuta",vl,index=vl.index(item["valuta"]) if item["valuta"] in vl else 0,key=f"ev_{uniq}")
                         nm = st.number_input("✏️ Prezzo manuale" if item["ticker"]=="N/A" else "P.manuale (sovrascrive Yahoo)",
-                            value=float(pm),step=0.001,format="%.3f",key=f"em_{idx}",
+                            value=float(pm),step=0.001,format="%.3f",key=f"em_{uniq}",
                             help="Obbligazioni: % del nominale (es. 98.50)")
                     b1,b2 = st.columns(2)
                     with b1:
-                        if st.button("💾 Salva", key=f"sv_{idx}"):
+                        if st.button("💾 Salva", key=f"sv_{uniq}"):
                             st.session_state.data["portfolio"][idx].update(
                                 {"nome":nn,"ticker":nt,"prezzo_carico":npc,"quantita":nq,"valuta":nv,
                                  "prezzo_manuale":nm if nm>0 else None})
                             save_data(st.session_state.data); st.cache_data.clear()
                             st.success("✅ Salvato!"); st.rerun()
                     with b2:
-                        if st.button("🗑️ Elimina", key=f"dl_{idx}"):
+                        if st.button("🗑️ Elimina", key=f"dl_{uniq}"):
                             st.session_state.data["portfolio"].pop(idx)
                             save_data(st.session_state.data); st.cache_data.clear(); st.rerun()
 
