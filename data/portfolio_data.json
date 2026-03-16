@@ -317,10 +317,19 @@
     },
     {
       "nome": "iShares MSCI India",
-      "ticker": "ISHARESMSCII.SI",
+      "ticker": "NDIA.L",
       "valuta": "EUR",
       "prezzo_carico": 8.594,
-      "quantita": 176,
+      "quantita": 176.0,
+      "categoria": "ETF",
+      "prezzo_manuale": null
+    },
+    {
+      "nome": "iShares Edge MSCI World Value Factor",
+      "ticker": "IWWL.L",
+      "valuta": "EUR",
+      "prezzo_carico": 42.429,
+      "quantita": 36,
       "categoria": "ETF",
       "prezzo_manuale": null
     }
