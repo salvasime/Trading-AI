@@ -504,11 +504,11 @@
       "sorgente": "utente",
       "segnale": "COMPRA",
       "prezzo_target": 210.0,
-      "stop_loss": 170.0,
-      "ingresso": 183.22,
+      "stop_loss": 165.0,
+      "ingresso": 177.18,
       "strategia": "Lungo termine",
       "orizzonte": "Medio (3-12 mesi)",
-      "note": "NVIDIA mostra segnali tecnici misti con RSI oversold (41) e prezzo sopra MA200 ma sotto MA50, suggerendo una potenziale opportunità di acquisto su debolezza temporanea. Il segnale COMPRA è supportato dalla solidità fondamentale nel settore AI e semiconduttori, con MACD negativo che indica possibile inversione di trend nel breve. L'inserimento rafforzerebbe la componente azionaria tech del portafoglio (attualmente solo 9.1% in azioni), bilanciando l'elevata esposizione a ETF e obbligazioni con un asset growth ad alto potenziale.",
+      "note": "NVIDIA sta consolidando dopo i forti guadagni dell'AI, con il prezzo vicino al supporto e sotto le medie mobili in fase di correzione tecnica. Il segnale di acquisto emerge dall'RSI oversold a 41 e dalla vicinanza al supporto chiave, con il settore semiconductor che mantiene fondamentali solidi grazie alla domanda di chip AI. L'inserimento rafforza l'esposizione tecnologica nel portafoglio bilanciato, complementando gli ETF e diversificando il rischio azionario con un leader del settore ad alta crescita.",
       "ai_pending": false
     },
     {
