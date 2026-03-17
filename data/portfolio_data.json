@@ -772,20 +772,6 @@
       "orizzonte": "Medio (3-12 mesi)",
       "note": "Il titolo Marr presenta un RSI estremamente basso (8) indicando una condizione di ipervenduto estrema con potenziale di rimbalzo tecnico significativo. Il segnale di acquisto è supportato dalla vicinanza al supporto tecnico e dalla divergenza rispetto alle medie mobili che suggeriscono un'opportunità di recupero nel medio termine. L'inserimento nel portafoglio diversificato (13% azioni) aggiunge esposizione al settore della ristorazione commerciale con un profilo rischio-rendimento favorevole data la valutazione compressa.",
       "ai_pending": false
-    },
-    {
-      "ticker": "AMP.MI",
-      "nome": "Amplifon",
-      "categoria": "Azioni",
-      "sorgente": "utente",
-      "segnale": "COMPRA",
-      "prezzo_target": 11.5,
-      "stop_loss": 7.8,
-      "ingresso": 8.7,
-      "strategia": "Lungo termine",
-      "orizzonte": "Medio (3-12 mesi)",
-      "note": "Amplifon presenta segnali tecnici di forte ipervenduto con RSI a 15 e prezzo ben sotto le medie mobili, suggerendo un potenziale rimbalzo tecnico da area di supporto critico. Il segnale di acquisto è giustificato dalla combinazione di valutazioni attraenti e posizionamento tecnico estremo che storicamente ha preceduto recuperi significativi. L'inserimento nel portafoglio bilancerebbe l'esposizione azionaria attualmente contenuta (15% del totale) con un titolo defensivo del settore healthcare, complementare alla diversificazione esistente.",
-      "ai_pending": false
     }
   ],
   "trade_history": [
