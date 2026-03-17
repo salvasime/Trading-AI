@@ -875,15 +875,18 @@ def build_daily_email(df, mkt, health_score, agent_results):
 # Questo blocco viene eseguito ad ogni interazione, garantendo che le chiavi
 # siano sempre disponibili nel session_state anche quando la sidebar è chiusa.
 def _load_api_keys():
+    """Carica chiavi API dai Secrets — chiamata ad ogni render."""
     try:
-        if not hasattr(st, "secrets"): return
-        ant = st.secrets.get("ANTHROPIC_API_KEY", "")
-        news = st.secrets.get("NEWS_API_KEY", "")
+        if not hasattr(st, "secrets"):
+            return
+        ant  = str(st.secrets.get("ANTHROPIC_API_KEY", "") or "").strip()
+        news = str(st.secrets.get("NEWS_API_KEY", "") or "").strip()
         if ant:
             st.session_state["_ant_key"] = ant
         if news:
             st.session_state["_news_key"] = news
-    except: pass
+    except Exception:
+        pass
 
 _load_api_keys()
 
@@ -904,29 +907,32 @@ with st.sidebar:
             del st.session_state["_last_save_error"]
             st.rerun()
 
-    # Leggi dai Secrets di Streamlit Cloud (se configurati)
-    _sec_ant  = st.secrets.get("ANTHROPIC_API_KEY", "") if hasattr(st, "secrets") else ""
-    _sec_news = st.secrets.get("NEWS_API_KEY", "")      if hasattr(st, "secrets") else ""
+    # Leggi dai Secrets (con strip per eliminare spazi/newline accidentali)
+    try:
+        _sec_ant  = str(st.secrets.get("ANTHROPIC_API_KEY", "") or "").strip() if hasattr(st, "secrets") else ""
+        _sec_news = str(st.secrets.get("NEWS_API_KEY", "") or "").strip()      if hasattr(st, "secrets") else ""
+    except Exception:
+        _sec_ant = ""; _sec_news = ""
 
     if _sec_ant:
-        # Chiavi nei Secrets: caricale automaticamente
         st.session_state["_ant_key"]  = _sec_ant
         st.session_state["_news_key"] = _sec_news
-        st.markdown('<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.75rem;color:#10B981;margin-bottom:.5rem;">✅ Chiavi caricate dai Secrets</div>', unsafe_allow_html=True)
-        st.text_input("Chiave Anthropic API", value="sk-ant-••••••••", disabled=True, key="ant_key")
-        st.text_input("Chiave NewsAPI", value="••••" if _sec_news else "(non impostata)", disabled=True, key="news_key")
+        # Mostra primi/ultimi 4 caratteri per verificare che sia giusta
+        ant_preview = _sec_ant[:8] + "..." + _sec_ant[-4:] if len(_sec_ant) > 12 else "***"
+        st.markdown(f'<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .8rem;font-size:.75rem;color:#10B981;margin-bottom:.5rem;">✅ Chiave Anthropic: <code>{ant_preview}</code></div>', unsafe_allow_html=True)
+        st.text_input("Chiave Anthropic API", value="sk-ant-...", disabled=True, key="ant_key")
+        st.text_input("Chiave NewsAPI", value="configurata" if _sec_news else "(non impostata)", disabled=True, key="news_key")
     else:
-        # Chiavi inserite manualmente: salvale nel session_state appena digitate
         _inp_ant  = st.text_input("Chiave Anthropic API", type="password", placeholder="sk-ant-...", key="ant_key")
         _inp_news = st.text_input("Chiave NewsAPI",       type="password", placeholder="newsapi key...", key="news_key")
-        if _inp_ant:  st.session_state["_ant_key"]  = _inp_ant
-        if _inp_news: st.session_state["_news_key"] = _inp_news
+        if _inp_ant:  st.session_state["_ant_key"]  = _inp_ant.strip()
+        if _inp_news: st.session_state["_news_key"] = _inp_news.strip()
         if not st.session_state.get("_ant_key"):
-            st.markdown('<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#F59E0B;">⚠️ Inserisci la chiave Anthropic per usare il Multi-Agente AI</div>', unsafe_allow_html=True)
+            st.markdown('<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.5rem .8rem;font-size:.72rem;color:#F59E0B;">Inserisci la chiave Anthropic per usare le funzioni AI</div>', unsafe_allow_html=True)
 
     # Variabili globali usate nel resto dell'app
-    anthropic_key = st.session_state.get("_ant_key", "")
-    news_api_key  = st.session_state.get("_news_key", "")
+    anthropic_key = st.session_state.get("_ant_key", "").strip()
+    news_api_key  = st.session_state.get("_news_key", "").strip()
     st.markdown("---")
     st.markdown("### 📧 Alert Email")
     with st.expander("Configura email"):
