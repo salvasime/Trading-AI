@@ -364,7 +364,7 @@
       "ingresso": 388.31,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 58 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 388.31.",
+      "note": "Momento sfavorevole: RSI 59 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 388.31.",
       "ai_pending": false
     },
     {
@@ -372,13 +372,13 @@
       "nome": "Delta Airlines",
       "categoria": "Azioni",
       "sorgente": "utente",
-      "segnale": "NON_CONSIDERARE",
+      "segnale": "MONITORA",
       "prezzo_target": 70.21,
       "stop_loss": 55.62,
       "ingresso": 58.52,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 28 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 58.52.",
+      "note": "Segnali misti: RSI 30 (neutro), trend in debolezza. Supporto chiave a 57.94: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -392,7 +392,7 @@
       "ingresso": 133.57,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 45 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 133.57.",
+      "note": "Momento sfavorevole: RSI 48 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 133.57.",
       "ai_pending": false
     },
     {
@@ -402,11 +402,11 @@
       "sorgente": "utente",
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 106.03,
-      "stop_loss": 94.99,
-      "ingresso": 97.96,
+      "stop_loss": 94.71,
+      "ingresso": 97.67,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 12 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 97.96.",
+      "note": "Momento sfavorevole: RSI 12 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 97.67.",
       "ai_pending": false
     },
     {
@@ -417,10 +417,10 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 36.3,
       "stop_loss": 31.27,
-      "ingresso": 32.75,
+      "ingresso": 32.74,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 31 (neutro), MACD negativo, Prezzo sotto MA50. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 32.75.",
+      "note": "Momento sfavorevole: RSI 31 (neutro), MACD negativo, Prezzo sotto MA50. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 32.74.",
       "ai_pending": false
     },
     {
@@ -431,10 +431,10 @@
       "segnale": "MONITORA",
       "prezzo_target": 152.29,
       "stop_loss": 130.57,
-      "ingresso": 135.2,
+      "ingresso": 136.51,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
-      "note": "Segnali misti: RSI 34 (neutro), trend in debolezza. Supporto chiave a 136.01: se regge è un buon punto di ingresso, se rompe aspetta.",
+      "note": "Segnali misti: RSI 36 (neutro), trend in debolezza. Supporto chiave a 136.01: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -448,7 +448,7 @@
       "ingresso": 1686.7,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 33 (neutro), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 1686.7.",
+      "note": "Momento sfavorevole: RSI 34 (neutro), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 1686.7.",
       "ai_pending": false
     },
     {
@@ -462,7 +462,7 @@
       "ingresso": 9.05,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
-      "note": "Segnali misti: RSI 46 (neutro), trend in ripresa. Supporto chiave a 8.96: se regge è un buon punto di ingresso, se rompe aspetta.",
+      "note": "Segnali misti: RSI 44 (neutro), trend in ripresa. Supporto chiave a 8.96: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -473,10 +473,10 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 79.84,
       "stop_loss": 72.19,
-      "ingresso": 75.95,
+      "ingresso": 75.39,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 59 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 75.95.",
+      "note": "Momento sfavorevole: RSI 48 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 75.39.",
       "ai_pending": false
     },
     {
@@ -490,7 +490,7 @@
       "ingresso": 178.95,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Segnali misti: RSI 43 (neutro), trend in debolezza. Supporto chiave a 177.18: se regge è un buon punto di ingresso, se rompe aspetta.",
+      "note": "Segnali misti: RSI 41 (neutro), trend in debolezza. Supporto chiave a 177.18: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -501,10 +501,10 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 51.69,
       "stop_loss": 36.43,
-      "ingresso": 37.67,
+      "ingresso": 37.9,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 10 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 37.67.",
+      "note": "Momento sfavorevole: RSI 12 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 37.9.",
       "ai_pending": false
     },
     {
@@ -518,7 +518,7 @@
       "ingresso": 89.51,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 39 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 89.51.",
+      "note": "Momento sfavorevole: RSI 40 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 89.51.",
       "ai_pending": false
     },
     {
@@ -528,11 +528,11 @@
       "sorgente": "utente",
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 40.08,
-      "stop_loss": 31.03,
-      "ingresso": 32.0,
+      "stop_loss": 30.47,
+      "ingresso": 31.42,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 7 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 32.0.",
+      "note": "Momento sfavorevole: RSI 7 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 31.42.",
       "ai_pending": false
     },
     {
@@ -546,7 +546,7 @@
       "ingresso": 203.16,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 52 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 203.16.",
+      "note": "Momento sfavorevole: RSI 54 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 203.16.",
       "ai_pending": false
     },
     {
@@ -560,7 +560,7 @@
       "ingresso": 41.09,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 44 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 41.09.",
+      "note": "Momento sfavorevole: RSI 43 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 41.09.",
       "ai_pending": false
     },
     {
@@ -574,7 +574,7 @@
       "ingresso": 31.09,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 53 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 31.09.",
+      "note": "Momento sfavorevole: RSI 55 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 31.09.",
       "ai_pending": false
     },
     {
@@ -588,7 +588,7 @@
       "ingresso": 67.03,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
-      "note": "Segnali misti: RSI 40 (neutro), trend in debolezza. Supporto chiave a 66.37: se regge è un buon punto di ingresso, se rompe aspetta.",
+      "note": "Segnali misti: RSI 41 (neutro), trend in debolezza. Supporto chiave a 66.37: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -602,7 +602,7 @@
       "ingresso": 37.03,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 49 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 37.03.",
+      "note": "Momento sfavorevole: RSI 50 (neutro), MACD positivo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 37.03.",
       "ai_pending": false
     },
     {
@@ -613,7 +613,7 @@
       "segnale": "MONITORA",
       "prezzo_target": 1047.97,
       "stop_loss": 938.16,
-      "ingresso": 978.82,
+      "ingresso": 979.23,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
       "note": "Segnali misti: RSI 36 (neutro), trend in debolezza. Supporto chiave a 977.25: se regge è un buon punto di ingresso, se rompe aspetta.",
@@ -627,7 +627,7 @@
       "segnale": "MONITORA",
       "prezzo_target": 784.65,
       "stop_loss": 715.94,
-      "ingresso": 749.51,
+      "ingresso": 749.34,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
       "note": "Segnali misti: RSI 46 (neutro), trend in debolezza. Supporto chiave a 745.77: se regge è un buon punto di ingresso, se rompe aspetta.",
@@ -655,10 +655,10 @@
       "segnale": "MONITORA",
       "prezzo_target": 311.53,
       "stop_loss": 286.17,
-      "ingresso": 300.21,
+      "ingresso": 301.07,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
-      "note": "Segnali misti: RSI 42 (neutro), trend in debolezza. Supporto chiave a 298.09: se regge è un buon punto di ingresso, se rompe aspetta.",
+      "note": "Segnali misti: RSI 43 (neutro), trend in debolezza. Supporto chiave a 298.09: se regge è un buon punto di ingresso, se rompe aspetta.",
       "ai_pending": false
     },
     {
@@ -669,7 +669,7 @@
       "segnale": "MONITORA",
       "prezzo_target": 96.93,
       "stop_loss": 86.88,
-      "ingresso": 91.01,
+      "ingresso": 90.59,
       "strategia": "Lungo termine",
       "orizzonte": "Lungo (> 1 anno)",
       "note": "Segnali misti: RSI 38 (neutro), trend in debolezza. Supporto chiave a 90.50: se regge è un buon punto di ingresso, se rompe aspetta.",
@@ -683,10 +683,10 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 64.53,
       "stop_loss": 51.82,
-      "ingresso": 54.23,
+      "ingresso": 54.24,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 12 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 54.23.",
+      "note": "Momento sfavorevole: RSI 12 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 54.24.",
       "ai_pending": false
     },
     {
@@ -700,7 +700,7 @@
       "ingresso": 95.17,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 45 (neutro), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 95.17.",
+      "note": "Momento sfavorevole: RSI 43 (neutro), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 95.17.",
       "ai_pending": false
     },
     {
@@ -710,11 +710,11 @@
       "sorgente": "utente",
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 5.26,
-      "stop_loss": 3.58,
-      "ingresso": 3.69,
+      "stop_loss": 3.57,
+      "ingresso": 3.68,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 25 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 3.69.",
+      "note": "Momento sfavorevole: RSI 25 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 3.68.",
       "ai_pending": false
     },
     {
@@ -724,11 +724,11 @@
       "sorgente": "utente",
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 15.86,
-      "stop_loss": 12.36,
-      "ingresso": 12.75,
+      "stop_loss": 12.05,
+      "ingresso": 12.42,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 28 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 12.75.",
+      "note": "Momento sfavorevole: RSI 26 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 12.42.",
       "ai_pending": false
     },
     {
@@ -753,10 +753,10 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 6.16,
       "stop_loss": 4.34,
-      "ingresso": 4.57,
+      "ingresso": 4.54,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 25 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 4.57.",
+      "note": "Momento sfavorevole: RSI 24 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 4.54.",
       "ai_pending": false
     },
     {
@@ -767,10 +767,24 @@
       "segnale": "NON_CONSIDERARE",
       "prezzo_target": 9.57,
       "stop_loss": 6.32,
-      "ingresso": 6.51,
+      "ingresso": 6.57,
       "strategia": "Breve termine",
       "orizzonte": "Breve (< 3 mesi)",
-      "note": "Momento sfavorevole: RSI 7 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 6.51.",
+      "note": "Momento sfavorevole: RSI 8 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 6.57.",
+      "ai_pending": false
+    },
+    {
+      "ticker": "AMP.MI",
+      "nome": "Amplifon",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "NON_CONSIDERARE",
+      "prezzo_target": 13.27,
+      "stop_loss": 8.38,
+      "ingresso": 8.64,
+      "strategia": "Breve termine",
+      "orizzonte": "Breve (< 3 mesi)",
+      "note": "Momento sfavorevole: RSI 15 (ipervenduto), MACD negativo, Prezzo sotto MA50 e sotto MA200. Aspetta che RSI scenda sotto 60 e il MACD torni positivo prima di valutare l'ingresso a 8.64.",
       "ai_pending": false
     }
   ],
