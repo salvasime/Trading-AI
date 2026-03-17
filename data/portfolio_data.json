@@ -545,12 +545,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 38.5,
-      "stop_loss": 29.0,
-      "ingresso": 31.74,
+      "prezzo_target": 42.5,
+      "stop_loss": 28.75,
+      "ingresso": 31.86,
       "strategia": "Lungo termine",
       "orizzonte": "Medio (3-12 mesi)",
-      "note": "Interpump Group presenta condizioni di forte ipervenduto con RSI a 7, suggerendo un possibile rimbalzo tecnico nel breve-medio termine dal supporto attuale. Il segnale di acquisto è giustificato dalla combinazione di valutazioni attraenti e posizionamento tecnico estremo che storicamente precede recuperi significativi. L'inserimento nel portafoglio diversificato rafforza l'esposizione azionaria italiana con un titolo di qualità in settore industriale, bilanciando la forte componente obbligazionaria ed ETF già presente.",
+      "note": "Interpump Group mostra una condizione di estremo ipervenduto con RSI a 7, mentre opera nel settore delle pompe ad alta pressione che beneficia della transizione energetica e dell'automazione industriale. Il segnale di acquisto deriva dalla combinazione di overselling estremo, supporto tecnico al prezzo attuale e fondamentali solidi della società leader nel suo settore di nicchia. L'investimento si integra perfettamente nel portafoglio diversificando l'esposizione azionaria verso un titolo industriale di qualità, bilanciando la componente growth con la stabilità degli ETF e obbligazioni già presenti.",
       "ai_pending": false
     },
     {
