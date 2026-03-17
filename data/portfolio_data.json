@@ -792,20 +792,6 @@
       "ai_pending": false
     },
     {
-      "ticker": "AMP.MI",
-      "nome": "Amplifon",
-      "categoria": "Azioni",
-      "sorgente": "utente",
-      "segnale": "MONITORA",
-      "prezzo_target": null,
-      "stop_loss": null,
-      "ingresso": null,
-      "strategia": null,
-      "orizzonte": null,
-      "note": "",
-      "ai_pending": false
-    },
-    {
       "ticker": "DIA.MI",
       "nome": "Diasorin",
       "categoria": "Azioni",
