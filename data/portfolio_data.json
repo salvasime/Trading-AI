@@ -804,6 +804,20 @@
       "orizzonte": null,
       "note": "",
       "ai_pending": false
+    },
+    {
+      "ticker": "DIA.MI",
+      "nome": "Diasorin",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "⏳ In attesa analisi AI...",
+      "ai_pending": true
     }
   ],
   "trade_history": [
