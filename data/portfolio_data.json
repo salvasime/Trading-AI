@@ -816,8 +816,8 @@
       "ingresso": null,
       "strategia": null,
       "orizzonte": null,
-      "note": "⏳ In attesa analisi AI...",
-      "ai_pending": true
+      "note": "Analisi AI non disponibile",
+      "ai_pending": false
     }
   ],
   "trade_history": [
