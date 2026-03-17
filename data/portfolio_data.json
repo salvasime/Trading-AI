@@ -488,13 +488,13 @@
       "nome": "Sesa",
       "categoria": "Azioni",
       "sorgente": "utente",
-      "segnale": "MONITORA",
-      "prezzo_target": 82.0,
-      "stop_loss": 71.0,
-      "ingresso": 73.5,
+      "segnale": "COMPRA",
+      "prezzo_target": 85.5,
+      "stop_loss": 70.8,
+      "ingresso": 75.4,
       "strategia": "Lungo termine",
       "orizzonte": "Medio (3-12 mesi)",
-      "note": "Sesa mostra debolezza tecnica con prezzo sotto le medie mobili e resistenza a 80.65, ma RSI neutrale suggerisce possibile consolidamento. Il segnale è di monitoraggio in attesa di rottura della resistenza o test del supporto a 75.20 per definire la direzione. Nel portafoglio già ben diversificato con forte esposizione azionaria italiana, Sesa potrebbe aggiungere valore nel settore tecnologico se dovesse superare 80.65 con volumi.",
+      "note": "Sesa sta attraversando una fase di consolidamento dopo il rally del 2024, con il settore IT italiano che beneficia della digitalizzazione aziendale. Il titolo presenta un'opportunità di ingresso interessante vicino ai supporti con MACD positivo e RSI neutrale, suggerendo una possibile ripresa. Nel tuo portafoglio ben diversificato aggiunge esposizione al settore tecnologico italiano, complementando gli ETF esistenti con una componente azionaria growth domestica.",
       "ai_pending": false
     },
     {
