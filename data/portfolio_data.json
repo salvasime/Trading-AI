@@ -586,13 +586,13 @@
       "nome": "IonQ",
       "categoria": "Azioni",
       "sorgente": "utente",
-      "segnale": "NON_CONSIDERARE",
-      "prezzo_target": 0.0,
-      "stop_loss": 0.0,
-      "ingresso": 0.0,
+      "segnale": "MONITORA",
+      "prezzo_target": 42.0,
+      "stop_loss": 28.0,
+      "ingresso": 30.5,
       "strategia": "Lungo termine",
       "orizzonte": "Medio (3-12 mesi)",
-      "note": "IonQ presenta un quadro tecnico misto con prezzo sotto entrambe le medie mobili (MA50: 40.04, MA200: 47.37) indicando debolezza del trend, nonostante RSI neutro e MACD leggermente positivo. Il titolo quantum computing è altamente speculativo e volatile, inadatto per un portafoglio già ben bilanciato tra asset tradizionali e alternativi. Con liquidità adeguata (16k EUR) e diversificazione ottimale, è preferibile evitare esposizioni ad alto rischio in settori emergenti non consolidati.",
+      "note": "IonQ opera nel settore del quantum computing che sta vivendo una fase di consolidamento dopo il rally del 2024, con il titolo che scambia sotto le medie mobili principali ma mostra segni di stabilizzazione. Il MACD positivo e l'RSI neutrale suggeriscono un possibile rimbalzo tecnico verso la resistenza a 40.88, ma conviene attendere un ingresso più favorevole sotto i 31 euro. Nel portafoglio già diversificato questo titolo ad alta volatilità rappresenterebbe un'esposizione speculativa al settore tecnologico emergente, da limitare al 2-3% del totale.",
       "ai_pending": false
     },
     {
