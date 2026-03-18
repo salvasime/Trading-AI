@@ -594,6 +594,31 @@ tab1,tab2,tab3,tab4,tab5 = st.tabs([
 with tab1:
 
     # ── COSA FARE OGGI ────────────────────────────────────────────────────────
+    # Counter bar
+    _tradeable_cnt = [p for p in st.session_state.data["portfolio"] if p["ticker"] not in ("N/A","") and p["categoria"]!="Liquidita"]
+    _wl_total = [w for w in st.session_state.data["watchlist"] if w.get("ticker","N/A")!="N/A"]
+    _missing_cnt = sum(1 for p in st.session_state.data["portfolio"] if p["ticker"]=="N/A" and not (p.get("prezzo_manuale") or 0)>0)
+    _liq_val = next((p.get("quantita",0) for p in st.session_state.data["portfolio"] if p["categoria"]=="Liquidita"), 0)
+    _pnl_c2 = "#10B981" if pnl_tot>=0 else "#EF4444"
+    _cnt_items = [
+        ("Portafoglio", f"euro{total_pf:,.0f}", "#3B82F6"),
+        ("P&L totale", f"{'+' if pnl_tot>=0 else ''}{pnl_tot:,.0f}", _pnl_c2),
+        ("Liquidita", f"euro{_liq_val:,.0f}", "#94A3B8"),
+        ("Titoli", str(len(_tradeable_cnt)), "#10B981"),
+        ("Watchlist", str(len(_wl_total)), "#8B5CF6"),
+        ("Score salute", f"{health_score}/100", hs_c),
+        ("VIX oggi", f"{vix_v:.1f}", vix_c),
+        ("Prezzi mancanti", str(_missing_cnt), "#EF4444" if _missing_cnt>0 else "#10B981"),
+    ]
+    _db_cols = st.columns(len(_cnt_items))
+    for _col, (_lbl, _val, _clr) in zip(_db_cols, _cnt_items):
+        _val2 = _val.replace("euro", "€")
+        _html = ('<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.65rem .5rem;text-align:center;">'
+                 f'<div style="font-size:.58rem;color:#64748B;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem;">{_lbl}</div>'
+                 f'<div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:.95rem;color:{_clr};">{_val2}</div>'
+                 '</div>')
+        _col.markdown(_html, unsafe_allow_html=True)
+    st.markdown("")
     st.markdown('<div class="section-hd">Cosa fare oggi</div>', unsafe_allow_html=True)
     st.caption("Azioni prioritarie basate sull'analisi tecnica del tuo portafoglio e della watchlist.")
 
@@ -812,7 +837,19 @@ with tab2:
             n_incr=(df_tech["Raccomandazione"]=="INCREMENTA").sum()
             n_alle=(df_tech["Raccomandazione"]=="ALLEGGERISCI").sum()
             n_mid =len(df_tech)-n_incr-n_alle
-            st.markdown(f'<div class="card" style="margin-bottom:.8rem;"><b style="color:#E8EDF5;">Riepilogo:</b> <span style="color:#10B981;">{n_incr} positivi</span> · <span style="color:#F59E0B;">{n_mid} neutrali</span> · <span style="color:#EF4444;">{n_alle} negativi</span> su {len(df_tech)} titoli analizzati.</div>', unsafe_allow_html=True)
+            _tc = st.columns(4)
+            for _tcol, (_tl, _tv, _tclr) in zip(_tc, [
+                ("Da incrementare", str(n_incr), "#10B981"),
+                ("Neutrali", str(n_mid), "#F59E0B"),
+                ("Da alleggerire", str(n_alle), "#EF4444"),
+                ("Totale", str(len(df_tech)), "#3B82F6"),
+            ]):
+                _tcol.markdown(
+                    '<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.7rem;text-align:center;">' +
+                    f'<div style="font-size:.6rem;color:#64748B;text-transform:uppercase;margin-bottom:.25rem;">{_tl}</div>' +
+                    f'<div style="font-family:JetBrains Mono,monospace;font-size:1.8rem;font-weight:700;color:{_tclr};">{_tv}</div>' +
+                    '</div>', unsafe_allow_html=True)
+            st.markdown("")
             st.dataframe(df_tech,use_container_width=True,hide_index=True,height=300)
 
         st.markdown('<div class="section-hd">Dettaglio per titolo</div>', unsafe_allow_html=True)
@@ -1030,6 +1067,26 @@ with tab3:
                 save_data(st.session_state.data)
                 st.success("Analisi completata!"); st.rerun()
 
+        # Counter bar watchlist
+        _wl_c = sum(1 for w in watchlist if w.get("segnale")=="COMPRA")
+        _wl_m = sum(1 for w in watchlist if w.get("segnale")=="MONITORA")
+        _wl_n = sum(1 for w in watchlist if w.get("segnale")=="NON_CONSIDERARE")
+        _wl_ai2 = sum(1 for w in watchlist if w.get("sorgente")=="ai")
+        _wl_pf2 = sum(1 for w in watchlist if w.get("ticker","N/A")!="N/A" and w["ticker"].upper() in portfolio_tickers_set)
+        _wc = st.columns(5)
+        for _wcol,(_wl,_wv,_wclr) in zip(_wc,[
+            ("Compra", str(_wl_c), "#10B981"),
+            ("Monitora", str(_wl_m), "#F59E0B"),
+            ("Non considerare", str(_wl_n), "#EF4444"),
+            ("Idee AI", str(_wl_ai2), "#8B5CF6"),
+            ("Gia in portafoglio", str(_wl_pf2), "#3B82F6"),
+        ]):
+            _wcol.markdown(
+                '<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.65rem .5rem;text-align:center;">' +
+                f'<div style="font-size:.58rem;color:#64748B;text-transform:uppercase;margin-bottom:.2rem;">{_wl}</div>' +
+                f'<div style="font-family:JetBrains Mono,monospace;font-size:1.6rem;font-weight:700;color:{_wclr};">{_wv}</div>' +
+                '</div>', unsafe_allow_html=True)
+        st.markdown("")
         # Filtri
         wf1,wf2 = st.columns(2)
         with wf1: filt_seg=st.radio("Segnale:",["Tutti","COMPRA","MONITORA","NON_CONSIDERARE"],horizontal=True,key="wl_filt_seg")
@@ -1061,22 +1118,25 @@ with tab3:
                 with st.expander(f"{item['nome']} ({tk}) — {sig}"):
                     ex1,ex2 = st.columns([3,1])
                     with ex1:
-                        st.markdown(f'''
-<div style="background:#0F1829;border:1px solid {sig_c}33;border-left:4px solid {sig_c};border-radius:8px;padding:.8rem 1rem;margin-bottom:.5rem;">
-  <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem;">
-    <span style="background:{sig_c}22;color:{sig_c};border:1px solid {sig_c}44;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">{sig}</span>
-    {pf_badge}
-    <span style="color:#64748B;font-size:.75rem;">{item.get("categoria","")}</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;font-size:.78rem;margin-bottom:.5rem;">
-    <div><span style="color:#64748B;">Prezzo</span><br><b>{price_str}</b></div>
-    <div><span style="color:#64748B;">Ingresso ideale</span><br><b style="color:#60A5FA;">{ing_str}</b></div>
-    <div><span style="color:#64748B;">Target</span><br><b style="color:#10B981;">{tgt_str}</b></div>
-    <div><span style="color:#64748B;">Stop loss</span><br><b style="color:#EF4444;">{sl_str}</b></div>
-  </div>
-  {f'<div style="background:#162035;border-radius:6px;padding:.5rem .7rem;font-size:.8rem;color:#94A3B8;line-height:1.6;">{note}</div>' if note else ""}
-  {f'<div style="background:rgba(59,130,246,.07);border-radius:6px;padding:.4rem .7rem;font-size:.78rem;color:#94A3B8;margin-top:.4rem;">Questo titolo e gia nel tuo portafoglio. Considera questo prima di aggiungere ancora.</div>' if is_in_pf else ""}
-</div>''', unsafe_allow_html=True)
+                        note_html = f'<div style="background:#162035;border-radius:6px;padding:.5rem .7rem;font-size:.8rem;color:#94A3B8;line-height:1.6;">{note}</div>' if note else ""
+                        pf_warn_html = '<div style="background:rgba(59,130,246,.07);border-radius:6px;padding:.4rem .7rem;font-size:.78rem;color:#94A3B8;margin-top:.4rem;">Questo titolo e gia nel tuo portafoglio. Considera questo prima di aggiungere ancora.</div>' if is_in_pf else ""
+                        cat_str = item.get("categoria","")
+                        st.markdown(
+                            f'<div style="background:#0F1829;border:1px solid {sig_c}33;border-left:4px solid {sig_c};border-radius:8px;padding:.8rem 1rem;margin-bottom:.5rem;">' +
+                            f'<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem;">' +
+                            f'<span style="background:{sig_c}22;color:{sig_c};border:1px solid {sig_c}44;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">{sig}</span>' +
+                            pf_badge +
+                            f'<span style="color:#64748B;font-size:.75rem;">{cat_str}</span>' +
+                            '</div>' +
+                            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;font-size:.78rem;margin-bottom:.5rem;">' +
+                            f'<div><span style="color:#64748B;">Prezzo</span><br><b>{price_str}</b></div>' +
+                            f'<div><span style="color:#64748B;">Ingresso ideale</span><br><b style="color:#60A5FA;">{ing_str}</b></div>' +
+                            f'<div><span style="color:#64748B;">Target</span><br><b style="color:#10B981;">{tgt_str}</b></div>' +
+                            f'<div><span style="color:#64748B;">Stop loss</span><br><b style="color:#EF4444;">{sl_str}</b></div>' +
+                            '</div>' +
+                            note_html + pf_warn_html +
+                            '</div>',
+                            unsafe_allow_html=True)
 
                     with ex2:
                         # Bottone Rianalizza
@@ -1186,6 +1246,19 @@ with tab3:
             st.info("Nessuna opportunita tecnica rilevante al momento. Prova ad aggiornare lo scan.")
         else:
             # Tabella riepilogativa
+            _oc = st.columns(4)
+            for _ocol,(_ol,_ov,_oclr) in zip(_oc,[
+                ("Trovate", str(len(opps)), "#10B981"),
+                ("Score alto >=4", str(sum(1 for o in opps if o["score"]>=4)), "#10B981"),
+                ("Score medio 2-3", str(sum(1 for o in opps if 2<=o["score"]<4)), "#F59E0B"),
+                ("Da watchlist", str(sum(1 for o in opps if o["fonte"]=="watchlist")), "#8B5CF6"),
+            ]):
+                _ocol.markdown(
+                    '<div style="background:#0F1829;border:1px solid #243352;border-radius:10px;padding:.65rem .5rem;text-align:center;">' +
+                    f'<div style="font-size:.58rem;color:#64748B;text-transform:uppercase;margin-bottom:.2rem;">{_ol}</div>' +
+                    f'<div style="font-family:JetBrains Mono,monospace;font-size:1.6rem;font-weight:700;color:{_oclr};">{_ov}</div>' +
+                    '</div>', unsafe_allow_html=True)
+            st.markdown("")
             st.markdown('<div class="section-hd">Riepilogo opportunita</div>', unsafe_allow_html=True)
             tbl=[{"Score":"★"*min(o["score"],5),"Ticker":o["ticker"],"Nome":o["nome"][:20],
                   "Prezzo":f"{o['price']:.2f}","Ingresso":f"{o['ingresso']:.2f}",
