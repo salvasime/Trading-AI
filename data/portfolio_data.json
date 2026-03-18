@@ -785,10 +785,10 @@
       "segnale": "COMPRA",
       "prezzo_target": 8.5,
       "stop_loss": 6.2,
-      "ingresso": 6.84,
+      "ingresso": 6.75,
       "strategia": "Lungo termine",
       "orizzonte": "Medio (3-12 mesi)",
-      "note": "Il titolo Marr mostra segnali di forte ipervenduto con RSI a 13 e prezzo ben sotto le medie mobili, suggerendo un possibile rimbalzo tecnico. Il segnale di acquisto deriva dalla condizione estrema di oversold che spesso precede inversioni di trend, con supporto solido a 6.58. L'investimento si integra bene nel portafoglio diversificato aumentando l'esposizione azionaria italiana che rappresenta solo il 8.7% del totale, bilanciando la forte componente ETF.",
+      "note": "Il titolo Marr sta attraversando una fase di forte ipervenduto con RSI a 13, trovandosi vicino ai supporti tecnici in un settore della ristorazione che mostra segnali di stabilizzazione. Il segnale di acquisto deriva dalla combinazione di valutazioni attractive, condizioni tecniche estremamente oversold e potenziale di rimbalzo verso le medie mobili. L'investimento si inserisce bene nel portafoglio diversificato aumentando l'esposizione azionaria italiana nel settore consumer discretionary, bilanciando la forte componente in ETF e obbligazioni.",
       "ai_pending": false
     },
     {
