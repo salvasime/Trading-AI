@@ -741,12 +741,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 15.36,
-      "stop_loss": 12.12,
-      "ingresso": 12.75,
+      "prezzo_target": 16.5,
+      "stop_loss": 11.8,
+      "ingresso": 13.0,
       "strategia": "Lungo termine",
-      "orizzonte": "6-12 mesi",
-      "note": "Maire opera nell'ingegneria industriale e impianti energetici, settore che beneficia della transizione energetica e degli investimenti infrastrutturali globali, con l'RSI a 29 che indica oversold tecnico su un titolo strutturalmente solido. Il portafoglio non presenta sovraesposizione al settore industriale/energetico e il contesto macroeconomico favorisce investimenti in infrastrutture green e digitalizzazione, rendendo interessante l'ingresso su questo pullback tecnico. I rischi principali includono l'evoluzione dei tassi di interesse che potrebbero impattare la valutazione dei progetti a lungo termine, la volatilità geopolitica che influenza i mercati energetici globali, e possibili ritardi nell'esecuzione dei grandi progetti infrastrutturali.",
+      "orizzonte": "6-9 mesi",
+      "note": "Maire beneficia del super-ciclo degli investimenti in transizione energetica e rigassificatori, con forte domanda per i suoi impianti petrolchimici e tecnologie verdi in Medio Oriente e Asia. Il titolo è in area di ipervenduto (RSI 31) dopo il sell-off del settore, creando un'opportunità di ingresso attraente per un leader tecnologico con backlog record e margini in espansione. I rischi principali includono rallentamento degli investimenti energetici globali, tensioni geopolitiche che potrebbero impattare i progetti internazionali e possibili ritardi nei tempi di esecuzione dei grandi contratti EPC.",
       "ai_pending": false
     },
     {
