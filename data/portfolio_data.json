@@ -818,6 +818,34 @@
       "orizzonte": "Medio (3-12 mesi)",
       "note": "De Nora è leader mondiale nelle tecnologie elettrochimiche per l'idrogeno verde, settore in forte espansione con il piano REPowerEU. Il titolo presenta RSI in ipervenduto (26) e prezzo vicino al supporto, suggerendo un'opportunità di accumulo per investitori pazienti. L'investimento si integra bene nel portafoglio diversificato, aggiungendo esposizione alla transizione energetica complementare agli ETF già presenti.",
       "ai_pending": false
+    },
+    {
+      "ticker": "AMP.MI",
+      "nome": "Amplifon",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "",
+      "ai_pending": false
+    },
+    {
+      "ticker": "ASGN",
+      "nome": "ASGN",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "⏳ In attesa analisi AI...",
+      "ai_pending": true
     }
   ],
   "trade_history": [
