@@ -377,12 +377,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 406.57,
-      "stop_loss": 369.09,
-      "ingresso": 388.31,
+      "prezzo_target": 450.0,
+      "stop_loss": 370.0,
+      "ingresso": 395.0,
       "strategia": "Lungo termine",
       "orizzonte": "6-12 mesi",
-      "note": "Microsoft beneficia del boom dell'AI con i servizi Azure e Copilot che guidano la crescita nel cloud computing, mentre il titolo tech sta recuperando dai minimi dopo la fase di correzione del 2022-2023. Il segnale di acquisto è appropriato considerando la sottopesatura del portafoglio nel settore tecnologico (solo Adobe presente) e la solidità fondamentale di MSFT in un contesto di tassi che iniziano a stabilizzarsi favorendo i titoli growth di qualità. I rischi principali sono legati a possibili rallentamenti nella spesa IT aziendale, intensificazione della concorrenza nell'AI con Google e Amazon, e volatilità legata alle aspettative sui tassi Fed.",
+      "note": "Microsoft beneficia dell'espansione dell'AI con Azure OpenAI e Copilot che stanno accelerando i ricavi cloud, mentre il contesto macro favorevole con possibili tagli dei tassi Fed supporta i titoli tech di qualità. Il segnale di acquisto deriva da RSI oversold a 42, MACD positivo e valutazioni attractive per un leader tecnologico con moat difensivi solidi nel cloud enterprise. I rischi principali includono la concorrenza crescente di Google e Amazon nell'AI, possibili rallentamenti nella spesa IT aziendale e volatilità geopolitica che potrebbe impattare le operations internazionali.",
       "ai_pending": false
     },
     {
