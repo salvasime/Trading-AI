@@ -804,6 +804,34 @@
       "orizzonte": "Medio (3-12 mesi)",
       "note": "Il titolo DiaSorin, leader nella diagnostica in vitro, è in forte ipervenduto con RSI a 20 dopo il calo dal massimo di 76 euro, ma mantiene fondamentali solidi nel settore healthcare sempre resiliente. Il segnale di acquisto deriva dalla combinazione di oversold estremo, supporto tecnico a 63.74 e valutazioni attraenti per un'azienda con business model ricorrente e margini elevati. Nel portafoglio si inserisce perfettamente come diversificazione nel settore salute, bilanciando l'alta esposizione agli ETF (31%) e aggiungendo una componente growth italiana di qualità.",
       "ai_pending": false
+    },
+    {
+      "ticker": "AMP.MI",
+      "nome": "Amplifon",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "",
+      "ai_pending": false
+    },
+    {
+      "ticker": "DNR.MI",
+      "nome": "De Nora",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "⏳ In attesa analisi AI...",
+      "ai_pending": true
     }
   ],
   "trade_history": [
