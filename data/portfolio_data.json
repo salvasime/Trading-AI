@@ -713,12 +713,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 118.0,
-      "stop_loss": 92.0,
-      "ingresso": 98.5,
+      "prezzo_target": 125.0,
+      "stop_loss": 95.0,
+      "ingresso": 103.39,
       "strategia": "Lungo termine",
       "orizzonte": "12-18 mesi",
-      "note": "Hamilton Lane beneficia del crescente interesse istituzionale verso il private equity e alternative investments, settore in forte espansione con AUM in crescita del 15-20% annuo. Il portafoglio dell'investitore manca di esposizione ai servizi finanziari alternativi e HLNE offre diversificazione verso asset management di qualità premium in un contesto di tassi elevati che favorisce i rendimenti del private equity. I rischi principali includono la volatilità dei mercati privati, possibili riscatti da parte degli investitori istituzionali in caso di stress di liquidità e la dipendenza dai cicli di fundraising che potrebbero rallentare in caso di recessione.",
+      "note": "Hamilton Lane beneficia del rallentamento del ciclo dei tassi Fed con maggiore appetito per investimenti alternativi e private equity, settore in cui è leader globale. Il portafoglio è ben diversificato ma sottopeso nei servizi finanziari specializzati, mentre HLNE offre esposizione premium al private capital con fee ricorrenti e modello resiliente. Rischi principali: volatilità dei mercati privati, possibile recessione che riduce deal flow, e concentrazione geografica USA in contesto di tensioni commerciali globali.",
       "ai_pending": false
     },
     {
