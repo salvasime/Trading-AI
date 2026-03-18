@@ -811,12 +811,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 7.2,
+      "prezzo_target": 7.5,
       "stop_loss": 5.4,
-      "ingresso": 5.9,
+      "ingresso": 6.1,
       "strategia": "Lungo termine",
-      "orizzonte": "6-12 mesi",
-      "note": "De Nora è leader mondiale nelle tecnologie per l'elettrolisi e idrogeno verde, settore strategico per la transizione energetica supportato da massicci investimenti UE e globali. L'RSI oversold (29) e il prezzo vicino ai minimi presentano un'opportunità di ingresso interessante per un titolo con fondamentali solidi e posizionamento unico nel mercato dell'idrogeno. I rischi principali includono la volatilità dei mercati energetici, i tempi di sviluppo lunghi dei progetti idrogeno e la possibile pressione competitiva da nuovi entranti nel settore.",
+      "orizzonte": "medio termine (6-12 mesi)",
+      "note": "De Nora sta beneficiando del boom dell'idrogeno verde e delle tecnologie per la transizione energetica, con forte domanda per i suoi elettrodi specializzati. Il titolo è in zona di ipervenduto (RSI 29) e rappresenta un'opportunità di diversificazione nel portafoglio verso il settore cleantech ad alta crescita. I rischi principali includono la volatilità del settore tecnologico, la dipendenza dai piani governativi per l'idrogeno e la possibile pressione sui margini per gli elevati costi di R&D.",
       "ai_pending": false
     },
     {
