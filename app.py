@@ -458,6 +458,160 @@ def get_fundamentals(ticker):
                 "sector":_f("sector"),"mktcap":_f("marketCap")}
     except: return None
 
+# ── EARNINGS DATA ─────────────────────────────────────────────────────────────
+@st.cache_data(ttl=21600)  # 6h cache
+def get_earnings_data(ticker):
+    """
+    Recupera dati trimestrali da Yahoo Finance:
+    - Data prossima trimestrale
+    - Ultime 4 trimestrali: EPS atteso vs reale, surprise %
+    - Trend revenue
+    """
+    if not ticker or ticker == "N/A": return None
+    try:
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+
+        # Prossima data trimestrale
+        next_earnings_ts = info.get("earningsTimestamp") or info.get("earningsTimestampStart")
+        next_earnings_str = None
+        days_to_earnings = None
+        if next_earnings_ts:
+            try:
+                from datetime import timezone
+                next_dt = datetime.fromtimestamp(int(next_earnings_ts), tz=timezone.utc)
+                next_dt_naive = next_dt.replace(tzinfo=None)
+                days_to_earnings = (next_dt_naive - datetime.now()).days
+                next_earnings_str = next_dt_naive.strftime("%d/%m/%Y")
+            except: pass
+
+        # Ultime trimestrali (earnings history)
+        history = []
+        try:
+            eq = t.quarterly_earnings
+            if eq is not None and not eq.empty:
+                for idx_e, row_e in eq.tail(4).iterrows():
+                    eps_actual   = row_e.get("Reported EPS", row_e.get("Actual", None))
+                    eps_estimate = row_e.get("Estimated EPS", row_e.get("Estimate", None))
+                    if eps_actual is None or eps_estimate is None: continue
+                    try:
+                        actual_f   = float(eps_actual)
+                        estimate_f = float(eps_estimate)
+                        if estimate_f != 0:
+                            surprise_pct = (actual_f - estimate_f) / abs(estimate_f) * 100
+                        else:
+                            surprise_pct = 0
+                        beat = actual_f >= estimate_f
+                        history.append({
+                            "period":   str(idx_e)[:7] if idx_e else "—",
+                            "actual":   round(actual_f, 3),
+                            "estimate": round(estimate_f, 3),
+                            "surprise": round(surprise_pct, 1),
+                            "beat":     beat,
+                        })
+                    except: pass
+        except: pass
+
+        # Revenue trend
+        rev_growth = info.get("revenueGrowth")
+        eps_growth = info.get("earningsGrowth")
+
+        return {
+            "next_date":        next_earnings_str,
+            "days_to_earnings": days_to_earnings,
+            "history":          history,
+            "rev_growth":       rev_growth,
+            "eps_growth":       eps_growth,
+            "sector":           info.get("sector"),
+        }
+    except: return None
+
+def earnings_alert_html(ticker, compact=False):
+    """
+    Genera HTML con avviso trimestrale.
+    compact=True: solo badge colorato per watchlist/scanner
+    compact=False: blocco completo per timing tab
+    """
+    ed = get_earnings_data(ticker)
+    if not ed: return ""
+
+    days = ed.get("days_to_earnings")
+    next_date = ed.get("next_date", "—")
+    history = ed.get("history", [])
+
+    # Colore e livello di allerta in base ai giorni
+    if days is not None and 0 <= days <= 7:
+        alert_c = "#EF4444"; alert_icon = "🔴"
+        alert_lbl = f"Trimestrale tra {days} giorni ({next_date}) — RISCHIO ALTO"
+        alert_desc = "Entrare ora significa esporsi alla trimestrale. Anche con segnali tecnici perfetti, un dato deludente puo annullare settimane di trend in una seduta."
+        alert_rec  = "Aspetta la pubblicazione prima di entrare, oppure usa uno stop molto stretto."
+    elif days is not None and 8 <= days <= 21:
+        alert_c = "#F59E0B"; alert_icon = "🟡"
+        alert_lbl = f"Trimestrale tra {days} giorni ({next_date}) — ATTENZIONE"
+        alert_desc = "La trimestrale e imminente. Il mercato potrebbe gia prezzare aspettative alte o basse."
+        alert_rec  = "Considera di aspettare o di ridurre la dimensione della posizione."
+    elif days is not None and days > 21:
+        alert_c = "#10B981"; alert_icon = "🟢"
+        alert_lbl = f"Prossima trimestrale: {next_date} (tra {days} giorni)"
+        alert_desc = "Sufficiente distanza dalla trimestrale. Il rischio evento e basso."
+        alert_rec  = ""
+    elif days is not None and days < 0:
+        alert_c = "#64748B"; alert_icon = "⚪"
+        alert_lbl = f"Trimestrale appena pubblicata ({next_date})"
+        alert_desc = "I risultati sono gia nel prezzo. Momento tipicamente piu stabile."
+        alert_rec  = ""
+    else:
+        alert_c = "#64748B"; alert_icon = "⚪"
+        alert_lbl = "Data trimestrale non disponibile"
+        alert_desc = "Yahoo Finance non ha la data della prossima trimestrale per questo titolo."
+        alert_rec  = ""
+
+    if compact:
+        return (f'<span style="background:{alert_c}22;color:{alert_c};border:1px solid {alert_c}44;'
+                f'padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:700;margin-left:.3rem;">'
+                f'{alert_icon} {alert_lbl}</span>')
+
+    # Storico trimestrali
+    hist_html = ""
+    if history:
+        beats = sum(1 for h in history if h["beat"])
+        hist_rows = ""
+        for h in reversed(history):
+            bc = "#10B981" if h["beat"] else "#EF4444"
+            bl = "BEAT" if h["beat"] else "MISS"
+            hist_rows += (f'<div style="display:grid;grid-template-columns:80px 70px 70px 60px 60px;'
+                          f'gap:.3rem;font-size:.75rem;padding:.25rem 0;border-bottom:1px solid #1E2D47;">'
+                          f'<span style="color:#64748B;">{h["period"]}</span>'
+                          f'<span>EPS: <b>{h["actual"]:.2f}</b></span>'
+                          f'<span>Att.: {h["estimate"]:.2f}</span>'
+                          f'<span style="color:{bc};">{h["surprise"]:+.1f}%</span>'
+                          f'<span style="background:{bc}22;color:{bc};border-radius:4px;padding:0 5px;font-size:.68rem;font-weight:700;">{bl}</span>'
+                          f'</div>')
+        hist_html = (f'<div style="margin-top:.6rem;">'
+                     f'<div style="font-size:.65rem;color:#64748B;text-transform:uppercase;margin-bottom:.3rem;">'
+                     f'Ultime {len(history)} trimestrali — {beats}/{len(history)} beat aspettative</div>'
+                     + hist_rows + '</div>')
+
+    rev_g = ed.get("rev_growth")
+    eps_g = ed.get("eps_growth")
+    growth_html = ""
+    if rev_g is not None or eps_g is not None:
+        parts = []
+        if rev_g is not None:
+            rc = "#10B981" if rev_g > 0 else "#EF4444"
+            parts.append(f'<span>Ricavi: <b style="color:{rc};">{rev_g*100:+.1f}% YoY</b></span>')
+        if eps_g is not None:
+            ec = "#10B981" if eps_g > 0 else "#EF4444"
+            parts.append(f'<span>EPS: <b style="color:{ec};">{eps_g*100:+.1f}% YoY</b></span>')
+        growth_html = '<div style="display:flex;gap:1rem;font-size:.77rem;margin-top:.4rem;">' + " · ".join(parts) + '</div>'
+
+    return (f'<div style="background:rgba({",".join(str(int(alert_c.lstrip("#")[i:i+2],16)) for i in (0,2,4))},.08);'
+            f'border:1px solid {alert_c}44;border-radius:8px;padding:.8rem 1rem;margin:.5rem 0;">'
+            f'<div style="font-size:.72rem;font-weight:700;color:{alert_c};margin-bottom:.3rem;">{alert_icon} {alert_lbl}</div>'
+            f'<div style="font-size:.8rem;color:#94A3B8;line-height:1.6;">{alert_desc}'
+            + (f'<br><b style="color:#E8EDF5;">Suggerimento:</b> {alert_rec}' if alert_rec else "")
+            + '</div>' + hist_html + growth_html + '</div>')
+
 # ── EMAIL ─────────────────────────────────────────────────────────────────────
 def send_email_alert(settings, subject, html_body):
     try:
@@ -1121,6 +1275,7 @@ with tab3:
                 sig_c={"COMPRA":"#10B981","MONITORA":"#F59E0B","NON_CONSIDERARE":"#EF4444"}.get(sig,"#64748B")
                 is_in_pf = tk.upper() in portfolio_tickers_set if tk!="N/A" else False
                 price=get_price(tk) if tk!="N/A" else None
+                earn_badge = earnings_alert_html(tk, compact=True) if tk not in ("N/A","") else ""
                 note=item.get("note",""); ing=item.get("ingresso"); tgt=item.get("prezzo_target"); sl=item.get("stop_loss")
 
                 price_str=f"{price:.2f}" if price else "--"
@@ -1142,6 +1297,7 @@ with tab3:
                             f'<span style="background:{sig_c}22;color:{sig_c};border:1px solid {sig_c}44;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">{sig}</span>' +
                             pf_badge +
                             f'<span style="color:#64748B;font-size:.75rem;">{cat_str}</span>' +
+                        earn_badge +
                             '</div>' +
                             '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;font-size:.78rem;margin-bottom:.5rem;">' +
                             f'<div><span style="color:#64748B;">Prezzo</span><br><b>{price_str}</b></div>' +
@@ -1315,6 +1471,7 @@ with tab3:
                 sc_c="#10B981" if o["score"]>=4 else "#F59E0B"
                 rr_c="#10B981" if o["rr"]>=2 else ("#F59E0B" if o["rr"]>=1 else "#EF4444")
                 ps=o["ps"]
+                earn_b = earnings_alert_html(o["ticker"], compact=True)
                 ps_html=""
                 if ps:
                     ps_html=f'<div style="background:rgba(59,130,246,.07);border-radius:6px;padding:.5rem .7rem;font-size:.77rem;margin-top:.4rem;"><b style="color:#3B82F6;">Position sizing (1% rischio):</b> Compra <b>{ps["n_shares"]} quote</b> · Investimento €{ps["position_eur"]:,.0f} ({ps["position_pct"]:.1f}%) · Rischio max €{ps["risk_eur"]:,.0f}</div>'
@@ -1323,7 +1480,7 @@ with tab3:
                 st.markdown(f'''
 <div style="background:#0F1829;border:1px solid {sc_c}33;border-left:4px solid {sc_c};border-radius:10px;padding:.9rem 1rem;margin-bottom:.7rem;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.3rem;">
-    <div><b style="color:{sc_c};">{o["ticker"]}</b> <span style="color:#E8EDF5;">{o["nome"]}</span> <span style="background:{sc_c}22;color:{sc_c};border:1px solid {sc_c}44;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;margin-left:.4rem;">Score {o["score"]}/7</span></div>
+    <div><b style="color:{sc_c};">{o["ticker"]}</b> <span style="color:#E8EDF5;">{o["nome"]}</span> <span style="background:{sc_c}22;color:{sc_c};border:1px solid {sc_c}44;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;margin-left:.4rem;">Score {o["score"]}/7</span>{earn_b}</div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;font-size:.78rem;margin-bottom:.5rem;">
     <div><span style="color:#64748B;">Prezzo</span><br><b>{o["price"]:.2f}</b></div>
@@ -1461,6 +1618,10 @@ with tab3:
                         ps_t=calc_position_size(total_pf,p,sup*0.97,fx_rate=fx_t)
                         if ps_t:
                             st.markdown(f'<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:.7rem .9rem;"><div style="font-size:.65rem;font-weight:700;color:#3B82F6;text-transform:uppercase;margin-bottom:.4rem;">Se entrassi ora (1% di rischio)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.8rem;"><div><span style="color:#64748B;">Quante quote</span><br><b style="font-size:1.1rem;">{ps_t["n_shares"]}</b></div><div><span style="color:#64748B;">Investimento</span><br><b>€{ps_t["position_eur"]:,.0f}</b> ({ps_t["position_pct"]:.1f}%)</div><div><span style="color:#64748B;">Rischio max</span><br><b style="color:#EF4444;">€{ps_t["risk_eur"]:,.0f}</b></div></div><div style="font-size:.72rem;color:#64748B;margin-top:.4rem;">Stop a {sup*0.97:.2f}: se il prezzo scende fino li, perdi al massimo €{ps_t["risk_eur"]:,.0f} — cioe l\'1% del portafoglio.</div></div>', unsafe_allow_html=True)
+                # Earnings block
+                earn_full = earnings_alert_html(tk_t, compact=False)
+                if earn_full:
+                    st.markdown(earn_full, unsafe_allow_html=True)
             else:
                 st.warning(f"Dati non disponibili per {tk_t}. Verifica il ticker su Yahoo Finance.")
 
