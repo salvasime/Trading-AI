@@ -797,12 +797,12 @@
       "categoria": "Azioni",
       "sorgente": "utente",
       "segnale": "COMPRA",
-      "prezzo_target": 70.49,
-      "stop_loss": 61.23,
-      "ingresso": 63.38,
+      "prezzo_target": 75.0,
+      "stop_loss": 58.0,
+      "ingresso": 64.5,
       "strategia": "Lungo termine",
-      "orizzonte": "3-6 mesi",
-      "note": "Diasorin, leader nella diagnostica in vitro, sta attraversando una fase di correzione dopo i massimi pandemici, con il settore healthcare che si normalizza post-COVID ma mantiene prospettive solide per aging population e innovazione tecnologica. Il segnale di acquisto su ipervenduto RSI 27 è opportuno considerando che il portafoglio ha solo Zealand Pharma nel settore farmaceutico/healthcare, offrendo diversificazione geografica (Italia vs Danimarca) e di business model (diagnostica vs biotech), mentre il contesto macro di tassi stabili/in calo favorisce i titoli growth quality come DIA. I rischi principali includono la competizione crescente nel settore diagnostico, la possibile pressione sui margini da inflazione costi e la dipendenza dai cicli di spesa sanitaria pubblica che potrebbero subire tagli in caso di recessione.",
+      "orizzonte": "6-9 mesi",
+      "note": "Diasorin mostra segnali di ipervenduto con RSI a 27 e il settore diagnostico beneficia dell'invecchiamento demografico e crescente domanda di test specialistici, mentre l'azienda mantiene leadership in nicchie ad alto margine. Il segnale di acquisto deriva dalla combinazione di valutazioni attractive dopo il sell-off e fondamentali solidi in un settore difensivo che ben si complementa con il portafoglio esistente focalizzato su titoli ciclici. I rischi principali includono pressioni sui margini da concorrenza crescente, possibile rallentamento della domanda post-COVID per alcuni segmenti diagnostici e volatilità del settore healthcare in caso di tensioni geopolitiche.",
       "ai_pending": false
     },
     {
