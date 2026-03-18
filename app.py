@@ -421,14 +421,29 @@ def compute_health_score(df, mkt):
     if missing>0: components["Prezzi mancanti"]={"val":f"{missing} asset","pts":miss_pts}
     return max(0,min(100,round(score))), components
 
-def calc_position_size(portfolio_total_eur, current_price, stop_loss_price, risk_pct=1.0, fx_rate=1.0):
+def calc_position_size(portfolio_total_eur, current_price, stop_loss_price, risk_pct=1.0, fx_rate=1.0, max_position_pct=2.5):
+    """
+    Position sizing con doppio vincolo:
+    1) Rischio max = risk_pct% del portafoglio (default 1%)
+    2) Posizione max = max_position_pct% del portafoglio (default 2.5%)
+    Il piu restrittivo dei due vince.
+    """
     if not stop_loss_price or not current_price or current_price<=stop_loss_price: return None
     risk_eur=portfolio_total_eur*(risk_pct/100)
     risk_per_share=(current_price-stop_loss_price)/fx_rate
     if risk_per_share<=0: return None
-    n=max(1,int(risk_eur/risk_per_share))
+    # Calcola quote da rischio
+    n_by_risk=max(1,int(risk_eur/risk_per_share))
+    # Calcola quote massime per il cap percentuale
+    max_pos_eur=portfolio_total_eur*(max_position_pct/100)
+    n_by_cap=max(1,int(max_pos_eur*fx_rate/current_price))
+    # Prendi il minore
+    n=min(n_by_risk,n_by_cap)
     pos_eur=n*current_price/fx_rate
-    return {"n_shares":n,"risk_eur":risk_eur,"position_eur":pos_eur,"position_pct":pos_eur/portfolio_total_eur*100}
+    actual_risk=n*risk_per_share  # rischio reale con il cap applicato
+    return {"n_shares":n,"risk_eur":actual_risk,"position_eur":pos_eur,
+            "position_pct":pos_eur/portfolio_total_eur*100,
+            "capped":n<n_by_risk}  # True se il cap ha ridotto le quote
 
 @st.cache_data(ttl=86400)
 def get_fundamentals(ticker):
@@ -1259,6 +1274,29 @@ with tab3:
                     f'<div style="font-family:JetBrains Mono,monospace;font-size:1.6rem;font-weight:700;color:{_oclr};">{_ov}</div>' +
                     '</div>', unsafe_allow_html=True)
             st.markdown("")
+            # Testo narrativo riepilogativo
+            top3 = opps[:3]
+            if top3:
+                narrative_parts = []
+                for o in top3:
+                    rr_txt = "ottimo rapporto rischio/rendimento" if o["rr"]>=2 else "rapporto rischio/rendimento accettabile"
+                    sig_summary = o["signals"][0] if o["signals"] else "segnali tecnici positivi"
+                    narrative_parts.append(
+                        f'<b style="color:#60A5FA;">{o["nome"]} ({o["ticker"]})</b> — '
+                        f'ingresso ideale a <b>{o["ingresso"]:.2f}</b>, '
+                        f'target <b style="color:#10B981;">{o["target"]:.2f} (+{o["up_pct"]:.1f}%)</b>, '
+                        f'stop <b style="color:#EF4444;">{o["stop"]:.2f}</b>. '
+                        f'{sig_summary}. {rr_txt.capitalize()}.')
+                narrative_html = (
+                    '<div style="background:linear-gradient(135deg,#0D1526,#16213E);border:1px solid #2E4480;'
+                    'border-radius:10px;padding:1rem 1.2rem;margin-bottom:.8rem;">'
+                    '<div style="font-size:.65rem;font-weight:700;color:#3B82F6;text-transform:uppercase;'
+                    'letter-spacing:.08em;margin-bottom:.6rem;">Sintesi — cosa puoi considerare ora</div>'
+                    + "".join([f'<div style="font-size:.83rem;color:#94A3B8;line-height:1.7;padding:.3rem 0;'
+                               f'border-bottom:1px solid #1E2D47;">{p}</div>' for p in narrative_parts])
+                    + '</div>'
+                )
+                st.markdown(narrative_html, unsafe_allow_html=True)
             st.markdown('<div class="section-hd">Riepilogo opportunita</div>', unsafe_allow_html=True)
             tbl=[{"Score":"★"*min(o["score"],5),"Ticker":o["ticker"],"Nome":o["nome"][:20],
                   "Prezzo":f"{o['price']:.2f}","Ingresso":f"{o['ingresso']:.2f}",
@@ -1300,8 +1338,8 @@ with tab3:
 
     # ── TIMING DI INGRESSO ────────────────────────────────────────────────────
     with wt3:
-        st.markdown('<div class="section-hd">Timing di ingresso — e adesso e un buon momento per comprare?</div>', unsafe_allow_html=True)
-        st.caption("Analisi multi-timeframe per capire dove si trova il prezzo rispetto ai livelli storici. Solo per titoli NON in portafoglio.")
+        st.markdown('<div class="section-hd">Timing di ingresso — quando e come entrare su un titolo</div>', unsafe_allow_html=True)
+        st.caption("Analisi intraday con livelli precisi di ingresso e uscita. Funziona sia per operazioni swing (giorni) che intraday (ore).")
 
         # Seleziona titolo
         non_pf_items = [w for w in st.session_state.data["watchlist"]
@@ -1443,9 +1481,7 @@ with tab4:
         if cached:
             st.markdown(f'<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem .9rem;font-size:.75rem;color:#10B981;margin-bottom:.6rem;">Analisi del {cached_time} — clicca Aggiorna per rieseguire</div>', unsafe_allow_html=True)
 
-        if st.button("Avvia analisi multi-agente", key="btn_ai_full", use_container_width=True) or (not cached):
-            if not cached:
-                st.info("Prima analisi — avvio automatico in corso...")
+        if st.button("Avvia analisi multi-agente", key="btn_ai_full", use_container_width=True):
 
             # Prepara contesto
             pf_rows=[]
