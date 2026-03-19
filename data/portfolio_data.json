@@ -860,6 +860,20 @@
       "orizzonte": "medio termine",
       "note": "L'ETF agricolo beneficia delle tensioni geopolitiche globali che sostengono i prezzi delle commodities alimentari, con il portafoglio già ben esposto alle materie prime (12.8k EUR). Il segnale è neutrale considerando l'RSI elevato a 72 che indica ipercomprato nel breve termine, nonostante il momentum positivo del MACD. I rischi principali includono volatilità climatica, possibili riduzioni delle tensioni geopolitiche e correzione tecnica data la condizione di ipercomprato.",
       "ai_pending": false
+    },
+    {
+      "ticker": "INWIT",
+      "nome": "INW.MI",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "",
+      "ai_pending": false
     }
   ],
   "trade_history": [
