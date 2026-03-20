@@ -868,11 +868,11 @@
       "sorgente": "utente",
       "segnale": "COMPRA",
       "prezzo_target": 11.5,
-      "stop_loss": 8.5,
-      "ingresso": 9.2,
+      "stop_loss": 8.8,
+      "ingresso": 9.5,
       "strategia": null,
-      "orizzonte": "medio-lungo termine (12-18 mesi)",
-      "note": "INWIT beneficia della crescente domanda di infrastrutture digitali e del rollout 5G in Italia, con ricavi stabili e crescenti da contratti a lungo termine con operatori telefonici. Il titolo offre un dividendo attraente (~6%) e diversifica il portafoglio verso asset infrastrutturali difensivi, complementando le attuali posizioni azionarie più cicliche. I rischi principali includono possibili consolidamenti nel settore telecom che potrebbero ridurre la domanda, cambiamenti normativi sulle telecomunicazioni e potenziale pressione sui margini da competizione.",
+      "orizzonte": "12-18 mesi",
+      "note": "INWIT beneficia del boom delle telecomunicazioni 5G e della digitalizzazione accelerata, con ricavi stabili da contratti a lungo termine e rendimenti attrattivi da dividendo (~6%). Il titolo è sottovalutato rispetto ai peer europei e offre diversificazione settoriale al portafoglio che manca di esposizione alle infrastrutture digitali. I rischi principali includono possibili pressioni regolamentarie sui canoni delle torri, concorrenza da nuovi operatori infrastrutturali e sensibilità ai tassi di interesse per il modello REIT-like.",
       "ai_pending": false
     }
   ],
