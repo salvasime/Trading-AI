@@ -874,6 +874,20 @@
       "orizzonte": "12-18 mesi",
       "note": "INWIT beneficia del boom delle telecomunicazioni 5G e della digitalizzazione accelerata, con ricavi stabili da contratti a lungo termine e rendimenti attrattivi da dividendo (~6%). Il titolo è sottovalutato rispetto ai peer europei e offre diversificazione settoriale al portafoglio che manca di esposizione alle infrastrutture digitali. I rischi principali includono possibili pressioni regolamentarie sui canoni delle torri, concorrenza da nuovi operatori infrastrutturali e sensibilità ai tassi di interesse per il modello REIT-like.",
       "ai_pending": false
+    },
+    {
+      "ticker": "BEC.MI",
+      "nome": "B&C Speakers",
+      "categoria": "Azioni",
+      "sorgente": "utente",
+      "segnale": "MONITORA",
+      "prezzo_target": null,
+      "stop_loss": null,
+      "ingresso": null,
+      "strategia": null,
+      "orizzonte": null,
+      "note": "",
+      "ai_pending": false
     }
   ],
   "trade_history": [
